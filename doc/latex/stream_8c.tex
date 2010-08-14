@@ -1,0 +1,92 @@
+\hypertarget{stream_8c}{
+\section{stream.c File Reference}
+\label{stream_8c}\index{stream.c@{stream.c}}
+}
+{\ttfamily \#include \char`\"{}spp\_\-ai.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}uthash.h\char`\"{}}\par
+{\ttfamily \#include $<$stdio.h$>$}\par
+{\ttfamily \#include $<$stdlib.h$>$}\par
+{\ttfamily \#include $<$string.h$>$}\par
+{\ttfamily \#include $<$time.h$>$}\par
+{\ttfamily \#include $<$unistd.h$>$}\par
+{\ttfamily \#include $<$arpa/inet.h$>$}\par
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structpkt__key}{pkt\_\-key}
+\item 
+struct \hyperlink{structpkt__info}{pkt\_\-info}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{stream_8c_a2a0c295a6828df716311977538cabd4a}{\_\-AI\_\-stream\_\-free} (struct \hyperlink{structpkt__info}{pkt\_\-info} $\ast$stream)
+\begin{DoxyCompactList}\small\item\em Remove a stream from the hash table (private function). \item\end{DoxyCompactList}\item 
+void $\ast$ \hyperlink{stream_8c_a24b1131374e5059564b8a12380c4eb75}{AI\_\-hashcleanup\_\-thread} (void $\ast$arg)
+\begin{DoxyCompactList}\small\item\em Thread called for cleaning up the hash table from the traffic streams older than a certain threshold. \item\end{DoxyCompactList}\item 
+void \hyperlink{stream_8c_a7d71c5645b9baff7b6c4b9a181bf80c5}{AI\_\-pkt\_\-enqueue} (SFSnortPacket $\ast$pkt)
+\begin{DoxyCompactList}\small\item\em Function called for appending a new packet to the hash table, creating a new stream or appending it to an existing stream. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static struct \hyperlink{structpkt__info}{pkt\_\-info} $\ast$ \hyperlink{stream_8c_a96fbc549c67e0d852ced3cb72980e923}{hash} = NULL
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{stream_8c_a2a0c295a6828df716311977538cabd4a}{
+\index{stream.c@{stream.c}!\_\-AI\_\-stream\_\-free@{\_\-AI\_\-stream\_\-free}}
+\index{\_\-AI\_\-stream\_\-free@{\_\-AI\_\-stream\_\-free}!stream.c@{stream.c}}
+\subsubsection[{\_\-AI\_\-stream\_\-free}]{\setlength{\rightskip}{0pt plus 5cm}static void \_\-AI\_\-stream\_\-free (
+\begin{DoxyParamCaption}
+\item[{struct {\bf pkt\_\-info} $\ast$}]{ stream}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{stream_8c_a2a0c295a6828df716311977538cabd4a}
+
+
+Remove a stream from the hash table (private function). 
+
+FUNCTION: \_\-AI\_\-stream\_\-free 
+\begin{DoxyParams}{Parameters}
+\item[{\em stream}]Stream to be removed \end{DoxyParams}
+\hypertarget{stream_8c_a24b1131374e5059564b8a12380c4eb75}{
+\index{stream.c@{stream.c}!AI\_\-hashcleanup\_\-thread@{AI\_\-hashcleanup\_\-thread}}
+\index{AI\_\-hashcleanup\_\-thread@{AI\_\-hashcleanup\_\-thread}!stream.c@{stream.c}}
+\subsubsection[{AI\_\-hashcleanup\_\-thread}]{\setlength{\rightskip}{0pt plus 5cm}void$\ast$ AI\_\-hashcleanup\_\-thread (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{ arg}
+\end{DoxyParamCaption}
+)}}
+\label{stream_8c_a24b1131374e5059564b8a12380c4eb75}
+
+
+Thread called for cleaning up the hash table from the traffic streams older than a certain threshold. 
+
+FUNCTION: AI\_\-hashcleanup\_\-thread 
+\begin{DoxyParams}{Parameters}
+\item[{\em arg}]Pointer to the AI\_\-config struct \end{DoxyParams}
+\hypertarget{stream_8c_a7d71c5645b9baff7b6c4b9a181bf80c5}{
+\index{stream.c@{stream.c}!AI\_\-pkt\_\-enqueue@{AI\_\-pkt\_\-enqueue}}
+\index{AI\_\-pkt\_\-enqueue@{AI\_\-pkt\_\-enqueue}!stream.c@{stream.c}}
+\subsubsection[{AI\_\-pkt\_\-enqueue}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-pkt\_\-enqueue (
+\begin{DoxyParamCaption}
+\item[{SFSnortPacket $\ast$}]{ pkt}
+\end{DoxyParamCaption}
+)}}
+\label{stream_8c_a7d71c5645b9baff7b6c4b9a181bf80c5}
+
+
+Function called for appending a new packet to the hash table, creating a new stream or appending it to an existing stream. 
+
+FUNCTION: AI\_\-pkt\_\-enqueue 
+\begin{DoxyParams}{Parameters}
+\item[{\em pkt}]Packet to be appended \end{DoxyParams}
+
+
+\subsection{Variable Documentation}
+\hypertarget{stream_8c_a96fbc549c67e0d852ced3cb72980e923}{
+\index{stream.c@{stream.c}!hash@{hash}}
+\index{hash@{hash}!stream.c@{stream.c}}
+\subsubsection[{hash}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf pkt\_\-info}$\ast$ {\bf hash} = NULL\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{stream_8c_a96fbc549c67e0d852ced3cb72980e923}

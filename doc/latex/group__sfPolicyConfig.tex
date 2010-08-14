@@ -1,0 +1,85 @@
+\hypertarget{group__sfPolicyConfig}{
+\section{Sourcefire policy configuration module}
+\label{group__sfPolicyConfig}\index{Sourcefire policy configuration module@{Sourcefire policy configuration module}}
+}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+tSfPolicyUserContextId \hyperlink{group__sfPolicyConfig_gac62cd5838bee4a9d3f40561eae920cdd}{sfPolicyConfigCreate} (void)
+\item 
+void \hyperlink{group__sfPolicyConfig_ga189d09ed6d1203ebace6ea2c2aafc1b8}{sfPolicyConfigDelete} (tSfPolicyUserContextId pContext)
+\item 
+int \hyperlink{group__sfPolicyConfig_ga8e14fd83397b9bbb14568070183db80b}{sfPolicyUserDataSet} (tSfPolicyUserContextId pContext, tSfPolicyId policyId, void $\ast$config)
+\item 
+void $\ast$ \hyperlink{group__sfPolicyConfig_gae8f2ae426b1f1a50eabfade6d22c2c85}{sfPolicyUserDataClear} (tSfPolicyUserContextId pContext, tSfPolicyId policyId)
+\item 
+int \hyperlink{group__sfPolicyConfig_ga3f3ab9314d29d2ee2a8285289b388f17}{sfPolicyUserDataIterate} (tSfPolicyUserContextId pContext, int($\ast$callback)(tSfPolicyUserContextId pContext, tSfPolicyId policyId, void $\ast$config))
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Create a user policy configuration context. A context provides facility for creating policy specific data instances. User can create as many policy instances as memory resources will allow. User can create/delete context, set/clear/get user date for a specific policy, default policy or current policy. User can also iterate over all instances user data.
+
+In current design, preprocessor use this module directly to manage policy specific data instances. A future enhancement can be to extract policy management code from each processor and put it in a new policy management module. Policy management module will set a single pointer to user data before calling appropriate callback function in a preprocessor. As an example, policy module will iterate over all policies and call CleanExit functions in every preprocessor for each policy. This will make policy management module will hide policies from preprocessors and make them policy agnostic. 
+
+\subsection{Function Documentation}
+\hypertarget{group__sfPolicyConfig_gac62cd5838bee4a9d3f40561eae920cdd}{
+\index{sfPolicyConfig@{sfPolicyConfig}!sfPolicyConfigCreate@{sfPolicyConfigCreate}}
+\index{sfPolicyConfigCreate@{sfPolicyConfigCreate}!sfPolicyConfig@{sfPolicyConfig}}
+\subsubsection[{sfPolicyConfigCreate}]{\setlength{\rightskip}{0pt plus 5cm}tSfPolicyUserContextId sfPolicyConfigCreate (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}}
+\label{group__sfPolicyConfig_gac62cd5838bee4a9d3f40561eae920cdd}
+Create a user context. Allocates a new context and return it to user. All transactions within a context are independent from any other transactions in a different context.
+
+\begin{DoxyReturn}{Returns}
+tSfPolicyUserContextId 
+\end{DoxyReturn}
+\hypertarget{group__sfPolicyConfig_ga189d09ed6d1203ebace6ea2c2aafc1b8}{
+\index{sfPolicyConfig@{sfPolicyConfig}!sfPolicyConfigDelete@{sfPolicyConfigDelete}}
+\index{sfPolicyConfigDelete@{sfPolicyConfigDelete}!sfPolicyConfig@{sfPolicyConfig}}
+\subsubsection[{sfPolicyConfigDelete}]{\setlength{\rightskip}{0pt plus 5cm}void sfPolicyConfigDelete (
+\begin{DoxyParamCaption}
+\item[{tSfPolicyUserContextId}]{ pContext}
+\end{DoxyParamCaption}
+)}}
+\label{group__sfPolicyConfig_ga189d09ed6d1203ebace6ea2c2aafc1b8}
+Delete a user policy data context. 
+\begin{DoxyParams}{Parameters}
+\item[{\em pContext}]\end{DoxyParams}
+\hypertarget{group__sfPolicyConfig_gae8f2ae426b1f1a50eabfade6d22c2c85}{
+\index{sfPolicyConfig@{sfPolicyConfig}!sfPolicyUserDataClear@{sfPolicyUserDataClear}}
+\index{sfPolicyUserDataClear@{sfPolicyUserDataClear}!sfPolicyConfig@{sfPolicyConfig}}
+\subsubsection[{sfPolicyUserDataClear}]{\setlength{\rightskip}{0pt plus 5cm}void$\ast$ sfPolicyUserDataClear (
+\begin{DoxyParamCaption}
+\item[{tSfPolicyUserContextId}]{ pContext, }
+\item[{tSfPolicyId}]{ policyId}
+\end{DoxyParamCaption}
+)}}
+\label{group__sfPolicyConfig_gae8f2ae426b1f1a50eabfade6d22c2c85}
+user is responsible for freeing any memory. \hypertarget{group__sfPolicyConfig_ga3f3ab9314d29d2ee2a8285289b388f17}{
+\index{sfPolicyConfig@{sfPolicyConfig}!sfPolicyUserDataIterate@{sfPolicyUserDataIterate}}
+\index{sfPolicyUserDataIterate@{sfPolicyUserDataIterate}!sfPolicyConfig@{sfPolicyConfig}}
+\subsubsection[{sfPolicyUserDataIterate}]{\setlength{\rightskip}{0pt plus 5cm}int sfPolicyUserDataIterate (
+\begin{DoxyParamCaption}
+\item[{tSfPolicyUserContextId}]{ pContext, }
+\item[{int($\ast$)(tSfPolicyUserContextId pContext, tSfPolicyId policyId, void $\ast$config)}]{ callback}
+\end{DoxyParamCaption}
+)}}
+\label{group__sfPolicyConfig_ga3f3ab9314d29d2ee2a8285289b388f17}
+\hypertarget{group__sfPolicyConfig_ga8e14fd83397b9bbb14568070183db80b}{
+\index{sfPolicyConfig@{sfPolicyConfig}!sfPolicyUserDataSet@{sfPolicyUserDataSet}}
+\index{sfPolicyUserDataSet@{sfPolicyUserDataSet}!sfPolicyConfig@{sfPolicyConfig}}
+\subsubsection[{sfPolicyUserDataSet}]{\setlength{\rightskip}{0pt plus 5cm}int sfPolicyUserDataSet (
+\begin{DoxyParamCaption}
+\item[{tSfPolicyUserContextId}]{ pContext, }
+\item[{tSfPolicyId}]{ policyId, }
+\item[{void $\ast$}]{ config}
+\end{DoxyParamCaption}
+)}}
+\label{group__sfPolicyConfig_ga8e14fd83397b9bbb14568070183db80b}
+Store a pointer to user data. 
+\begin{DoxyParams}{Parameters}
+\item[{\em pContext}]\item[{\em policyId}]is 0 based. \item[{\em config}]-\/ pointer to user configuration. \end{DoxyParams}

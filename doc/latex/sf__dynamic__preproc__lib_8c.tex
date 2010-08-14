@@ -1,0 +1,69 @@
+\hypertarget{sf__dynamic__preproc__lib_8c}{
+\section{sf\_\-dynamic\_\-preproc\_\-lib.c File Reference}
+\label{sf__dynamic__preproc__lib_8c}\index{sf\_\-dynamic\_\-preproc\_\-lib.c@{sf\_\-dynamic\_\-preproc\_\-lib.c}}
+}
+{\ttfamily \#include \char`\"{}sf\_\-preproc\_\-info.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}sf\_\-snort\_\-packet.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}sf\_\-dynamic\_\-preproc\_\-lib.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}sf\_\-dynamic\_\-meta.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}sf\_\-dynamic\_\-preprocessor.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}sf\_\-dynamic\_\-common.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}sf\_\-dynamic\_\-define.h\char`\"{}}\par
+{\ttfamily \#include $<$stdio.h$>$}\par
+{\ttfamily \#include $<$string.h$>$}\par
+{\ttfamily \#include $<$ctype.h$>$}\par
+{\ttfamily \#include $<$stdarg.h$>$}\par
+{\ttfamily \#include $<$stdlib.h$>$}\par
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+NORETURN void \hyperlink{sf__dynamic__preproc__lib_8c_a57c853c0f626bde2af6619cdeeb7471b}{DynamicPreprocessorFatalMessage} (const char $\ast$format,...)
+\item 
+PREPROC\_\-LINKAGE int \hyperlink{sf__dynamic__preproc__lib_8c_a16439ea02cc5c66c842c21c5b537b1d9}{InitializePreprocessor} (DynamicPreprocessorData $\ast$dpd)
+\item 
+PREPROC\_\-LINKAGE int \hyperlink{sf__dynamic__preproc__lib_8c_a06d857402af54fb10872f43051e86494}{LibVersion} (DynamicPluginMeta $\ast$dpm)
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+DynamicPreprocessorData \hyperlink{sf__dynamic__preproc__lib_8c_ab46420126c43c1aac5eabc5db266a71c}{\_\-dpd}
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{sf__dynamic__preproc__lib_8c_a57c853c0f626bde2af6619cdeeb7471b}{
+\index{sf\_\-dynamic\_\-preproc\_\-lib.c@{sf\_\-dynamic\_\-preproc\_\-lib.c}!DynamicPreprocessorFatalMessage@{DynamicPreprocessorFatalMessage}}
+\index{DynamicPreprocessorFatalMessage@{DynamicPreprocessorFatalMessage}!sf_dynamic_preproc_lib.c@{sf\_\-dynamic\_\-preproc\_\-lib.c}}
+\subsubsection[{DynamicPreprocessorFatalMessage}]{\setlength{\rightskip}{0pt plus 5cm}NORETURN void DynamicPreprocessorFatalMessage (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{ format, }
+\item[{}]{ ...}
+\end{DoxyParamCaption}
+)}}
+\label{sf__dynamic__preproc__lib_8c_a57c853c0f626bde2af6619cdeeb7471b}
+\hypertarget{sf__dynamic__preproc__lib_8c_a16439ea02cc5c66c842c21c5b537b1d9}{
+\index{sf\_\-dynamic\_\-preproc\_\-lib.c@{sf\_\-dynamic\_\-preproc\_\-lib.c}!InitializePreprocessor@{InitializePreprocessor}}
+\index{InitializePreprocessor@{InitializePreprocessor}!sf_dynamic_preproc_lib.c@{sf\_\-dynamic\_\-preproc\_\-lib.c}}
+\subsubsection[{InitializePreprocessor}]{\setlength{\rightskip}{0pt plus 5cm}PREPROC\_\-LINKAGE int InitializePreprocessor (
+\begin{DoxyParamCaption}
+\item[{DynamicPreprocessorData $\ast$}]{ dpd}
+\end{DoxyParamCaption}
+)}}
+\label{sf__dynamic__preproc__lib_8c_a16439ea02cc5c66c842c21c5b537b1d9}
+\hypertarget{sf__dynamic__preproc__lib_8c_a06d857402af54fb10872f43051e86494}{
+\index{sf\_\-dynamic\_\-preproc\_\-lib.c@{sf\_\-dynamic\_\-preproc\_\-lib.c}!LibVersion@{LibVersion}}
+\index{LibVersion@{LibVersion}!sf_dynamic_preproc_lib.c@{sf\_\-dynamic\_\-preproc\_\-lib.c}}
+\subsubsection[{LibVersion}]{\setlength{\rightskip}{0pt plus 5cm}PREPROC\_\-LINKAGE int LibVersion (
+\begin{DoxyParamCaption}
+\item[{DynamicPluginMeta $\ast$}]{ dpm}
+\end{DoxyParamCaption}
+)}}
+\label{sf__dynamic__preproc__lib_8c_a06d857402af54fb10872f43051e86494}
+
+
+\subsection{Variable Documentation}
+\hypertarget{sf__dynamic__preproc__lib_8c_ab46420126c43c1aac5eabc5db266a71c}{
+\index{sf\_\-dynamic\_\-preproc\_\-lib.c@{sf\_\-dynamic\_\-preproc\_\-lib.c}!\_\-dpd@{\_\-dpd}}
+\index{\_\-dpd@{\_\-dpd}!sf_dynamic_preproc_lib.c@{sf\_\-dynamic\_\-preproc\_\-lib.c}}
+\subsubsection[{\_\-dpd}]{\setlength{\rightskip}{0pt plus 5cm}DynamicPreprocessorData {\bf \_\-dpd}}}
+\label{sf__dynamic__preproc__lib_8c_ab46420126c43c1aac5eabc5db266a71c}

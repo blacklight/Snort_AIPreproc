@@ -1,0 +1,156 @@
+\hypertarget{spp__ai_8c}{
+\section{spp\_\-ai.c File Reference}
+\label{spp__ai_8c}\index{spp\_\-ai.c@{spp\_\-ai.c}}
+}
+{\ttfamily \#include \char`\"{}spp\_\-ai.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}preprocids.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}sf\_\-dynamic\_\-preproc\_\-lib.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}sf\_\-dynamic\_\-preprocessor.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}debug.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}sfPolicy.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}sfPolicyUserData.h\char`\"{}}\par
+{\ttfamily \#include $<$sys/types.h$>$}\par
+{\ttfamily \#include $<$stdlib.h$>$}\par
+{\ttfamily \#include $<$ctype.h$>$}\par
+{\ttfamily \#include $<$string.h$>$}\par
+{\ttfamily \#include $<$pthread.h$>$}\par
+\subsection*{Defines}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{spp__ai_8c_a9e7d446fc8b40be2cfbb5c69c3e132ca}{GENERATOR\_\-EXAMPLE}~256
+\item 
+\#define \hyperlink{spp__ai_8c_af4c767ae0346026264c851108f42be63}{SRC\_\-PORT\_\-MATCH}~1
+\item 
+\#define \hyperlink{spp__ai_8c_a3ec4dd8f1ebed73c13175d9b9c820e2e}{SRC\_\-PORT\_\-MATCH\_\-STR}~\char`\"{}example\_\-preprocessor: src port match\char`\"{}
+\item 
+\#define \hyperlink{spp__ai_8c_a8ab13e8ad1dfd19b9237a99ae6130146}{DST\_\-PORT\_\-MATCH}~2
+\item 
+\#define \hyperlink{spp__ai_8c_a1f3521b9bcf5daf99190be58473a4110}{DST\_\-PORT\_\-MATCH\_\-STR}~\char`\"{}example\_\-preprocessor: dest port match\char`\"{}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static void \hyperlink{spp__ai_8c_a3524cbdf8fddbcf38c4ed55241002242}{AI\_\-init} (char $\ast$args)
+\begin{DoxyCompactList}\small\item\em Initialize the preprocessor module. \item\end{DoxyCompactList}\item 
+static void \hyperlink{spp__ai_8c_a57c05cda012c443cb4c358dc327cd3d1}{AI\_\-process} (void $\ast$pkt, void $\ast$context)
+\begin{DoxyCompactList}\small\item\em Function executed every time the module receives a packet to be processed. \item\end{DoxyCompactList}\item 
+static \hyperlink{struct__AI__config}{AI\_\-config} $\ast$ \hyperlink{spp__ai_8c_ae1c5c4b38ee2819d427848eb3046373e}{AI\_\-parse} (char $\ast$args)
+\begin{DoxyCompactList}\small\item\em Parse the arguments passed to the module saving them to a valid configuration struct. \item\end{DoxyCompactList}\item 
+void \hyperlink{spp__ai_8c_a1b9ebb5c719c7d9426ddfc1f3da36570}{AI\_\-setup} (void)
+\begin{DoxyCompactList}\small\item\em Set up the preprocessor module. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+tSfPolicyUserContextId \hyperlink{spp__ai_8c_a3dd75596c540d148643fe6d1fdc02628}{ex\_\-config} = NULL
+\item 
+DynamicPreprocessorData \hyperlink{spp__ai_8c_ab46420126c43c1aac5eabc5db266a71c}{\_\-dpd}
+\end{DoxyCompactItemize}
+
+
+\subsection{Define Documentation}
+\hypertarget{spp__ai_8c_a8ab13e8ad1dfd19b9237a99ae6130146}{
+\index{spp\_\-ai.c@{spp\_\-ai.c}!DST\_\-PORT\_\-MATCH@{DST\_\-PORT\_\-MATCH}}
+\index{DST\_\-PORT\_\-MATCH@{DST\_\-PORT\_\-MATCH}!spp_ai.c@{spp\_\-ai.c}}
+\subsubsection[{DST\_\-PORT\_\-MATCH}]{\setlength{\rightskip}{0pt plus 5cm}\#define DST\_\-PORT\_\-MATCH~2}}
+\label{spp__ai_8c_a8ab13e8ad1dfd19b9237a99ae6130146}
+\hypertarget{spp__ai_8c_a1f3521b9bcf5daf99190be58473a4110}{
+\index{spp\_\-ai.c@{spp\_\-ai.c}!DST\_\-PORT\_\-MATCH\_\-STR@{DST\_\-PORT\_\-MATCH\_\-STR}}
+\index{DST\_\-PORT\_\-MATCH\_\-STR@{DST\_\-PORT\_\-MATCH\_\-STR}!spp_ai.c@{spp\_\-ai.c}}
+\subsubsection[{DST\_\-PORT\_\-MATCH\_\-STR}]{\setlength{\rightskip}{0pt plus 5cm}\#define DST\_\-PORT\_\-MATCH\_\-STR~\char`\"{}example\_\-preprocessor: dest port match\char`\"{}}}
+\label{spp__ai_8c_a1f3521b9bcf5daf99190be58473a4110}
+\hypertarget{spp__ai_8c_a9e7d446fc8b40be2cfbb5c69c3e132ca}{
+\index{spp\_\-ai.c@{spp\_\-ai.c}!GENERATOR\_\-EXAMPLE@{GENERATOR\_\-EXAMPLE}}
+\index{GENERATOR\_\-EXAMPLE@{GENERATOR\_\-EXAMPLE}!spp_ai.c@{spp\_\-ai.c}}
+\subsubsection[{GENERATOR\_\-EXAMPLE}]{\setlength{\rightskip}{0pt plus 5cm}\#define GENERATOR\_\-EXAMPLE~256}}
+\label{spp__ai_8c_a9e7d446fc8b40be2cfbb5c69c3e132ca}
+\hypertarget{spp__ai_8c_af4c767ae0346026264c851108f42be63}{
+\index{spp\_\-ai.c@{spp\_\-ai.c}!SRC\_\-PORT\_\-MATCH@{SRC\_\-PORT\_\-MATCH}}
+\index{SRC\_\-PORT\_\-MATCH@{SRC\_\-PORT\_\-MATCH}!spp_ai.c@{spp\_\-ai.c}}
+\subsubsection[{SRC\_\-PORT\_\-MATCH}]{\setlength{\rightskip}{0pt plus 5cm}\#define SRC\_\-PORT\_\-MATCH~1}}
+\label{spp__ai_8c_af4c767ae0346026264c851108f42be63}
+\hypertarget{spp__ai_8c_a3ec4dd8f1ebed73c13175d9b9c820e2e}{
+\index{spp\_\-ai.c@{spp\_\-ai.c}!SRC\_\-PORT\_\-MATCH\_\-STR@{SRC\_\-PORT\_\-MATCH\_\-STR}}
+\index{SRC\_\-PORT\_\-MATCH\_\-STR@{SRC\_\-PORT\_\-MATCH\_\-STR}!spp_ai.c@{spp\_\-ai.c}}
+\subsubsection[{SRC\_\-PORT\_\-MATCH\_\-STR}]{\setlength{\rightskip}{0pt plus 5cm}\#define SRC\_\-PORT\_\-MATCH\_\-STR~\char`\"{}example\_\-preprocessor: src port match\char`\"{}}}
+\label{spp__ai_8c_a3ec4dd8f1ebed73c13175d9b9c820e2e}
+
+
+\subsection{Function Documentation}
+\hypertarget{spp__ai_8c_a3524cbdf8fddbcf38c4ed55241002242}{
+\index{spp\_\-ai.c@{spp\_\-ai.c}!AI\_\-init@{AI\_\-init}}
+\index{AI\_\-init@{AI\_\-init}!spp_ai.c@{spp\_\-ai.c}}
+\subsubsection[{AI\_\-init}]{\setlength{\rightskip}{0pt plus 5cm}static void AI\_\-init (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{ args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{spp__ai_8c_a3524cbdf8fddbcf38c4ed55241002242}
+
+
+Initialize the preprocessor module. 
+
+FUNCTION: AI\_\-init 
+\begin{DoxyParams}{Parameters}
+\item[{\em args}]Configuration arguments passed to the module \end{DoxyParams}
+\hypertarget{spp__ai_8c_ae1c5c4b38ee2819d427848eb3046373e}{
+\index{spp\_\-ai.c@{spp\_\-ai.c}!AI\_\-parse@{AI\_\-parse}}
+\index{AI\_\-parse@{AI\_\-parse}!spp_ai.c@{spp\_\-ai.c}}
+\subsubsection[{AI\_\-parse}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf AI\_\-config} $\ast$ AI\_\-parse (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{ args}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{spp__ai_8c_ae1c5c4b38ee2819d427848eb3046373e}
+
+
+Parse the arguments passed to the module saving them to a valid configuration struct. 
+
+FUNCTION: AI\_\-config 
+\begin{DoxyParams}{Parameters}
+\item[{\em args}]Arguments passed to the module \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Pointer to AI\_\-config keeping the configuration for the module 
+\end{DoxyReturn}
+\hypertarget{spp__ai_8c_a57c05cda012c443cb4c358dc327cd3d1}{
+\index{spp\_\-ai.c@{spp\_\-ai.c}!AI\_\-process@{AI\_\-process}}
+\index{AI\_\-process@{AI\_\-process}!spp_ai.c@{spp\_\-ai.c}}
+\subsubsection[{AI\_\-process}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-process (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{ pkt, }
+\item[{void $\ast$}]{ context}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
+\label{spp__ai_8c_a57c05cda012c443cb4c358dc327cd3d1}
+
+
+Function executed every time the module receives a packet to be processed. 
+
+FUNCTION: AI\_\-process 
+\begin{DoxyParams}{Parameters}
+\item[{\em pkt}]void$\ast$ pointer to the packet data \item[{\em context}]void$\ast$ pointer to the context \end{DoxyParams}
+\hypertarget{spp__ai_8c_a1b9ebb5c719c7d9426ddfc1f3da36570}{
+\index{spp\_\-ai.c@{spp\_\-ai.c}!AI\_\-setup@{AI\_\-setup}}
+\index{AI\_\-setup@{AI\_\-setup}!spp_ai.c@{spp\_\-ai.c}}
+\subsubsection[{AI\_\-setup}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-setup (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}}
+\label{spp__ai_8c_a1b9ebb5c719c7d9426ddfc1f3da36570}
+
+
+Set up the preprocessor module. 
+
+FUNCTION: AI\_\-setup 
+
+\subsection{Variable Documentation}
+\hypertarget{spp__ai_8c_ab46420126c43c1aac5eabc5db266a71c}{
+\index{spp\_\-ai.c@{spp\_\-ai.c}!\_\-dpd@{\_\-dpd}}
+\index{\_\-dpd@{\_\-dpd}!spp_ai.c@{spp\_\-ai.c}}
+\subsubsection[{\_\-dpd}]{\setlength{\rightskip}{0pt plus 5cm}DynamicPreprocessorData {\bf \_\-dpd}}}
+\label{spp__ai_8c_ab46420126c43c1aac5eabc5db266a71c}
+\hypertarget{spp__ai_8c_a3dd75596c540d148643fe6d1fdc02628}{
+\index{spp\_\-ai.c@{spp\_\-ai.c}!ex\_\-config@{ex\_\-config}}
+\index{ex\_\-config@{ex\_\-config}!spp_ai.c@{spp\_\-ai.c}}
+\subsubsection[{ex\_\-config}]{\setlength{\rightskip}{0pt plus 5cm}tSfPolicyUserContextId {\bf ex\_\-config} = NULL}}
+\label{spp__ai_8c_a3dd75596c540d148643fe6d1fdc02628}
