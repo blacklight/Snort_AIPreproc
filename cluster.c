@@ -18,17 +18,99 @@
  */
 
 #include	"spp_ai.h"
+
 #include	<stdio.h>
 #include	<unistd.h>
+#include	<limits.h>
 #include	<pthread.h>
 
-PRIVATE hierarchy_node *src_port_root = NULL;
-PRIVATE hierarchy_node *src_addr_root = NULL;
-PRIVATE hierarchy_node *dst_port_root = NULL;
-PRIVATE hierarchy_node *dst_addr_root = NULL;
-PRIVATE AI_config      *_config       = NULL;
-PRIVATE AI_snort_alert *alert_log     = NULL;
+/* Identifier key for a cluster attribute value */
+typedef struct  {
+	int min;
+	int max;
+} attribute_key;
 
+/* Representation of a cluster attribute value */
+typedef struct  {
+	attribute_key   key;
+	cluster_type    type;
+	unsigned int    count;
+	UT_hash_handle  hh;
+} attribute_value;
+
+
+PRIVATE hierarchy_node *h_root[CLUSTER_TYPES] = { NULL };
+PRIVATE AI_config      *_config               = NULL;
+PRIVATE AI_snort_alert *alert_log             = NULL;
+
+
+/**
+ * FUNCTION: _heuristic_func
+ * \brief  Function that picks up the heuristic value for a clustering attribute in according to Julisch's heuristic (ACM, Vol.2, No.3, 09 2002, pag.124)
+ * \param  type 	Attribute type
+ * \return The heuristic coefficient for that attribute, -1 if no clustering information is available for that attribute
+ */
+
+PRIVATE int
+_heuristic_func ( cluster_type type )
+{
+	AI_snort_alert  *alert_iterator;
+	attribute_key   key;
+	attribute_value *values = NULL;
+	attribute_value *value  = NULL;
+	attribute_value *found  = NULL;
+	int             max     = 0;
+	
+	if ( type == none || !alert_log || !h_root[type] )
+		return -1;
+
+	for ( alert_iterator = alert_log; alert_iterator; alert_iterator = alert_iterator->next )
+	{
+		if ( !alert_iterator->h_node[type] )
+			continue;
+
+		key.min = alert_iterator->h_node[type]->min_val;
+		key.max = alert_iterator->h_node[type]->max_val;
+
+		if ( values )
+		{
+			HASH_FIND ( hh, values, &key, sizeof ( attribute_key ), found );
+		}
+
+		if ( !found )
+		{
+			if ( !( value = ( attribute_value* ) malloc ( sizeof ( attribute_value )) ))
+			{
+				_dpd.fatalMsg ( "Fatal dynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+			}
+
+			memset ( value, 0, sizeof ( attribute_value ));
+			value->key   = key;
+			value->type  = type;
+			value->count = 1;
+			HASH_ADD ( hh, values, key, sizeof ( attribute_key ), value );
+		} else {
+			found->count++;
+		}
+	}
+
+	for ( value = values; value; value = ( attribute_value* ) value->hh.next )
+	{
+		if ( value->count > max )
+		{
+			max = value->count;
+		}
+	}
+
+	while ( values )
+	{
+		value = values;
+		HASH_DEL ( values, value );
+		free ( value );
+	}
+
+	return max;
+}		/* -----  end of function _heuristic_func  ----- */
 
 /**
  * FUNCTION: _hierarchy_node_new
@@ -137,6 +219,158 @@ _AI_get_min_hierarchy_node ( int val, hierarchy_node *root )
 }		/* -----  end of function _AI_get_min_hierarchy_node  ----- */
 
 /**
+ * FUNCTION: _AI_equal_alarms
+ * \brief  Check if two alerts are semantically equal
+ * \param  a1 	First alert
+ * \param  a2 	Second alert
+ * \return True if they are equal, false otherwise
+ */
+
+PRIVATE BOOL
+_AI_equal_alarms ( AI_snort_alert *a1, AI_snort_alert *a2 )
+{
+	if ( a1->gid != a2->gid || a1->sid != a2->sid || a1->rev != a2->rev )
+	{
+		return false;
+	}
+
+	if ( a1->h_node[src_addr] && a2->h_node[src_addr] )
+	{
+		if ( a1->h_node[src_addr]->min_val != a2->h_node[src_addr]->min_val ||
+				a1->h_node[src_addr]->max_val != a2->h_node[src_addr]->max_val )
+			return false;
+	}
+
+	if ( a1->h_node[dst_addr] && a2->h_node[dst_addr] )
+	{
+		if ( a1->h_node[dst_addr]->min_val != a2->h_node[dst_addr]->min_val ||
+				a1->h_node[dst_addr]->max_val != a2->h_node[dst_addr]->max_val )
+			return false;
+	}
+
+	if ( a1->h_node[src_port] && a2->h_node[src_port] )
+	{
+		if ( a1->h_node[src_port]->min_val != a2->h_node[src_port]->min_val ||
+				a1->h_node[src_port]->max_val != a2->h_node[src_port]->max_val )
+			return false;
+	}
+
+	if ( a1->h_node[dst_port] && a2->h_node[dst_port] )
+	{
+		if ( a1->h_node[dst_port]->min_val != a2->h_node[dst_port]->min_val ||
+				a1->h_node[dst_port]->max_val != a2->h_node[dst_port]->max_val )
+			return false;
+	}
+
+	return true;
+}		/* -----  end of function _AI_equal_alarms  ----- */
+
+
+/**
+ * FUNCTION: _AI_merge_alerts
+ * \brief  Merge the alerts marked as equal in the log
+ * \param  log 	Alert log reference
+ * \return The number of merged couples
+ */
+
+PRIVATE int
+_AI_merge_alerts ( AI_snort_alert **log )
+{
+	AI_snort_alert *tmp, *tmp2, *tmp3;
+	int count = 0;
+
+	for ( tmp = *log; tmp; tmp = tmp->next )
+	{
+		for ( tmp2 = *log; tmp2; )
+		{
+			if ( tmp2->next )
+			{
+				if ( tmp != tmp2->next )
+				{
+					if ( _AI_equal_alarms ( tmp, tmp2->next ))
+					{
+						tmp3 = tmp2->next->next;
+						free ( tmp2->next );
+						tmp2->next = tmp3;
+
+						tmp->grouped_alarms_count++;
+						count++;
+					}
+				}
+
+				tmp2 = tmp2->next;
+			} else
+				break;
+		}
+	}
+
+	return count;
+}		/* -----  end of function _AI_merge_alerts  ----- */
+
+
+/**
+ * FUNCTION: _AI_print_clustered_alerts
+ * \brief  Print the clustered alerts to a log file
+ * \param  log 	Log containing the alerts
+ * \param  fp 		File pointer where the alerts will be printed
+ */
+
+PRIVATE void
+_AI_print_clustered_alerts ( AI_snort_alert *log, FILE *fp )
+{
+	AI_snort_alert *tmp;
+	char ip[INET_ADDRSTRLEN];
+	char *timestamp;
+
+	for ( tmp = log; tmp; tmp = tmp->next )
+	{
+		fprintf ( fp, "[**] [%d:%d:%d] %s [**]\n", tmp->gid, tmp->sid, tmp->rev, tmp->desc );
+
+		if ( tmp->classification )
+			fprintf ( fp, "[Classification: %s] ", tmp->classification );
+
+		fprintf ( fp, "[Priority: %d]\n", tmp->priority );
+
+		timestamp = ctime ( &tmp->timestamp );
+		timestamp[ strlen(timestamp)-1 ] = 0;
+		fprintf ( fp, "[Grouped alerts: %d] [Starting from: %s]\n", tmp->grouped_alarms_count, timestamp );
+
+		if ( h_root[src_addr] )
+		{
+			fprintf ( fp, "[%s]:", tmp->h_node[src_addr]->label );
+		} else {
+			inet_ntop ( AF_INET, &(tmp->src_addr), ip, INET_ADDRSTRLEN );
+			fprintf ( fp, "%s:", ip );
+		}
+
+		if ( h_root[src_port] )
+		{
+			fprintf ( fp, "[%s] -> ", tmp->h_node[src_port]->label );
+		} else {
+			fprintf ( fp, "%d -> ", htons ( tmp->src_port ));
+		}
+
+		if ( h_root[dst_addr] )
+		{
+			fprintf ( fp, "[%s]:", tmp->h_node[dst_addr]->label );
+		} else {
+			inet_ntop ( AF_INET, &(tmp->dst_addr), ip, INET_ADDRSTRLEN );
+			fprintf ( fp, "%s:", ip );
+		}
+
+		if ( h_root[dst_port] )
+		{
+			fprintf ( fp, "[%s]\n", tmp->h_node[dst_port]->label );
+		} else {
+			fprintf ( fp, "%d\n", htons ( tmp->dst_port ));
+		}
+
+		fprintf ( fp, "\n" );
+	}
+}		/* -----  end of function _AI_print_clustered_alerts  ----- */
+
+
+/**
  * FUNCTION: _AI_cluster_thread
  * \brief  Thread for periodically clustering the log information
  */
@@ -145,11 +379,26 @@ _AI_cluster_thread ( void* arg )
 {
 	AI_snort_alert *tmp;
 	hierarchy_node *node, *child;
+	cluster_type   type;
+	cluster_type   best_type;
+	BOOL           has_small_clusters = true;
+	FILE           *cluster_fp;
 	char           label[256];
+	int            hostval;
+	int            netval;
+	int            minval;
+	int            heuristic_val;
+	int            cluster_min_size = 2;
+	int            alert_count = 0;
+	int            old_alert_count = 0;
 
 	while ( 1 )
 	{
+		/* Between an execution of the thread and the next one, sleep for alert_clustering_interval seconds */
 		sleep ( _config->alertClusteringInterval );
+
+		/* Free the current alert log and get the latest one */
+		AI_free_alerts ( alert_log );
 		
 		if ( !( alert_log = AI_get_alerts() ))
 		{
@@ -157,85 +406,108 @@ _AI_cluster_thread ( void* arg )
 		}
 
 		FILE *fp = fopen ( "/home/blacklight/LOG", "a" );
+		has_small_clusters = true;
 
-		for ( tmp = alert_log; tmp; tmp = tmp->next )
+		for ( tmp = alert_log, alert_count=0; tmp; tmp = tmp->next, alert_count++ )
 		{
-			if ( src_addr_root && !tmp->src_addr_node )
+			/* If an alert has an unitialized "grouped alarms count", set its counter to 1 (it only groupes the current alert) */
+			if ( tmp->grouped_alarms_count == 0 )
 			{
-				node = _AI_get_min_hierarchy_node ( ntohl ( tmp->src_addr ), src_addr_root );
-
-				if ( node )
-				{
-					if ( node->min_val < node->max_val )
-					{
-						inet_ntop ( AF_INET, &(tmp->src_addr), label, INET_ADDRSTRLEN );
-						child = _hierarchy_node_new ( label, ntohl ( tmp->src_addr ), ntohl ( tmp->src_addr ));
-						_hierarchy_node_append ( node, child );
-						node = child;
-					}
-
-					tmp->src_addr_node = node;
-					fprintf ( fp, "minimum range holding %s: %s (prev: %s)\n", label, tmp->src_addr_node->label, tmp->src_addr_node->parent->label );
-				}
+				tmp->grouped_alarms_count = 1;
 			}
 
-			if ( dst_addr_root && !tmp->dst_addr_node )
+			/* If the current alarm already group at least min_size alarms, then no need to do further clusterization */
+			if ( tmp->grouped_alarms_count >= cluster_min_size )
 			{
-				node = _AI_get_min_hierarchy_node ( ntohl ( tmp->dst_addr ), dst_addr_root );
-
-				if ( node )
-				{
-					if ( node->min_val < node->max_val )
-					{
-						/* snprintf ( label, sizeof(label), "%d", ntohl ( tmp->dst_addr )); */
-						inet_ntop ( AF_INET, &(tmp->src_addr), label, INET_ADDRSTRLEN );
-						child = _hierarchy_node_new ( label, ntohl ( tmp->dst_addr ), ntohl ( tmp->dst_addr ));
-						_hierarchy_node_append ( node, child );
-						node = child;
-					}
-
-					tmp->dst_addr_node = node;
-				}
+				has_small_clusters = false;
 			}
 
-			if ( src_port_root && !tmp->src_port_node )
+			/* Initialize the clustering hierarchies in the current alert */
+			for ( type=0; type < CLUSTER_TYPES; type++ )
 			{
-				node = _AI_get_min_hierarchy_node ( ntohs ( tmp->src_port ), src_port_root );
-
-				if ( node )
+				/* If "type" is a valid clustering hierarchy but the corresponding node in the alert is not initialized, initialize it */
+				if ( h_root[type] && !tmp->h_node[type] )
 				{
-					if ( node->min_val < node->max_val )
+					switch ( type )
 					{
-						snprintf ( label, sizeof(label), "%d", ntohs ( tmp->src_port ));
-						child = _hierarchy_node_new ( label, ntohs ( tmp->src_port ), ntohs ( tmp->src_port ));
-						_hierarchy_node_append ( node, child );
-						node = child;
+						case src_addr:
+						case dst_addr:
+							netval  = ( type == src_addr ) ? tmp->src_addr : tmp->dst_addr;
+							hostval = ntohl ( netval );
+							inet_ntop ( AF_INET, &(netval), label, INET_ADDRSTRLEN );
+							break;
+
+						case src_port:
+						case dst_port:
+							netval  = ( type == src_port ) ? tmp->src_port : tmp->dst_port;
+							hostval = ntohs ( netval );
+							snprintf ( label, sizeof(label), "%d", hostval );
+							break;
+
+						default:
+							return (void*) 0;
 					}
 
-					tmp->src_port_node = node;
-					fprintf ( fp, "minimum range holding %d: %s (prev: %s)\n", ntohs(tmp->src_port), tmp->src_port_node->label, tmp->src_port_node->parent->label );
-				}
-			}
+					node = _AI_get_min_hierarchy_node ( hostval, h_root[type] );
 
-			if ( dst_port_root && !tmp->dst_port_node )
-			{
-				node = _AI_get_min_hierarchy_node ( ntohs ( tmp->dst_port ), dst_port_root );
-
-				if ( node )
-				{
-					if ( node->min_val < node->max_val )
+					if ( node )
 					{
-						snprintf ( label, sizeof(label), "%d", ntohs ( tmp->dst_port ));
-						child = _hierarchy_node_new ( label, ntohs ( tmp->dst_port ), ntohs ( tmp->dst_port ));
-						_hierarchy_node_append ( node, child );
-						node = child;
-					}
+						if ( node->min_val < node->max_val )
+						{
+							child = _hierarchy_node_new ( label, hostval, hostval);
+							_hierarchy_node_append ( node, child );
+							node = child;
+						}
 
-					tmp->dst_port_node = node;
-					fprintf ( fp, "minimum range holding %d: %s (prev: %s)\n", ntohs(tmp->dst_port), tmp->dst_port_node->label, tmp->dst_port_node->parent->label );
+						tmp->h_node[type] = node;
+					}
 				}
 			}
 		}
+
+		alert_count -= _AI_merge_alerts ( &alert_log );
+
+		while ( has_small_clusters && alert_count > cluster_min_size )
+		{
+			old_alert_count = alert_count;
+			minval = INT_MAX;
+			best_type = none;
+
+			/* Choose the best attribute to cluster using the heuristic function */
+			for ( type = 0; type < CLUSTER_TYPES; type++ )
+			{
+				if ( type != none && h_root[type] )
+				{
+					if (( heuristic_val = _heuristic_func ( type )) > 0 && heuristic_val < minval )
+					{
+						minval = heuristic_val;
+						best_type = type;
+					}
+				}
+			}
+
+			/* For all the alerts, the corresponing clustering value is the parent of the current one in the hierarchy */
+			for ( tmp = alert_log; tmp; tmp = tmp->next )
+			{
+				if ( tmp->h_node[best_type]->parent )
+				{
+					tmp->h_node[best_type] = tmp->h_node[best_type]->parent;
+				}
+			}
+
+			alert_count -= _AI_merge_alerts ( &alert_log );
+
+			if ( old_alert_count == alert_count )
+				break;
+		}
+
+		if ( !( cluster_fp = fopen ( _config->clusterfile, "w" )) )
+		{
+			return (void*) 0;
+		}
+
+		_AI_print_clustered_alerts ( alert_log, cluster_fp );
+		fclose ( cluster_fp );
 
 		fclose ( fp );
 	}
@@ -243,6 +515,33 @@ _AI_cluster_thread ( void* arg )
 	return (void*) 0;
 }		/* -----  end of function AI_cluster_thread  ----- */
 
+
+/**
+ * FUNCTION: _AI_check_duplicate
+ * \brief  Check if a certain node's range (minimum and maximum value) are already present in a clustering hierarchy
+ * \param  node 	Node to be checked
+ * \param  root 	Clustering hierarchy
+ * \return True if 'node' is already in 'root', false otherwise
+ */
+PRIVATE BOOL
+_AI_check_duplicate ( hierarchy_node *node, hierarchy_node *root )
+{
+	int i;
+	
+	if ( !node || !root )
+		return false;
+
+	if ( root->min_val == node->min_val && root->max_val == node->max_val )
+		return true;
+
+	for ( i=0; i < root->nchildren; i++ )
+	{
+		if ( _AI_check_duplicate ( node, root->children[i] ))
+			return true;
+	}
+
+	return false;
+}		/* -----  end of function _AI_check_duplicate  ----- */
 
 /**
  * FUNCTION: AI_hierarchies_build
@@ -267,45 +566,33 @@ AI_hierarchies_build ( AI_config *conf, hierarchy_node **nodes, int n_nodes )
 		switch ( nodes[i]->type )
 		{
 			case src_port:
-				if ( !src_port_root )
-					src_port_root = _hierarchy_node_new ( "1-65535", 1, 65535 );
-
-				root = src_port_root;
-				min_range = 65534;
-				break;
-
 			case dst_port:
-				if ( !dst_port_root )
-					dst_port_root = _hierarchy_node_new ( "1-65535", 1, 65535 );
+				if ( !h_root[ nodes[i]->type ] )
+					h_root[ nodes[i]->type ] = _hierarchy_node_new ( "1-65535", 1, 65535 );
 
-				root = dst_port_root;
 				min_range = 65534;
 				break;
 
 			case src_addr:
-				if ( !src_addr_root )
-					src_addr_root = _hierarchy_node_new ( "0.0.0.0/0",
-							0x0, 0xffffffff );
-				
-				root = src_addr_root;
-				min_range = 0xffffffff;
-				break;
-
 			case dst_addr:
-				if ( !dst_addr_root )
-					dst_addr_root = _hierarchy_node_new ( "0.0.0.0/0",
-							0x0, 0xffffffff );
-
-				root = dst_addr_root;
+				if ( !h_root[ nodes[i]->type ] )
+					h_root[ nodes[i]->type ] = _hierarchy_node_new ( "0.0.0.0/0", 0x0, 0xffffffff );
+				
 				min_range = 0xffffffff;
 				break;
 
-			/* TODO Manage range for timestamps (and something more?) */
+			/* TODO Manage ranges for timestamps (and something more?) */
 			default:
-				break;
+				return;
 		}
 
+		root = h_root[ nodes[i]->type ];
 		cover = NULL;
+
+		if ( _AI_check_duplicate ( nodes[i], root ))
+		{
+			_dpd.fatalMsg ( "AIPreproc: Parse error: duplicate cluster range '%d-%d' in configuration\n", nodes[i]->min_val, nodes[i]->max_val );
+		}
 
 		for ( j=0; j < n_nodes; j++ )
 		{

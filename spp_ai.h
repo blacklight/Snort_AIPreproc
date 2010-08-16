@@ -26,6 +26,12 @@
 
 #define 	PRIVATE 		static
 
+#define 	DEFAULT_HASH_CLEANUP_INTERVAL 		300
+#define 	DEFAULT_STREAM_EXPIRE_INTERVAL 		300
+#define 	DEFAULT_ALERT_CLUSTERING_INTERVAL 		3600
+#define 	DEFAULT_ALERT_LOG_FILE 				"/var/log/snort/alert"
+#define 	DEFAULT_CLUSTER_LOG_FILE 			"/var/log/snort/cluster_alert"
+
 extern DynamicPreprocessorData _dpd;
 typedef unsigned char   uint8_t;
 typedef unsigned short  uint16_t;
@@ -34,7 +40,7 @@ typedef unsigned int    uint32_t;
 typedef enum { false, true } BOOL;
 
 typedef enum {
-	none, src_port, dst_port, src_addr, dst_addr, timestamp
+	none, src_addr, dst_addr, src_port, dst_port, CLUSTER_TYPES
 } cluster_type;
 
 /* Each stream in the hash table is identified by the couple (src_ip, dst_port) */
@@ -120,10 +126,7 @@ typedef struct _AI_snort_alert  {
 
 	/* Hierarchies for addresses and ports,
 	 * if the clustering algorithm is used */
-	hierarchy_node  *src_addr_node;
-	hierarchy_node  *dst_addr_node;
-	hierarchy_node  *src_port_node;
-	hierarchy_node  *dst_port_node;
+	hierarchy_node  *h_node[CLUSTER_TYPES];
 
 	/* If the clustering algorithm is used,
 	 * we also count how many alerts this
@@ -139,8 +142,10 @@ void*              AI_alertparser_thread ( void* );
 void               AI_pkt_enqueue ( SFSnortPacket* );
 void               AI_set_stream_observed ( struct pkt_key key );
 void               AI_hierarchies_build ( AI_config*, hierarchy_node**, int );
+
 struct pkt_info*   AI_get_stream_by_key ( struct pkt_key );
 AI_snort_alert*    AI_get_alerts ( void );
+void               AI_free_alerts ( AI_snort_alert *node );
 
 #endif  /* _SPP_AI_H */
 

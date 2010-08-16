@@ -302,6 +302,39 @@ AI_alertparser_thread ( void* arg )
 }		/* -----  end of function AI_alertparser_thread  ----- */
 
 
+
+/**
+ * FUNCTION: _AI_copy_alerts
+ * \brief  Create a copy of the alert log struct (this is done for leaving the alert log structure in this file as read-only)
+ * \param  node 	Starting node (used for the recursion)
+ * \return A copy of the alert log linked list
+ */
+PRIVATE AI_snort_alert*
+_AI_copy_alerts ( AI_snort_alert *node )
+{
+	AI_snort_alert *current = NULL, *next = NULL;
+
+	if ( !node )
+	{
+		return NULL;
+	}
+
+	if ( node->next )
+	{
+		next = _AI_copy_alerts ( node->next );
+	}
+
+	if ( !( current = ( AI_snort_alert* ) malloc ( sizeof ( AI_snort_alert )) ))
+	{
+		_dpd.fatalMsg ( "Fatal dynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+	}
+
+	memcpy ( current, node, sizeof ( AI_snort_alert ));
+	current->next = next;
+	return current;
+}		/* -----  end of function _AI_copy_alerts  ----- */
+
+
 /**
  * FUNCTION: AI_get_alerts
  * \brief  Return the alerts parsed so far as a linked list
@@ -310,6 +343,25 @@ AI_alertparser_thread ( void* arg )
 AI_snort_alert*
 AI_get_alerts ()
 {
-	return alerts;
+	return _AI_copy_alerts ( alerts );
 }		/* -----  end of function AI_get_alerts  ----- */
+
+
+/**
+ * FUNCTION: AI_free_alerts
+ * \brief  Deallocate the memory of a log alert linked list
+ * \param  node 	Linked list to be freed
+ */
+void
+AI_free_alerts ( AI_snort_alert *node )
+{
+	if ( !node )
+		return;
+
+	if ( node->next )
+		AI_free_alerts ( node->next );
+
+	free ( node );
+	node = NULL;
+}		/* -----  end of function AI_free_alerts  ----- */
 

@@ -47,7 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="header">
   <div class="summary">
-<a href="#define-members">Defines</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
@@ -55,106 +54,25 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="contents">
 <code>#include &quot;<a class="el" href="spp__ai_8h_source.html">spp_ai.h</a>&quot;</code><br/>
-<code>#include &quot;preprocids.h&quot;</code><br/>
-<code>#include &quot;sf_dynamic_preproc_lib.h&quot;</code><br/>
-<code>#include &quot;sf_dynamic_preprocessor.h&quot;</code><br/>
-<code>#include &quot;debug.h&quot;</code><br/>
-<code>#include &quot;sfPolicy.h&quot;</code><br/>
 <code>#include &quot;sfPolicyUserData.h&quot;</code><br/>
-<code>#include &lt;sys/types.h&gt;</code><br/>
 <code>#include &lt;stdlib.h&gt;</code><br/>
-<code>#include &lt;ctype.h&gt;</code><br/>
 <code>#include &lt;string.h&gt;</code><br/>
 <code>#include &lt;pthread.h&gt;</code><br/>
 <table class="memberdecls">
-<tr><td colspan="2"><h2><a name="define-members"></a>
-Defines</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8c.html#a9e7d446fc8b40be2cfbb5c69c3e132ca">GENERATOR_EXAMPLE</a>&nbsp;&nbsp;&nbsp;256</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8c.html#af4c767ae0346026264c851108f42be63">SRC_PORT_MATCH</a>&nbsp;&nbsp;&nbsp;1</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8c.html#a3ec4dd8f1ebed73c13175d9b9c820e2e">SRC_PORT_MATCH_STR</a>&nbsp;&nbsp;&nbsp;&quot;example_preprocessor: src port match&quot;</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8c.html#a8ab13e8ad1dfd19b9237a99ae6130146">DST_PORT_MATCH</a>&nbsp;&nbsp;&nbsp;2</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8c.html#a1f3521b9bcf5daf99190be58473a4110">DST_PORT_MATCH_STR</a>&nbsp;&nbsp;&nbsp;&quot;example_preprocessor: dest port match&quot;</td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8c.html#a3524cbdf8fddbcf38c4ed55241002242">AI_init</a> (char *args)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Initialize the preprocessor module.  <a href="#a3524cbdf8fddbcf38c4ed55241002242"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8c.html#a57c05cda012c443cb4c358dc327cd3d1">AI_process</a> (void *pkt, void *context)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Function executed every time the module receives a packet to be processed.  <a href="#a57c05cda012c443cb4c358dc327cd3d1"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="struct__AI__config.html">AI_config</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8c.html#ae1c5c4b38ee2819d427848eb3046373e">AI_parse</a> (char *args)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structAI__config.html">AI_config</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8c.html#ae1c5c4b38ee2819d427848eb3046373e">AI_parse</a> (char *args)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Parse the arguments passed to the module saving them to a valid configuration struct.  <a href="#ae1c5c4b38ee2819d427848eb3046373e"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8c.html#a1b9ebb5c719c7d9426ddfc1f3da36570">AI_setup</a> (void)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set up the preprocessor module.  <a href="#a1b9ebb5c719c7d9426ddfc1f3da36570"></a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">tSfPolicyUserContextId&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8c.html#a3dd75596c540d148643fe6d1fdc02628">ex_config</a> = NULL</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">DynamicPreprocessorData&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8c.html#ab46420126c43c1aac5eabc5db266a71c">_dpd</a></td></tr>
 </table>
-<hr/><h2>Define Documentation</h2>
-<a class="anchor" id="a8ab13e8ad1dfd19b9237a99ae6130146"></a><!-- doxytag: member="spp_ai.c::DST_PORT_MATCH" ref="a8ab13e8ad1dfd19b9237a99ae6130146" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define DST_PORT_MATCH&nbsp;&nbsp;&nbsp;2</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a1f3521b9bcf5daf99190be58473a4110"></a><!-- doxytag: member="spp_ai.c::DST_PORT_MATCH_STR" ref="a1f3521b9bcf5daf99190be58473a4110" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define DST_PORT_MATCH_STR&nbsp;&nbsp;&nbsp;&quot;example_preprocessor: dest port match&quot;</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a9e7d446fc8b40be2cfbb5c69c3e132ca"></a><!-- doxytag: member="spp_ai.c::GENERATOR_EXAMPLE" ref="a9e7d446fc8b40be2cfbb5c69c3e132ca" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define GENERATOR_EXAMPLE&nbsp;&nbsp;&nbsp;256</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="af4c767ae0346026264c851108f42be63"></a><!-- doxytag: member="spp_ai.c::SRC_PORT_MATCH" ref="af4c767ae0346026264c851108f42be63" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define SRC_PORT_MATCH&nbsp;&nbsp;&nbsp;1</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a3ec4dd8f1ebed73c13175d9b9c820e2e"></a><!-- doxytag: member="spp_ai.c::SRC_PORT_MATCH_STR" ref="a3ec4dd8f1ebed73c13175d9b9c820e2e" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define SRC_PORT_MATCH_STR&nbsp;&nbsp;&nbsp;&quot;example_preprocessor: src port match&quot;</td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
 <hr/><h2>Function Documentation</h2>
 <a class="anchor" id="a3524cbdf8fddbcf38c4ed55241002242"></a><!-- doxytag: member="spp_ai.c::AI_init" ref="a3524cbdf8fddbcf38c4ed55241002242" args="(char *args)" -->
 <div class="memitem">
@@ -188,7 +106,7 @@ Variables</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">static <a class="el" href="struct__AI__config.html">AI_config</a> * AI_parse </td>
+          <td class="memname">static <a class="el" href="structAI__config.html">AI_config</a> * AI_parse </td>
           <td>(</td>
           <td class="paramtype">char *&nbsp;</td>
           <td class="paramname"> <em>args</em></td>
@@ -200,14 +118,14 @@ Variables</h2></td></tr>
 <div class="memdoc">
 
 <p>Parse the arguments passed to the module saving them to a valid configuration struct. </p>
-<p>FUNCTION: AI_config </p>
+<p>FUNCTION: <a class="el" href="structAI__config.html">AI_config</a> </p>
 <dl><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>args</em>&nbsp;</td><td>Arguments passed to the module </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>Pointer to AI_config keeping the configuration for the module </dd></dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>Pointer to <a class="el" href="structAI__config.html">AI_config</a> keeping the configuration for the module </dd></dl>
 
 </div>
 </div>
@@ -270,19 +188,6 @@ Variables</h2></td></tr>
 </div>
 </div>
 <hr/><h2>Variable Documentation</h2>
-<a class="anchor" id="ab46420126c43c1aac5eabc5db266a71c"></a><!-- doxytag: member="spp_ai.c::_dpd" ref="ab46420126c43c1aac5eabc5db266a71c" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">DynamicPreprocessorData <a class="el" href="spp__ai_8c.html#ab46420126c43c1aac5eabc5db266a71c">_dpd</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
 <a class="anchor" id="a3dd75596c540d148643fe6d1fdc02628"></a><!-- doxytag: member="spp_ai.c::ex_config" ref="a3dd75596c540d148643fe6d1fdc02628" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -311,7 +216,7 @@ Variables</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 4 2010 11:30:57 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Aug 16 2010 22:05:38 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

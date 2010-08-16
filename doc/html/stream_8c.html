@@ -47,7 +47,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Data Structures</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
@@ -55,42 +54,40 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="contents">
 <code>#include &quot;<a class="el" href="spp__ai_8h_source.html">spp_ai.h</a>&quot;</code><br/>
-<code>#include &quot;uthash.h&quot;</code><br/>
 <code>#include &lt;stdio.h&gt;</code><br/>
 <code>#include &lt;stdlib.h&gt;</code><br/>
-<code>#include &lt;string.h&gt;</code><br/>
 <code>#include &lt;time.h&gt;</code><br/>
 <code>#include &lt;unistd.h&gt;</code><br/>
-<code>#include &lt;arpa/inet.h&gt;</code><br/>
 <table class="memberdecls">
-<tr><td colspan="2"><h2><a name="nested-classes"></a>
-Data Structures</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpkt__key.html">pkt_key</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpkt__info.html">pkt_info</a></td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream_8c.html#a2a0c295a6828df716311977538cabd4a">_AI_stream_free</a> (struct <a class="el" href="structpkt__info.html">pkt_info</a> *stream)</td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Remove a stream from the hash table (private function).  <a href="#a2a0c295a6828df716311977538cabd4a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">PRIVATE void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream_8c.html#a80016adf701c717a6ebfb5b15b8a5749">_AI_stream_free</a> (struct <a class="el" href="structpkt__info.html">pkt_info</a> *stream)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Remove a stream from the hash table (private function).  <a href="#a80016adf701c717a6ebfb5b15b8a5749"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream_8c.html#a24b1131374e5059564b8a12380c4eb75">AI_hashcleanup_thread</a> (void *arg)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Thread called for cleaning up the hash table from the traffic streams older than a certain threshold.  <a href="#a24b1131374e5059564b8a12380c4eb75"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream_8c.html#a7d71c5645b9baff7b6c4b9a181bf80c5">AI_pkt_enqueue</a> (SFSnortPacket *pkt)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Function called for appending a new packet to the hash table, creating a new stream or appending it to an existing stream.  <a href="#a7d71c5645b9baff7b6c4b9a181bf80c5"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structpkt__info.html">pkt_info</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream_8c.html#a2efedcabbfd12c5345f0c93a3dd4735c">AI_get_stream_by_key</a> (struct <a class="el" href="structpkt__key.html">pkt_key</a> key)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get a TCP stream by key.  <a href="#a2efedcabbfd12c5345f0c93a3dd4735c"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream_8c.html#a8749989cee2ac05a7de058faac280c02">AI_set_stream_observed</a> (struct <a class="el" href="structpkt__key.html">pkt_key</a> key)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Set the flag "observed" on a stream associated to a security alert, so that it won't be removed from the hash table.  <a href="#a8749989cee2ac05a7de058faac280c02"></a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static struct <a class="el" href="structpkt__info.html">pkt_info</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream_8c.html#a96fbc549c67e0d852ced3cb72980e923">hash</a> = NULL</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">PRIVATE struct <a class="el" href="structpkt__info.html">pkt_info</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream_8c.html#a57e23cda853e9d11c37723a962ef2f68">hash</a> = NULL</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">PRIVATE time_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="stream_8c.html#a0597864b078ff448f28432db86950309">start_time</a> = 0</td></tr>
 </table>
 <hr/><h2>Function Documentation</h2>
-<a class="anchor" id="a2a0c295a6828df716311977538cabd4a"></a><!-- doxytag: member="stream.c::_AI_stream_free" ref="a2a0c295a6828df716311977538cabd4a" args="(struct pkt_info *stream)" -->
+<a class="anchor" id="a80016adf701c717a6ebfb5b15b8a5749"></a><!-- doxytag: member="stream.c::_AI_stream_free" ref="a80016adf701c717a6ebfb5b15b8a5749" args="(struct pkt_info *stream)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">static void _AI_stream_free </td>
+          <td class="memname">PRIVATE void _AI_stream_free </td>
           <td>(</td>
           <td class="paramtype">struct <a class="el" href="structpkt__info.html">pkt_info</a> *&nbsp;</td>
           <td class="paramname"> <em>stream</em></td>
           <td>&nbsp;)&nbsp;</td>
-          <td><code> [static]</code></td>
+          <td></td>
         </tr>
       </table>
 </div>
@@ -104,6 +101,34 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="a2efedcabbfd12c5345f0c93a3dd4735c"></a><!-- doxytag: member="stream.c::AI_get_stream_by_key" ref="a2efedcabbfd12c5345f0c93a3dd4735c" args="(struct pkt_key key)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structpkt__info.html">pkt_info</a>* AI_get_stream_by_key </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structpkt__key.html">pkt_key</a>&nbsp;</td>
+          <td class="paramname"> <em>key</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [read]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Get a TCP stream by key. </p>
+<p>FUNCTION: AI_get_stream_by_key </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>key</em>&nbsp;</td><td>Key of the stream to be picked up (struct <a class="el" href="structpkt__key.html">pkt_key</a>) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>A <a class="el" href="structpkt__info.html">pkt_info</a> pointer to the stream if found, NULL otherwise </dd></dl>
 
 </div>
 </div>
@@ -127,7 +152,7 @@ Variables</h2></td></tr>
 <p>FUNCTION: AI_hashcleanup_thread </p>
 <dl><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>arg</em>&nbsp;</td><td>Pointer to the AI_config struct </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>arg</em>&nbsp;</td><td>Pointer to the <a class="el" href="structAI__config.html">AI_config</a> struct </td></tr>
   </table>
   </dd>
 </dl>
@@ -161,13 +186,53 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<hr/><h2>Variable Documentation</h2>
-<a class="anchor" id="a96fbc549c67e0d852ced3cb72980e923"></a><!-- doxytag: member="stream.c::hash" ref="a96fbc549c67e0d852ced3cb72980e923" args="" -->
+<a class="anchor" id="a8749989cee2ac05a7de058faac280c02"></a><!-- doxytag: member="stream.c::AI_set_stream_observed" ref="a8749989cee2ac05a7de058faac280c02" args="(struct pkt_key key)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">struct <a class="el" href="structpkt__info.html">pkt_info</a>* <a class="el" href="stream_8c.html#a96fbc549c67e0d852ced3cb72980e923">hash</a> = NULL<code> [static]</code></td>
+          <td class="memname">void AI_set_stream_observed </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structpkt__key.html">pkt_key</a>&nbsp;</td>
+          <td class="paramname"> <em>key</em></td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Set the flag "observed" on a stream associated to a security alert, so that it won't be removed from the hash table. </p>
+<p>FUNCTION: AI_set_stream_observed </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>key</em>&nbsp;</td><td>Key of the stream to be set as "observed" </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<hr/><h2>Variable Documentation</h2>
+<a class="anchor" id="a57e23cda853e9d11c37723a962ef2f68"></a><!-- doxytag: member="stream.c::hash" ref="a57e23cda853e9d11c37723a962ef2f68" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PRIVATE struct <a class="el" href="structpkt__info.html">pkt_info</a>* <a class="el" href="stream_8c.html#a57e23cda853e9d11c37723a962ef2f68">hash</a> = NULL</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a0597864b078ff448f28432db86950309"></a><!-- doxytag: member="stream.c::start_time" ref="a0597864b078ff448f28432db86950309" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PRIVATE time_t <a class="el" href="stream_8c.html#a0597864b078ff448f28432db86950309">start_time</a> = 0</td>
         </tr>
       </table>
 </div>
@@ -190,7 +255,7 @@ Variables</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Wed Aug 4 2010 11:30:57 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Aug 16 2010 22:05:38 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

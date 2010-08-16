@@ -7,6 +7,8 @@
 AI_alertparser_thread	alert_parser.c	/^AI_alertparser_thread ( void* arg )$/;"	f	signature:( void* arg )
 AI_alertparser_thread	spp_ai.h	/^void*              AI_alertparser_thread ( void* );$/;"	p	signature:( void* )
 AI_config	spp_ai.h	/^} AI_config;$/;"	t	typeref:struct:__anon3
+AI_free_alerts	alert_parser.c	/^AI_free_alerts ( AI_snort_alert *node )$/;"	f	signature:( AI_snort_alert *node )
+AI_free_alerts	spp_ai.h	/^void               AI_free_alerts ( AI_snort_alert *node );$/;"	p	signature:( AI_snort_alert *node )
 AI_get_alerts	alert_parser.c	/^AI_get_alerts ()$/;"	f
 AI_get_alerts	spp_ai.h	/^AI_snort_alert*    AI_get_alerts ( void );$/;"	p	signature:( void )
 AI_get_stream_by_key	spp_ai.h	/^struct pkt_info*   AI_get_stream_by_key ( struct pkt_key );$/;"	p	signature:( struct pkt_key )
@@ -45,12 +47,18 @@ CDL_PREPEND	uthash/utlist.h	442;"	d
 CDL_SEARCH	uthash/utlist.h	482;"	d
 CDL_SEARCH_SCALAR	uthash/utlist.h	475;"	d
 CDL_SORT	uthash/utlist.h	214;"	d
+CLUSTER_TYPES	spp_ai.h	/^	none, src_addr, dst_addr, src_port, dst_port, CLUSTER_TYPES$/;"	e	enum:__anon2
 CMDLINE	Makefile	/^CMDLINE=-g -O2 -fvisibility=hidden -fno-strict-aliasing -Wall -fstack-protector$/;"	m
 DECLTYPE	uthash/uthash.h	36;"	d
 DECLTYPE	uthash/uthash.h	39;"	d
 DECLTYPE	uthash/uthash.h	42;"	d
 DECLTYPE_ASSIGN	uthash/uthash.h	46;"	d
 DECLTYPE_ASSIGN	uthash/uthash.h	52;"	d
+DEFAULT_ALERT_CLUSTERING_INTERVAL	spp_ai.h	31;"	d
+DEFAULT_ALERT_LOG_FILE	spp_ai.h	32;"	d
+DEFAULT_CLUSTER_LOG_FILE	spp_ai.h	33;"	d
+DEFAULT_HASH_CLEANUP_INTERVAL	spp_ai.h	29;"	d
+DEFAULT_STREAM_EXPIRE_INTERVAL	spp_ai.h	30;"	d
 DEFINES	Makefile	/^DEFINES=-D_GNU_SOURCE -D_XOPEN_SOURCE -DDYNAMIC_PLUGIN -DSUP_IP6 -DENABLE_MYSQL -DHAVE_CONFIG_H$/;"	m
 DL_APPEND	uthash/utlist.h	396;"	d
 DL_DELETE	uthash/utlist.h	410;"	d
@@ -213,7 +221,7 @@ UTLIST_H	uthash/utlist.h	25;"	d
 UTLIST_VERSION	uthash/utlist.h	27;"	d
 UTSTRING_H	uthash/utstring.h	28;"	d
 UTSTRING_VERSION	uthash/utstring.h	30;"	d
-UT_array	uthash/utarray.h	/^} UT_array;$/;"	t	typeref:struct:__anon6
+UT_array	uthash/utarray.h	/^} UT_array;$/;"	t	typeref:struct:__anon8
 UT_hash_bucket	uthash/uthash.h	/^typedef struct UT_hash_bucket {$/;"	s
 UT_hash_bucket	uthash/uthash.h	/^} UT_hash_bucket;$/;"	t	typeref:struct:UT_hash_bucket
 UT_hash_bucket::count	uthash/uthash.h	/^   unsigned count;$/;"	m	struct:UT_hash_bucket	access:public
@@ -245,20 +253,24 @@ UT_hash_table::num_buckets	uthash/uthash.h	/^   unsigned num_buckets, log2_num_b
 UT_hash_table::num_items	uthash/uthash.h	/^   unsigned num_items;$/;"	m	struct:UT_hash_table	access:public
 UT_hash_table::signature	uthash/uthash.h	/^   uint32_t signature; \/* used only to find hash tables in external analysis *\/$/;"	m	struct:UT_hash_table	access:public
 UT_hash_table::tail	uthash/uthash.h	/^   struct UT_hash_handle *tail; \/* tail hh in app order, for fast append    *\/$/;"	m	struct:UT_hash_table	typeref:struct:UT_hash_table::UT_hash_handle	access:public
-UT_icd	uthash/utarray.h	/^} UT_icd;$/;"	t	typeref:struct:__anon5
-UT_string	uthash/utstring.h	/^} UT_string;$/;"	t	typeref:struct:__anon4
+UT_icd	uthash/utarray.h	/^} UT_icd;$/;"	t	typeref:struct:__anon7
+UT_string	uthash/utstring.h	/^} UT_string;$/;"	t	typeref:struct:__anon6
 _ AI _ config Struct Reference	doc/latex/struct__AI__config.tex	/^\\section{\\_\\-AI\\_\\-config Struct Reference}$/;"	s
 _AI_cluster_thread	cluster.c	/^_AI_cluster_thread ( void* arg )$/;"	f	signature:( void* arg )
+_AI_copy_alerts	alert_parser.c	/^_AI_copy_alerts ( AI_snort_alert *node )$/;"	f	signature:( AI_snort_alert *node )
+_AI_equal_alarms	cluster.c	/^_AI_equal_alarms ( AI_snort_alert *a1, AI_snort_alert *a2 )$/;"	f	signature:( AI_snort_alert *a1, AI_snort_alert *a2 )
+_AI_get_min_hierarchy_node	cluster.c	/^_AI_get_min_hierarchy_node ( int val, hierarchy_node *root )$/;"	f	signature:( int val, hierarchy_node *root )
+_AI_merge_alerts	cluster.c	/^_AI_merge_alerts ( AI_snort_alert **log )$/;"	f	signature:( AI_snort_alert **log )
+_AI_print_clustered_alerts	cluster.c	/^_AI_print_clustered_alerts ( AI_snort_alert *log, FILE *fp )$/;"	f	signature:( AI_snort_alert *log, FILE *fp )
 _AI_snort_alert	spp_ai.h	/^typedef struct _AI_snort_alert  {$/;"	s
 _AI_snort_alert::ack	spp_ai.h	/^	uint32_t        ack;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::classification	spp_ai.h	/^	char            *classification;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::desc	spp_ai.h	/^	char            *desc;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::dst_addr	spp_ai.h	/^	uint32_t        dst_addr;$/;"	m	struct:_AI_snort_alert	access:public
-_AI_snort_alert::dst_addr_node	spp_ai.h	/^	hierarchy_node  *dst_addr_node;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::dst_port	spp_ai.h	/^	uint16_t        dst_port;$/;"	m	struct:_AI_snort_alert	access:public
-_AI_snort_alert::dst_port_node	spp_ai.h	/^	hierarchy_node  *dst_port_node;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::gid	spp_ai.h	/^	unsigned int    gid;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::grouped_alarms_count	spp_ai.h	/^	unsigned int    grouped_alarms_count;$/;"	m	struct:_AI_snort_alert	access:public
+_AI_snort_alert::h_node	spp_ai.h	/^	hierarchy_node  *h_node[CLUSTER_TYPES];$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::id	spp_ai.h	/^	uint16_t        id;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::iplen	spp_ai.h	/^	uint16_t        iplen;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::ipproto	spp_ai.h	/^	uint8_t         ipproto;$/;"	m	struct:_AI_snort_alert	access:public
@@ -268,9 +280,7 @@ _AI_snort_alert::rev	spp_ai.h	/^	unsigned int    rev;$/;"	m	struct:_AI_snort_ale
 _AI_snort_alert::sequence	spp_ai.h	/^	uint32_t        sequence;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::sid	spp_ai.h	/^	unsigned int    sid;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::src_addr	spp_ai.h	/^	uint32_t        src_addr;$/;"	m	struct:_AI_snort_alert	access:public
-_AI_snort_alert::src_addr_node	spp_ai.h	/^	hierarchy_node  *src_addr_node;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::src_port	spp_ai.h	/^	uint16_t        src_port;$/;"	m	struct:_AI_snort_alert	access:public
-_AI_snort_alert::src_port_node	spp_ai.h	/^	hierarchy_node  *src_port_node;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::stream	spp_ai.h	/^	struct pkt_info *stream;$/;"	m	struct:_AI_snort_alert	typeref:struct:_AI_snort_alert::pkt_info	access:public
 _AI_snort_alert::tcp_flags	spp_ai.h	/^	uint8_t         tcp_flags;$/;"	m	struct:_AI_snort_alert	access:public
 _AI_snort_alert::tcplen	spp_ai.h	/^	uint16_t        tcplen;$/;"	m	struct:_AI_snort_alert	access:public
@@ -305,20 +315,27 @@ __anon3::alertfile	spp_ai.h	/^	char          alertfile[1024];$/;"	m	struct:__ano
 __anon3::clusterfile	spp_ai.h	/^	char          clusterfile[1024];$/;"	m	struct:__anon3	access:public
 __anon3::hashCleanupInterval	spp_ai.h	/^	unsigned long hashCleanupInterval;$/;"	m	struct:__anon3	access:public
 __anon3::streamExpireInterval	spp_ai.h	/^	unsigned long streamExpireInterval;$/;"	m	struct:__anon3	access:public
-__anon4::d	uthash/utstring.h	/^    char *d;$/;"	m	struct:__anon4	access:public
-__anon4::i	uthash/utstring.h	/^    size_t i; \/* index of first unused byte *\/$/;"	m	struct:__anon4	access:public
-__anon4::n	uthash/utstring.h	/^    size_t n; \/* allocd size *\/$/;"	m	struct:__anon4	access:public
-__anon5::copy	uthash/utarray.h	/^    ctor_f *copy;$/;"	m	struct:__anon5	access:public
-__anon5::dtor	uthash/utarray.h	/^    dtor_f *dtor;$/;"	m	struct:__anon5	access:public
-__anon5::init	uthash/utarray.h	/^    init_f *init;$/;"	m	struct:__anon5	access:public
-__anon5::sz	uthash/utarray.h	/^    size_t sz;$/;"	m	struct:__anon5	access:public
-__anon6::d	uthash/utarray.h	/^    char *d;     \/* n slots of size icd->sz*\/$/;"	m	struct:__anon6	access:public
-__anon6::i	uthash/utarray.h	/^    unsigned i,n;\/* i: index of next available slot, n: num slots *\/$/;"	m	struct:__anon6	access:public
-__anon6::icd	uthash/utarray.h	/^    const UT_icd *icd; \/* initializer, copy and destructor functions *\/$/;"	m	struct:__anon6	access:public
-__anon6::n	uthash/utarray.h	/^    unsigned i,n;\/* i: index of next available slot, n: num slots *\/$/;"	m	struct:__anon6	access:public
-_config	cluster.c	/^PRIVATE AI_config      *_config       = NULL;$/;"	v
+__anon4::max	cluster.c	/^	int max;$/;"	m	struct:__anon4	file:	access:public
+__anon4::min	cluster.c	/^	int min;$/;"	m	struct:__anon4	file:	access:public
+__anon5::count	cluster.c	/^	unsigned int    count;$/;"	m	struct:__anon5	file:	access:public
+__anon5::hh	cluster.c	/^	UT_hash_handle  hh;$/;"	m	struct:__anon5	file:	access:public
+__anon5::key	cluster.c	/^	attribute_key   key;$/;"	m	struct:__anon5	file:	access:public
+__anon5::type	cluster.c	/^	cluster_type    type;$/;"	m	struct:__anon5	file:	access:public
+__anon6::d	uthash/utstring.h	/^    char *d;$/;"	m	struct:__anon6	access:public
+__anon6::i	uthash/utstring.h	/^    size_t i; \/* index of first unused byte *\/$/;"	m	struct:__anon6	access:public
+__anon6::n	uthash/utstring.h	/^    size_t n; \/* allocd size *\/$/;"	m	struct:__anon6	access:public
+__anon7::copy	uthash/utarray.h	/^    ctor_f *copy;$/;"	m	struct:__anon7	access:public
+__anon7::dtor	uthash/utarray.h	/^    dtor_f *dtor;$/;"	m	struct:__anon7	access:public
+__anon7::init	uthash/utarray.h	/^    init_f *init;$/;"	m	struct:__anon7	access:public
+__anon7::sz	uthash/utarray.h	/^    size_t sz;$/;"	m	struct:__anon7	access:public
+__anon8::d	uthash/utarray.h	/^    char *d;     \/* n slots of size icd->sz*\/$/;"	m	struct:__anon8	access:public
+__anon8::i	uthash/utarray.h	/^    unsigned i,n;\/* i: index of next available slot, n: num slots *\/$/;"	m	struct:__anon8	access:public
+__anon8::icd	uthash/utarray.h	/^    const UT_icd *icd; \/* initializer, copy and destructor functions *\/$/;"	m	struct:__anon8	access:public
+__anon8::n	uthash/utarray.h	/^    unsigned i,n;\/* i: index of next available slot, n: num slots *\/$/;"	m	struct:__anon8	access:public
+_config	cluster.c	/^PRIVATE AI_config      *_config               = NULL;$/;"	v
 _details	doc/html/group__sfPolicyConfig.html	/^<hr\/><a name="_details"><\/a><h2>Detailed Description<\/h2>$/;"	a
 _dpd	sf_dynamic_preproc_lib.c	/^DynamicPreprocessorData _dpd;$/;"	v
+_heuristic_func	cluster.c	/^_heuristic_func ( cluster_type type )$/;"	f	signature:( cluster_type type )
 _hierarchy_node	spp_ai.h	/^typedef struct _hierarchy_node$/;"	s
 _hierarchy_node::children	spp_ai.h	/^	struct _hierarchy_node  **children;$/;"	m	struct:_hierarchy_node	typeref:struct:_hierarchy_node::_hierarchy_node	access:public
 _hierarchy_node::label	spp_ai.h	/^	char                    label[256];$/;"	m	struct:_hierarchy_node	access:public
@@ -333,9 +350,11 @@ _utarray_eltptr	uthash/utarray.h	116;"	d
 ack	spp_ai.h	/^	uint32_t        ack;$/;"	m	struct:_AI_snort_alert	access:public
 alertClusteringInterval	spp_ai.h	/^	unsigned long alertClusteringInterval;$/;"	m	struct:__anon3	access:public
 alert_fp	alert_parser.c	/^PRIVATE FILE           *alert_fp = NULL;$/;"	v
-alert_log	cluster.c	/^PRIVATE AI_snort_alert *alert_log     = NULL;$/;"	v
+alert_log	cluster.c	/^PRIVATE AI_snort_alert *alert_log             = NULL;$/;"	v
 alertfile	spp_ai.h	/^	char          alertfile[1024];$/;"	m	struct:__anon3	access:public
 alerts	alert_parser.c	/^PRIVATE AI_snort_alert *alerts   = NULL;$/;"	v
+attribute_key	cluster.c	/^} attribute_key;$/;"	t	typeref:struct:__anon4	file:
+attribute_value	cluster.c	/^} attribute_value;$/;"	t	typeref:struct:__anon5	file:
 bloom_bv	uthash/uthash.h	/^   uint8_t *bloom_bv;$/;"	m	struct:UT_hash_table	access:public
 bloom_nbits	uthash/uthash.h	/^   char bloom_nbits;$/;"	m	struct:UT_hash_table	access:public
 bloom_sig	uthash/uthash.h	/^   uint32_t bloom_sig; \/* used only to test bloom exists in external analysis *\/$/;"	m	struct:UT_hash_table	access:public
@@ -345,25 +364,22 @@ classification	spp_ai.h	/^	char            *classification;$/;"	m	struct:_AI_sno
 cluster_type	spp_ai.h	/^} cluster_type;$/;"	t	typeref:enum:__anon2
 clusterfile	spp_ai.h	/^	char          clusterfile[1024];$/;"	m	struct:__anon3	access:public
 convertToId	doc/html/search/search.js	/^function convertToId(search)$/;"	f
-copy	uthash/utarray.h	/^    ctor_f *copy;$/;"	m	struct:__anon5	access:public
+copy	uthash/utarray.h	/^    ctor_f *copy;$/;"	m	struct:__anon7	access:public
+count	cluster.c	/^	unsigned int    count;$/;"	m	struct:__anon5	file:	access:public
 count	uthash/uthash.h	/^   unsigned count;$/;"	m	struct:UT_hash_bucket	access:public
 ctor_f	uthash/utarray.h	/^typedef void (ctor_f)(void *dst, const void *src);$/;"	t
-d	uthash/utarray.h	/^    char *d;     \/* n slots of size icd->sz*\/$/;"	m	struct:__anon6	access:public
-d	uthash/utstring.h	/^    char *d;$/;"	m	struct:__anon4	access:public
+d	uthash/utarray.h	/^    char *d;     \/* n slots of size icd->sz*\/$/;"	m	struct:__anon8	access:public
+d	uthash/utstring.h	/^    char *d;$/;"	m	struct:__anon6	access:public
 define-members	doc/html/sf__preproc__info_8h.html	/^<tr><td colspan="2"><h2><a name="define-members"><\/a>$/;"	a
 define-members	doc/html/spp__ai_8c.html	/^<tr><td colspan="2"><h2><a name="define-members"><\/a>$/;"	a
 desc	spp_ai.h	/^	char            *desc;$/;"	m	struct:_AI_snort_alert	access:public
 dst _ port	doc/latex/structpkt__key.tex	/^\\subsubsection[{dst\\_\\-port}]{\\setlength{\\rightskip}{0pt plus 5cm}{\\bf uint16\\_\\-t} {\\bf pkt\\_\\-key::dst\\_\\-port}}}$/;"	b
-dst_addr	spp_ai.h	/^	none, src_port, dst_port, src_addr, dst_addr, timestamp$/;"	e	enum:__anon2
+dst_addr	spp_ai.h	/^	none, src_addr, dst_addr, src_port, dst_port, CLUSTER_TYPES$/;"	e	enum:__anon2
 dst_addr	spp_ai.h	/^	uint32_t        dst_addr;$/;"	m	struct:_AI_snort_alert	access:public
-dst_addr_node	spp_ai.h	/^	hierarchy_node  *dst_addr_node;$/;"	m	struct:_AI_snort_alert	access:public
-dst_addr_root	cluster.c	/^PRIVATE hierarchy_node *dst_addr_root = NULL;$/;"	v
-dst_port	spp_ai.h	/^	none, src_port, dst_port, src_addr, dst_addr, timestamp$/;"	e	enum:__anon2
+dst_port	spp_ai.h	/^	none, src_addr, dst_addr, src_port, dst_port, CLUSTER_TYPES$/;"	e	enum:__anon2
 dst_port	spp_ai.h	/^	uint16_t        dst_port;$/;"	m	struct:_AI_snort_alert	access:public
 dst_port	spp_ai.h	/^	uint16_t dst_port;$/;"	m	struct:pkt_key	access:public
-dst_port_node	spp_ai.h	/^	hierarchy_node  *dst_port_node;$/;"	m	struct:_AI_snort_alert	access:public
-dst_port_root	cluster.c	/^PRIVATE hierarchy_node *dst_port_root = NULL;$/;"	v
-dtor	uthash/utarray.h	/^    dtor_f *dtor;$/;"	m	struct:__anon5	access:public
+dtor	uthash/utarray.h	/^    dtor_f *dtor;$/;"	m	struct:__anon7	access:public
 dtor_f	uthash/utarray.h	/^typedef void (dtor_f)(void *elt);$/;"	t
 enum-members	doc/html/spp__ai_8h.html	/^<tr><td colspan="2"><h2><a name="enum-members"><\/a>$/;"	a
 ex_config	spp_ai.c	/^tSfPolicyUserContextId ex_config = NULL;$/;"	v
@@ -443,10 +459,13 @@ getXPos	doc/html/search/search.js	/^function getXPos(item)$/;"	f
 getYPos	doc/html/search/search.js	/^function getYPos(item)$/;"	f
 gid	spp_ai.h	/^	unsigned int    gid;$/;"	m	struct:_AI_snort_alert	access:public
 grouped_alarms_count	spp_ai.h	/^	unsigned int    grouped_alarms_count;$/;"	m	struct:_AI_snort_alert	access:public
+h_node	spp_ai.h	/^	hierarchy_node  *h_node[CLUSTER_TYPES];$/;"	m	struct:_AI_snort_alert	access:public
+h_root	cluster.c	/^PRIVATE hierarchy_node *h_root[CLUSTER_TYPES] = { NULL };$/;"	v
 hash	stream.c	/^PRIVATE struct pkt_info *hash = NULL;$/;"	v	typeref:struct:pkt_info
 hashCleanupInterval	doc/latex/struct__AI__config.tex	/^\\subsubsection[{hashCleanupInterval}]{\\setlength{\\rightskip}{0pt plus 5cm}unsigned long {\\bf \\_\\-AI\\_\\-config::hashCleanupInterval}}}$/;"	b
 hashCleanupInterval	spp_ai.h	/^	unsigned long hashCleanupInterval;$/;"	m	struct:__anon3	access:public
 hashv	uthash/uthash.h	/^   unsigned hashv;                   \/* result of hash-fcn(key)        *\/$/;"	m	struct:UT_hash_handle	access:public
+hh	cluster.c	/^	UT_hash_handle  hh;$/;"	m	struct:__anon5	file:	access:public
 hh	doc/latex/structpkt__info.tex	/^\\subsubsection[{hh}]{\\setlength{\\rightskip}{0pt plus 5cm}UT\\_\\-hash\\_\\-handle {\\bf pkt\\_\\-info::hh}}}$/;"	b
 hh	spp_ai.h	/^	UT_hash_handle    hh; 		      \/* Make the struct 'hashable' *\/$/;"	m	struct:pkt_info	access:public
 hh_head	uthash/uthash.h	/^   struct UT_hash_handle *hh_head;$/;"	m	struct:UT_hash_bucket	typeref:struct:UT_hash_bucket::UT_hash_handle	access:public
@@ -454,9 +473,9 @@ hh_next	uthash/uthash.h	/^   struct UT_hash_handle *hh_next;   \/* next hh in bu
 hh_prev	uthash/uthash.h	/^   struct UT_hash_handle *hh_prev;   \/* previous hh in bucket order    *\/$/;"	m	struct:UT_hash_handle	typeref:struct:UT_hash_handle::UT_hash_handle	access:public
 hho	uthash/uthash.h	/^   ptrdiff_t hho; \/* hash handle offset (byte pos of hash handle in element *\/$/;"	m	struct:UT_hash_table	access:public
 hierarchy_node	spp_ai.h	/^} hierarchy_node;$/;"	t	typeref:struct:_hierarchy_node
-i	uthash/utarray.h	/^    unsigned i,n;\/* i: index of next available slot, n: num slots *\/$/;"	m	struct:__anon6	access:public
-i	uthash/utstring.h	/^    size_t i; \/* index of first unused byte *\/$/;"	m	struct:__anon4	access:public
-icd	uthash/utarray.h	/^    const UT_icd *icd; \/* initializer, copy and destructor functions *\/$/;"	m	struct:__anon6	access:public
+i	uthash/utarray.h	/^    unsigned i,n;\/* i: index of next available slot, n: num slots *\/$/;"	m	struct:__anon8	access:public
+i	uthash/utstring.h	/^    size_t i; \/* index of first unused byte *\/$/;"	m	struct:__anon6	access:public
+icd	uthash/utarray.h	/^    const UT_icd *icd; \/* initializer, copy and destructor functions *\/$/;"	m	struct:__anon8	access:public
 id	spp_ai.h	/^	uint16_t        id;$/;"	m	struct:_AI_snort_alert	access:public
 ideal_chain_maxlen	uthash/uthash.h	/^   unsigned ideal_chain_maxlen;$/;"	m	struct:UT_hash_table	access:public
 indexSectionNames.0	doc/html/search/search.js	/^  0: "all",$/;"	p
@@ -478,10 +497,11 @@ indexSectionsWithContent.6	doc/html/search/search.js	/^  6: "0000000000000000000
 indexSectionsWithContent.7	doc/html/search/search.js	/^  7: "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",$/;"	p
 indexSectionsWithContent.8	doc/html/search/search.js	/^  8: "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010100100000100100100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"$/;"	p
 ineff_expands	uthash/uthash.h	/^   unsigned ineff_expands, noexpand;$/;"	m	struct:UT_hash_table	access:public
-init	uthash/utarray.h	/^    init_f *init;$/;"	m	struct:__anon5	access:public
+init	uthash/utarray.h	/^    init_f *init;$/;"	m	struct:__anon7	access:public
 init_f	uthash/utarray.h	/^typedef void (init_f)(void *elt);$/;"	t
 iplen	spp_ai.h	/^	uint16_t        iplen;$/;"	m	struct:_AI_snort_alert	access:public
 ipproto	spp_ai.h	/^	uint8_t         ipproto;$/;"	m	struct:_AI_snort_alert	access:public
+key	cluster.c	/^	attribute_key   key;$/;"	m	struct:__anon5	file:	access:public
 key	doc/latex/structpkt__info.tex	/^\\subsubsection[{key}]{\\setlength{\\rightskip}{0pt plus 5cm}struct {\\bf pkt\\_\\-key} {\\bf pkt\\_\\-info::key}}}$/;"	b
 key	spp_ai.h	/^	struct pkt_key    key; 	           \/* Key of the packet (src_ip, dst_port) *\/$/;"	m	struct:pkt_info	typeref:struct:pkt_info::pkt_key	access:public
 key	uthash/uthash.h	/^   void *key;                        \/* ptr to enclosing struct's key  *\/$/;"	m	struct:UT_hash_handle	access:public
@@ -546,10 +566,12 @@ latex_count	doc/latex/Makefile	/^	latex_count=5 ; \\$/;"	m
 letter_P	doc/html/classes.html	/^<tr><td><a name="letter_P"><\/a><table border="0" cellspacing="0" cellpadding="0"><tr><td><div class="ah">&nbsp;&nbsp;P&nbsp;&nbsp;<\/div><\/td><\/tr><\/table>$/;"	a
 letter__	doc/html/classes.html	/^<\/td><td><a class="el" href="structpkt__info.html">pkt_info<\/a>&nbsp;&nbsp;&nbsp;<\/td><td><a class="el" href="structpkt__key.html">pkt_key<\/a>&nbsp;&nbsp;&nbsp;<\/td><td><a name="letter__"><\/a><table border="0" cellspacing="0" cellpadding="0"><tr><td><div class="ah">&nbsp;&nbsp;_&nbsp;&nbsp;<\/div><\/td><\/tr><\/table>$/;"	a
 log2_num_buckets	uthash/uthash.h	/^   unsigned num_buckets, log2_num_buckets;$/;"	m	struct:UT_hash_table	access:public
+max	cluster.c	/^	int max;$/;"	m	struct:__anon4	file:	access:public
 max_val	spp_ai.h	/^	int                     max_val;$/;"	m	struct:_hierarchy_node	access:public
+min	cluster.c	/^	int min;$/;"	m	struct:__anon4	file:	access:public
 min_val	spp_ai.h	/^	int                     min_val;$/;"	m	struct:_hierarchy_node	access:public
-n	uthash/utarray.h	/^    unsigned i,n;\/* i: index of next available slot, n: num slots *\/$/;"	m	struct:__anon6	access:public
-n	uthash/utstring.h	/^    size_t n; \/* allocd size *\/$/;"	m	struct:__anon4	access:public
+n	uthash/utarray.h	/^    unsigned i,n;\/* i: index of next available slot, n: num slots *\/$/;"	m	struct:__anon8	access:public
+n	uthash/utstring.h	/^    size_t n; \/* allocd size *\/$/;"	m	struct:__anon6	access:public
 nchildren	spp_ai.h	/^	int                     nchildren;$/;"	m	struct:_hierarchy_node	access:public
 nested-classes	doc/html/spp__ai_8h.html	/^<tr><td colspan="2"><h2><a name="nested-classes"><\/a>$/;"	a
 nested-classes	doc/html/stream_8c.html	/^<tr><td colspan="2"><h2><a name="nested-classes"><\/a>$/;"	a
@@ -558,7 +580,7 @@ next	spp_ai.h	/^	struct _AI_snort_alert *next;$/;"	m	struct:_AI_snort_alert	type
 next	spp_ai.h	/^	struct pkt_info*  next; 	           \/* Pointer to the next packet in the stream *\/$/;"	m	struct:pkt_info	typeref:struct:pkt_info::pkt_info	access:public
 next	uthash/uthash.h	/^   void *next;                       \/* next element in app order      *\/$/;"	m	struct:UT_hash_handle	access:public
 noexpand	uthash/uthash.h	/^   unsigned ineff_expands, noexpand;$/;"	m	struct:UT_hash_table	access:public
-none	spp_ai.h	/^	none, src_port, dst_port, src_addr, dst_addr, timestamp$/;"	e	enum:__anon2
+none	spp_ai.h	/^	none, src_addr, dst_addr, src_port, dst_port, CLUSTER_TYPES$/;"	e	enum:__anon2
 nonideal_items	uthash/uthash.h	/^   unsigned nonideal_items;$/;"	m	struct:UT_hash_table	access:public
 num_buckets	uthash/uthash.h	/^   unsigned num_buckets, log2_num_buckets;$/;"	m	struct:UT_hash_table	access:public
 num_items	uthash/uthash.h	/^   unsigned num_items;$/;"	m	struct:UT_hash_table	access:public
@@ -610,32 +632,28 @@ signature	uthash/uthash.h	/^   uint32_t signature; \/* used only to find hash ta
 spp _ ai c File Reference	doc/latex/spp__ai_8c.tex	/^\\section{spp\\_\\-ai.c File Reference}$/;"	s
 spp _ ai h File Reference	doc/latex/spp__ai_8h.tex	/^\\section{spp\\_\\-ai.h File Reference}$/;"	s
 src _ ip	doc/latex/structpkt__key.tex	/^\\subsubsection[{src\\_\\-ip}]{\\setlength{\\rightskip}{0pt plus 5cm}{\\bf uint32\\_\\-t} {\\bf pkt\\_\\-key::src\\_\\-ip}}}$/;"	b
-src_addr	spp_ai.h	/^	none, src_port, dst_port, src_addr, dst_addr, timestamp$/;"	e	enum:__anon2
+src_addr	spp_ai.h	/^	none, src_addr, dst_addr, src_port, dst_port, CLUSTER_TYPES$/;"	e	enum:__anon2
 src_addr	spp_ai.h	/^	uint32_t        src_addr;$/;"	m	struct:_AI_snort_alert	access:public
-src_addr_node	spp_ai.h	/^	hierarchy_node  *src_addr_node;$/;"	m	struct:_AI_snort_alert	access:public
-src_addr_root	cluster.c	/^PRIVATE hierarchy_node *src_addr_root = NULL;$/;"	v
 src_ip	spp_ai.h	/^	uint32_t src_ip;$/;"	m	struct:pkt_key	access:public
-src_port	spp_ai.h	/^	none, src_port, dst_port, src_addr, dst_addr, timestamp$/;"	e	enum:__anon2
+src_port	spp_ai.h	/^	none, src_addr, dst_addr, src_port, dst_port, CLUSTER_TYPES$/;"	e	enum:__anon2
 src_port	spp_ai.h	/^	uint16_t        src_port;$/;"	m	struct:_AI_snort_alert	access:public
-src_port_node	spp_ai.h	/^	hierarchy_node  *src_port_node;$/;"	m	struct:_AI_snort_alert	access:public
-src_port_root	cluster.c	/^PRIVATE hierarchy_node *src_port_root = NULL;$/;"	v
 start_time	stream.c	/^PRIVATE time_t start_time = 0;$/;"	v
 stream	spp_ai.h	/^	struct pkt_info *stream;$/;"	m	struct:_AI_snort_alert	typeref:struct:_AI_snort_alert::pkt_info	access:public
 stream c File Reference	doc/latex/stream_8c.tex	/^\\section{stream.c File Reference}$/;"	s
 streamExpireInterval	doc/latex/struct__AI__config.tex	/^\\subsubsection[{streamExpireInterval}]{\\setlength{\\rightskip}{0pt plus 5cm}unsigned long {\\bf \\_\\-AI\\_\\-config::streamExpireInterval}}}$/;"	b
 streamExpireInterval	spp_ai.h	/^	unsigned long streamExpireInterval;$/;"	m	struct:__anon3	access:public
-sz	uthash/utarray.h	/^    size_t sz;$/;"	m	struct:__anon5	access:public
+sz	uthash/utarray.h	/^    size_t sz;$/;"	m	struct:__anon7	access:public
 tail	uthash/uthash.h	/^   struct UT_hash_handle *tail; \/* tail hh in app order, for fast append    *\/$/;"	m	struct:UT_hash_table	typeref:struct:UT_hash_table::UT_hash_handle	access:public
 tbl	uthash/uthash.h	/^   struct UT_hash_table *tbl;$/;"	m	struct:UT_hash_handle	typeref:struct:UT_hash_handle::UT_hash_table	access:public
 tcp_flags	spp_ai.h	/^	uint8_t         tcp_flags;$/;"	m	struct:_AI_snort_alert	access:public
 tcplen	spp_ai.h	/^	uint16_t        tcplen;$/;"	m	struct:_AI_snort_alert	access:public
 timestamp	doc/latex/structpkt__info.tex	/^\\subsubsection[{timestamp}]{\\setlength{\\rightskip}{0pt plus 5cm}time\\_\\-t {\\bf pkt\\_\\-info::timestamp}}}$/;"	b
-timestamp	spp_ai.h	/^	none, src_port, dst_port, src_addr, dst_addr, timestamp$/;"	e	enum:__anon2
 timestamp	spp_ai.h	/^	time_t            timestamp;        \/* Timestamp *\/$/;"	m	struct:pkt_info	access:public
 timestamp	spp_ai.h	/^	time_t          timestamp;$/;"	m	struct:_AI_snort_alert	access:public
 tos	spp_ai.h	/^	uint8_t         tos;$/;"	m	struct:_AI_snort_alert	access:public
 true	spp_ai.h	/^typedef enum { false, true } BOOL;$/;"	e	enum:__anon1
 ttl	spp_ai.h	/^	uint8_t         ttl;$/;"	m	struct:_AI_snort_alert	access:public
+type	cluster.c	/^	cluster_type    type;$/;"	m	struct:__anon5	file:	access:public
 type	spp_ai.h	/^	cluster_type            type;$/;"	m	struct:_hierarchy_node	access:public
 typedef-members	doc/html/spp__ai_8h.html	/^<tr><td colspan="2"><h2><a name="typedef-members"><\/a>$/;"	a
 uint16_t	spp_ai.h	/^typedef unsigned short  uint16_t;$/;"	t

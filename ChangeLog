@@ -1,0 +1,6 @@
+2010-16-08  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
+	* cluster.c: Finished clustering algorithm and clustering log management
+
+2010-26-07  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
+	* all: First version
+

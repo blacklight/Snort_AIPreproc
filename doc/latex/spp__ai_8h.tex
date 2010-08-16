@@ -3,19 +3,48 @@
 \label{spp__ai_8h}\index{spp\_\-ai.h@{spp\_\-ai.h}}
 }
 {\ttfamily \#include \char`\"{}sf\_\-snort\_\-packet.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}sf\_\-dynamic\_\-preprocessor.h\char`\"{}}\par
+{\ttfamily \#include \char`\"{}uthash.h\char`\"{}}\par
 \subsection*{Data Structures}
 \begin{DoxyCompactItemize}
 \item 
-struct \hyperlink{struct__AI__config}{\_\-AI\_\-config}
+struct \hyperlink{structpkt__key}{pkt\_\-key}
+\item 
+struct \hyperlink{structpkt__info}{pkt\_\-info}
+\item 
+struct \hyperlink{structAI__config}{AI\_\-config}
+\item 
+struct \hyperlink{struct__hierarchy__node}{\_\-hierarchy\_\-node}
+\item 
+struct \hyperlink{struct__AI__snort__alert}{\_\-AI\_\-snort\_\-alert}
+\end{DoxyCompactItemize}
+\subsection*{Defines}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{spp__ai_8h_a5e151c615eda34903514212f05a5ccf8}{PRIVATE}~static
+\item 
+\#define \hyperlink{spp__ai_8h_a5f555c0ebd29ce2771a3e2dd4f526746}{DEFAULT\_\-HASH\_\-CLEANUP\_\-INTERVAL}~300
+\item 
+\#define \hyperlink{spp__ai_8h_a0f6a189af15ef783fb46ed37c144e031}{DEFAULT\_\-STREAM\_\-EXPIRE\_\-INTERVAL}~300
+\item 
+\#define \hyperlink{spp__ai_8h_a0c4b6fce670e46083e33b9f53b78f39e}{DEFAULT\_\-ALERT\_\-CLUSTERING\_\-INTERVAL}~3600
+\item 
+\#define \hyperlink{spp__ai_8h_a6d9bf552c32371e0144dc6a6209c7e4a}{DEFAULT\_\-ALERT\_\-LOG\_\-FILE}~\char`\"{}/var/log/snort/alert\char`\"{}
+\item 
+\#define \hyperlink{spp__ai_8h_a803dc913297ccdace9e604dbfecda97d}{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE}~\char`\"{}/var/log/snort/cluster\_\-alert\char`\"{}
 \end{DoxyCompactItemize}
 \subsection*{Typedefs}
 \begin{DoxyCompactItemize}
 \item 
-typedef unsigned int \hyperlink{spp__ai_8h_a435d1572bf3f880d55459d9805097f62}{uint32\_\-t}
+typedef unsigned char \hyperlink{spp__ai_8h_aba7bc1797add20fe3efdf37ced1182c5}{uint8\_\-t}
 \item 
 typedef unsigned short \hyperlink{spp__ai_8h_a273cf69d639a59973b6019625df33e30}{uint16\_\-t}
 \item 
-typedef struct \hyperlink{struct__AI__config}{\_\-AI\_\-config} \hyperlink{spp__ai_8h_a3fc526e5a55f5d137402b1bbd1b6072c}{AI\_\-config}
+typedef unsigned int \hyperlink{spp__ai_8h_a435d1572bf3f880d55459d9805097f62}{uint32\_\-t}
+\item 
+typedef struct \hyperlink{struct__hierarchy__node}{\_\-hierarchy\_\-node} \hyperlink{spp__ai_8h_a466391129919ef12366d311d501552fa}{hierarchy\_\-node}
+\item 
+typedef struct \hyperlink{struct__AI__snort__alert}{\_\-AI\_\-snort\_\-alert} \hyperlink{spp__ai_8h_a982be90e72362e88d09f28336c9a1897}{AI\_\-snort\_\-alert}
 \end{DoxyCompactItemize}
 \subsection*{Enumerations}
 \begin{DoxyCompactItemize}
@@ -23,22 +52,89 @@ typedef struct \hyperlink{struct__AI__config}{\_\-AI\_\-config} \hyperlink{spp__
 enum \hyperlink{spp__ai_8h_a3e5b8192e7d9ffaf3542f1210aec18dd}{BOOL} \{ \hyperlink{spp__ai_8h_a3e5b8192e7d9ffaf3542f1210aec18ddae9de385ef6fe9bf3360d1038396b884c}{false}, 
 \hyperlink{spp__ai_8h_a3e5b8192e7d9ffaf3542f1210aec18dda08f175a5505a10b9ed657defeb050e4b}{true}
  \}
+\item 
+enum \hyperlink{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640}{cluster\_\-type} \{ \par
+\hyperlink{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640ab7e4e0120a041dbe6528b050c04269e0}{none}, 
+\hyperlink{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640abc900639df18f0f5f2f63a1f033fe42f}{src\_\-addr}, 
+\hyperlink{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640aa000f955ef1374c60cdb16bf43a1593c}{dst\_\-addr}, 
+\hyperlink{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640ac1335c508143eb06843af2ce5ff3027b}{src\_\-port}, 
+\par
+\hyperlink{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640abc4f89a184ada44073bd6f54d7fc11c9}{dst\_\-port}, 
+\hyperlink{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640ab16bb5c4b330d5db02e2d852cd2ba451}{CLUSTER\_\-TYPES}
+ \}
 \end{DoxyCompactItemize}
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
+int \hyperlink{spp__ai_8h_a85c0852b05b60cbfe0130534160c9876}{preg\_\-match} (const char $\ast$, char $\ast$, char $\ast$$\ast$$\ast$, int $\ast$)
+\begin{DoxyCompactList}\small\item\em Check if a string matches a regular expression. \item\end{DoxyCompactList}\item 
+void $\ast$ \hyperlink{spp__ai_8h_ad56f71be823eead743972274b99c82ff}{AI\_\-hashcleanup\_\-thread} (void $\ast$)
+\begin{DoxyCompactList}\small\item\em Thread called for cleaning up the hash table from the traffic streams older than a certain threshold. \item\end{DoxyCompactList}\item 
+void $\ast$ \hyperlink{spp__ai_8h_a842a3204c6e067a9920990b573757181}{AI\_\-alertparser\_\-thread} (void $\ast$)
+\begin{DoxyCompactList}\small\item\em Thread for parsing Snort's alert file. \item\end{DoxyCompactList}\item 
 void \hyperlink{spp__ai_8h_af6f7d167c3623bbc669e8d31c2719b29}{AI\_\-pkt\_\-enqueue} (SFSnortPacket $\ast$)
 \begin{DoxyCompactList}\small\item\em Function called for appending a new packet to the hash table, creating a new stream or appending it to an existing stream. \item\end{DoxyCompactList}\item 
-void $\ast$ \hyperlink{spp__ai_8h_ad56f71be823eead743972274b99c82ff}{AI\_\-hashcleanup\_\-thread} (void $\ast$)
-\begin{DoxyCompactList}\small\item\em Thread called for cleaning up the hash table from the traffic streams older than a certain threshold. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+void \hyperlink{spp__ai_8h_a8749989cee2ac05a7de058faac280c02}{AI\_\-set\_\-stream\_\-observed} (struct \hyperlink{structpkt__key}{pkt\_\-key} key)
+\begin{DoxyCompactList}\small\item\em Set the flag \char`\"{}observed\char`\"{} on a stream associated to a security alert, so that it won't be removed from the hash table. \item\end{DoxyCompactList}\item 
+void \hyperlink{spp__ai_8h_a857348424b9db45c90f95631eb96fd7c}{AI\_\-hierarchies\_\-build} (\hyperlink{structAI__config}{AI\_\-config} $\ast$, \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$$\ast$, int)
+\begin{DoxyCompactList}\small\item\em Build the clustering hierarchy trees. \item\end{DoxyCompactList}\item 
+struct \hyperlink{structpkt__info}{pkt\_\-info} $\ast$ \hyperlink{spp__ai_8h_a3054f06297a9caefd4d9b1283bb8b69a}{AI\_\-get\_\-stream\_\-by\_\-key} (struct \hyperlink{structpkt__key}{pkt\_\-key})
+\begin{DoxyCompactList}\small\item\em Get a TCP stream by key. \item\end{DoxyCompactList}\item 
+\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{spp__ai_8h_af19a28f7cbcdfeb2b66fb3b625b75076}{AI\_\-get\_\-alerts} (void)
+\begin{DoxyCompactList}\small\item\em Return the alerts parsed so far as a linked list. \item\end{DoxyCompactList}\item 
+void \hyperlink{spp__ai_8h_a270e86669a0aa64a8da37bc16cda645b}{AI\_\-free\_\-alerts} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$node)
+\begin{DoxyCompactList}\small\item\em Deallocate the memory of a log alert linked list. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+DynamicPreprocessorData \hyperlink{spp__ai_8h_ab46420126c43c1aac5eabc5db266a71c}{\_\-dpd}
+\end{DoxyCompactItemize}
+
+
+\subsection{Define Documentation}
+\hypertarget{spp__ai_8h_a0c4b6fce670e46083e33b9f53b78f39e}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-ALERT\_\-CLUSTERING\_\-INTERVAL@{DEFAULT\_\-ALERT\_\-CLUSTERING\_\-INTERVAL}}
+\index{DEFAULT\_\-ALERT\_\-CLUSTERING\_\-INTERVAL@{DEFAULT\_\-ALERT\_\-CLUSTERING\_\-INTERVAL}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{DEFAULT\_\-ALERT\_\-CLUSTERING\_\-INTERVAL}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-ALERT\_\-CLUSTERING\_\-INTERVAL~3600}}
+\label{spp__ai_8h_a0c4b6fce670e46083e33b9f53b78f39e}
+\hypertarget{spp__ai_8h_a6d9bf552c32371e0144dc6a6209c7e4a}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-ALERT\_\-LOG\_\-FILE@{DEFAULT\_\-ALERT\_\-LOG\_\-FILE}}
+\index{DEFAULT\_\-ALERT\_\-LOG\_\-FILE@{DEFAULT\_\-ALERT\_\-LOG\_\-FILE}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{DEFAULT\_\-ALERT\_\-LOG\_\-FILE}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-ALERT\_\-LOG\_\-FILE~\char`\"{}/var/log/snort/alert\char`\"{}}}
+\label{spp__ai_8h_a6d9bf552c32371e0144dc6a6209c7e4a}
+\hypertarget{spp__ai_8h_a803dc913297ccdace9e604dbfecda97d}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE@{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE}}
+\index{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE@{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE~\char`\"{}/var/log/snort/cluster\_\-alert\char`\"{}}}
+\label{spp__ai_8h_a803dc913297ccdace9e604dbfecda97d}
+\hypertarget{spp__ai_8h_a5f555c0ebd29ce2771a3e2dd4f526746}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-HASH\_\-CLEANUP\_\-INTERVAL@{DEFAULT\_\-HASH\_\-CLEANUP\_\-INTERVAL}}
+\index{DEFAULT\_\-HASH\_\-CLEANUP\_\-INTERVAL@{DEFAULT\_\-HASH\_\-CLEANUP\_\-INTERVAL}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{DEFAULT\_\-HASH\_\-CLEANUP\_\-INTERVAL}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-HASH\_\-CLEANUP\_\-INTERVAL~300}}
+\label{spp__ai_8h_a5f555c0ebd29ce2771a3e2dd4f526746}
+\hypertarget{spp__ai_8h_a0f6a189af15ef783fb46ed37c144e031}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-STREAM\_\-EXPIRE\_\-INTERVAL@{DEFAULT\_\-STREAM\_\-EXPIRE\_\-INTERVAL}}
+\index{DEFAULT\_\-STREAM\_\-EXPIRE\_\-INTERVAL@{DEFAULT\_\-STREAM\_\-EXPIRE\_\-INTERVAL}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{DEFAULT\_\-STREAM\_\-EXPIRE\_\-INTERVAL}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-STREAM\_\-EXPIRE\_\-INTERVAL~300}}
+\label{spp__ai_8h_a0f6a189af15ef783fb46ed37c144e031}
+\hypertarget{spp__ai_8h_a5e151c615eda34903514212f05a5ccf8}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!PRIVATE@{PRIVATE}}
+\index{PRIVATE@{PRIVATE}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{PRIVATE}]{\setlength{\rightskip}{0pt plus 5cm}\#define PRIVATE~static}}
+\label{spp__ai_8h_a5e151c615eda34903514212f05a5ccf8}
 
 
 \subsection{Typedef Documentation}
-\hypertarget{spp__ai_8h_a3fc526e5a55f5d137402b1bbd1b6072c}{
-\index{spp\_\-ai.h@{spp\_\-ai.h}!AI\_\-config@{AI\_\-config}}
-\index{AI\_\-config@{AI\_\-config}!spp_ai.h@{spp\_\-ai.h}}
-\subsubsection[{AI\_\-config}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf \_\-AI\_\-config}  {\bf AI\_\-config}}}
-\label{spp__ai_8h_a3fc526e5a55f5d137402b1bbd1b6072c}
+\hypertarget{spp__ai_8h_a982be90e72362e88d09f28336c9a1897}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!AI\_\-snort\_\-alert@{AI\_\-snort\_\-alert}}
+\index{AI\_\-snort\_\-alert@{AI\_\-snort\_\-alert}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{AI\_\-snort\_\-alert}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf \_\-AI\_\-snort\_\-alert}  {\bf AI\_\-snort\_\-alert}}}
+\label{spp__ai_8h_a982be90e72362e88d09f28336c9a1897}
+\hypertarget{spp__ai_8h_a466391129919ef12366d311d501552fa}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!hierarchy\_\-node@{hierarchy\_\-node}}
+\index{hierarchy\_\-node@{hierarchy\_\-node}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{hierarchy\_\-node}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf \_\-hierarchy\_\-node}  {\bf hierarchy\_\-node}}}
+\label{spp__ai_8h_a466391129919ef12366d311d501552fa}
 \hypertarget{spp__ai_8h_a273cf69d639a59973b6019625df33e30}{
 \index{spp\_\-ai.h@{spp\_\-ai.h}!uint16\_\-t@{uint16\_\-t}}
 \index{uint16\_\-t@{uint16\_\-t}!spp_ai.h@{spp\_\-ai.h}}
@@ -49,6 +145,11 @@ void $\ast$ \hyperlink{spp__ai_8h_ad56f71be823eead743972274b99c82ff}{AI\_\-hashc
 \index{uint32\_\-t@{uint32\_\-t}!spp_ai.h@{spp\_\-ai.h}}
 \subsubsection[{uint32\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef unsigned int {\bf uint32\_\-t}}}
 \label{spp__ai_8h_a435d1572bf3f880d55459d9805097f62}
+\hypertarget{spp__ai_8h_aba7bc1797add20fe3efdf37ced1182c5}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!uint8\_\-t@{uint8\_\-t}}
+\index{uint8\_\-t@{uint8\_\-t}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{uint8\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef unsigned char {\bf uint8\_\-t}}}
+\label{spp__ai_8h_aba7bc1797add20fe3efdf37ced1182c5}
 
 
 \subsection{Enumeration Type Documentation}
@@ -71,9 +172,111 @@ true}
 }]\end{description}
 \end{Desc}
 
+\hypertarget{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!cluster\_\-type@{cluster\_\-type}}
+\index{cluster\_\-type@{cluster\_\-type}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{cluster\_\-type}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf cluster\_\-type}}}
+\label{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640}
+\begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{none@{none}!spp\_\-ai.h@{spp\_\-ai.h}}\index{spp\_\-ai.h@{spp\_\-ai.h}!none@{none}}\item[{\em 
+\hypertarget{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640ab7e4e0120a041dbe6528b050c04269e0}{
+none}
+\label{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640ab7e4e0120a041dbe6528b050c04269e0}
+}]\index{src\_\-addr@{src\_\-addr}!spp\_\-ai.h@{spp\_\-ai.h}}\index{spp\_\-ai.h@{spp\_\-ai.h}!src\_\-addr@{src\_\-addr}}\item[{\em 
+\hypertarget{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640abc900639df18f0f5f2f63a1f033fe42f}{
+src\_\-addr}
+\label{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640abc900639df18f0f5f2f63a1f033fe42f}
+}]\index{dst\_\-addr@{dst\_\-addr}!spp\_\-ai.h@{spp\_\-ai.h}}\index{spp\_\-ai.h@{spp\_\-ai.h}!dst\_\-addr@{dst\_\-addr}}\item[{\em 
+\hypertarget{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640aa000f955ef1374c60cdb16bf43a1593c}{
+dst\_\-addr}
+\label{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640aa000f955ef1374c60cdb16bf43a1593c}
+}]\index{src\_\-port@{src\_\-port}!spp\_\-ai.h@{spp\_\-ai.h}}\index{spp\_\-ai.h@{spp\_\-ai.h}!src\_\-port@{src\_\-port}}\item[{\em 
+\hypertarget{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640ac1335c508143eb06843af2ce5ff3027b}{
+src\_\-port}
+\label{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640ac1335c508143eb06843af2ce5ff3027b}
+}]\index{dst\_\-port@{dst\_\-port}!spp\_\-ai.h@{spp\_\-ai.h}}\index{spp\_\-ai.h@{spp\_\-ai.h}!dst\_\-port@{dst\_\-port}}\item[{\em 
+\hypertarget{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640abc4f89a184ada44073bd6f54d7fc11c9}{
+dst\_\-port}
+\label{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640abc4f89a184ada44073bd6f54d7fc11c9}
+}]\index{CLUSTER\_\-TYPES@{CLUSTER\_\-TYPES}!spp\_\-ai.h@{spp\_\-ai.h}}\index{spp\_\-ai.h@{spp\_\-ai.h}!CLUSTER\_\-TYPES@{CLUSTER\_\-TYPES}}\item[{\em 
+\hypertarget{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640ab16bb5c4b330d5db02e2d852cd2ba451}{
+CLUSTER\_\-TYPES}
+\label{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640ab16bb5c4b330d5db02e2d852cd2ba451}
+}]\end{description}
+\end{Desc}
+
 
 
 \subsection{Function Documentation}
+\hypertarget{spp__ai_8h_a842a3204c6e067a9920990b573757181}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!AI\_\-alertparser\_\-thread@{AI\_\-alertparser\_\-thread}}
+\index{AI\_\-alertparser\_\-thread@{AI\_\-alertparser\_\-thread}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{AI\_\-alertparser\_\-thread}]{\setlength{\rightskip}{0pt plus 5cm}void$\ast$ AI\_\-alertparser\_\-thread (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{ arg}
+\end{DoxyParamCaption}
+)}}
+\label{spp__ai_8h_a842a3204c6e067a9920990b573757181}
+
+
+Thread for parsing Snort's alert file. 
+
+FUNCTION: AI\_\-alertparser\_\-thread 
+\begin{DoxyParams}{Parameters}
+\item[{\em arg}]void$\ast$ pointer to module's configuration \end{DoxyParams}
+\hypertarget{spp__ai_8h_a270e86669a0aa64a8da37bc16cda645b}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!AI\_\-free\_\-alerts@{AI\_\-free\_\-alerts}}
+\index{AI\_\-free\_\-alerts@{AI\_\-free\_\-alerts}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{AI\_\-free\_\-alerts}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-free\_\-alerts (
+\begin{DoxyParamCaption}
+\item[{{\bf AI\_\-snort\_\-alert} $\ast$}]{ node}
+\end{DoxyParamCaption}
+)}}
+\label{spp__ai_8h_a270e86669a0aa64a8da37bc16cda645b}
+
+
+Deallocate the memory of a log alert linked list. 
+
+FUNCTION: AI\_\-free\_\-alerts 
+\begin{DoxyParams}{Parameters}
+\item[{\em node}]Linked list to be freed \end{DoxyParams}
+\hypertarget{spp__ai_8h_af19a28f7cbcdfeb2b66fb3b625b75076}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!AI\_\-get\_\-alerts@{AI\_\-get\_\-alerts}}
+\index{AI\_\-get\_\-alerts@{AI\_\-get\_\-alerts}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{AI\_\-get\_\-alerts}]{\setlength{\rightskip}{0pt plus 5cm}{\bf AI\_\-snort\_\-alert}$\ast$ AI\_\-get\_\-alerts (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}}
+\label{spp__ai_8h_af19a28f7cbcdfeb2b66fb3b625b75076}
+
+
+Return the alerts parsed so far as a linked list. 
+
+FUNCTION: AI\_\-get\_\-alerts \begin{DoxyReturn}{Returns}
+An AI\_\-snort\_\-alert pointer identifying the list of alerts 
+\end{DoxyReturn}
+\hypertarget{spp__ai_8h_a3054f06297a9caefd4d9b1283bb8b69a}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!AI\_\-get\_\-stream\_\-by\_\-key@{AI\_\-get\_\-stream\_\-by\_\-key}}
+\index{AI\_\-get\_\-stream\_\-by\_\-key@{AI\_\-get\_\-stream\_\-by\_\-key}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{AI\_\-get\_\-stream\_\-by\_\-key}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf pkt\_\-info}$\ast$ AI\_\-get\_\-stream\_\-by\_\-key (
+\begin{DoxyParamCaption}
+\item[{struct {\bf pkt\_\-key}}]{ key}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}read\mbox{]}}}}
+\label{spp__ai_8h_a3054f06297a9caefd4d9b1283bb8b69a}
+
+
+Get a TCP stream by key. 
+
+FUNCTION: AI\_\-get\_\-stream\_\-by\_\-key 
+\begin{DoxyParams}{Parameters}
+\item[{\em key}]Key of the stream to be picked up (struct \hyperlink{structpkt__key}{pkt\_\-key}) \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A \hyperlink{structpkt__info}{pkt\_\-info} pointer to the stream if found, NULL otherwise 
+\end{DoxyReturn}
 \hypertarget{spp__ai_8h_ad56f71be823eead743972274b99c82ff}{
 \index{spp\_\-ai.h@{spp\_\-ai.h}!AI\_\-hashcleanup\_\-thread@{AI\_\-hashcleanup\_\-thread}}
 \index{AI\_\-hashcleanup\_\-thread@{AI\_\-hashcleanup\_\-thread}!spp_ai.h@{spp\_\-ai.h}}
@@ -89,7 +292,25 @@ Thread called for cleaning up the hash table from the traffic streams older than
 
 FUNCTION: AI\_\-hashcleanup\_\-thread 
 \begin{DoxyParams}{Parameters}
-\item[{\em arg}]Pointer to the AI\_\-config struct \end{DoxyParams}
+\item[{\em arg}]Pointer to the \hyperlink{structAI__config}{AI\_\-config} struct \end{DoxyParams}
+\hypertarget{spp__ai_8h_a857348424b9db45c90f95631eb96fd7c}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!AI\_\-hierarchies\_\-build@{AI\_\-hierarchies\_\-build}}
+\index{AI\_\-hierarchies\_\-build@{AI\_\-hierarchies\_\-build}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{AI\_\-hierarchies\_\-build}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-hierarchies\_\-build (
+\begin{DoxyParamCaption}
+\item[{{\bf AI\_\-config} $\ast$}]{ conf, }
+\item[{{\bf hierarchy\_\-node} $\ast$$\ast$}]{ nodes, }
+\item[{int}]{ n\_\-nodes}
+\end{DoxyParamCaption}
+)}}
+\label{spp__ai_8h_a857348424b9db45c90f95631eb96fd7c}
+
+
+Build the clustering hierarchy trees. 
+
+FUNCTION: AI\_\-hierarchies\_\-build 
+\begin{DoxyParams}{Parameters}
+\item[{\em conf}]Reference to the configuration of the module \item[{\em nodes}]Nodes containing the information about the clustering ranges \item[{\em n\_\-nodes}]Number of nodes \end{DoxyParams}
 \hypertarget{spp__ai_8h_af6f7d167c3623bbc669e8d31c2719b29}{
 \index{spp\_\-ai.h@{spp\_\-ai.h}!AI\_\-pkt\_\-enqueue@{AI\_\-pkt\_\-enqueue}}
 \index{AI\_\-pkt\_\-enqueue@{AI\_\-pkt\_\-enqueue}!spp_ai.h@{spp\_\-ai.h}}
@@ -106,3 +327,49 @@ Function called for appending a new packet to the hash table, creating a new str
 FUNCTION: AI\_\-pkt\_\-enqueue 
 \begin{DoxyParams}{Parameters}
 \item[{\em pkt}]Packet to be appended \end{DoxyParams}
+\hypertarget{spp__ai_8h_a8749989cee2ac05a7de058faac280c02}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!AI\_\-set\_\-stream\_\-observed@{AI\_\-set\_\-stream\_\-observed}}
+\index{AI\_\-set\_\-stream\_\-observed@{AI\_\-set\_\-stream\_\-observed}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{AI\_\-set\_\-stream\_\-observed}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-set\_\-stream\_\-observed (
+\begin{DoxyParamCaption}
+\item[{struct {\bf pkt\_\-key}}]{ key}
+\end{DoxyParamCaption}
+)}}
+\label{spp__ai_8h_a8749989cee2ac05a7de058faac280c02}
+
+
+Set the flag \char`\"{}observed\char`\"{} on a stream associated to a security alert, so that it won't be removed from the hash table. 
+
+FUNCTION: AI\_\-set\_\-stream\_\-observed 
+\begin{DoxyParams}{Parameters}
+\item[{\em key}]Key of the stream to be set as \char`\"{}observed\char`\"{} \end{DoxyParams}
+\hypertarget{spp__ai_8h_a85c0852b05b60cbfe0130534160c9876}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!preg\_\-match@{preg\_\-match}}
+\index{preg\_\-match@{preg\_\-match}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{preg\_\-match}]{\setlength{\rightskip}{0pt plus 5cm}int preg\_\-match (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{ expr, }
+\item[{char $\ast$}]{ str, }
+\item[{char $\ast$$\ast$$\ast$}]{ matches, }
+\item[{int $\ast$}]{ nmatches}
+\end{DoxyParamCaption}
+)}}
+\label{spp__ai_8h_a85c0852b05b60cbfe0130534160c9876}
+
+
+Check if a string matches a regular expression. 
+
+FUNCTION: preg\_\-match 
+\begin{DoxyParams}{Parameters}
+\item[{\em expr}]Regular expression to be matched \item[{\em str}]String to be checked \item[{\em matches}]Reference to a char$\ast$$\ast$ that will contain the submatches (NULL if you don't need it) \item[{\em nmatches}]Reference to a int containing the number of submatches found (NULL if you don't need it) \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+-\/1 if the regex is wrong, 0 if no match was found, 1 otherwise 
+\end{DoxyReturn}
+
+
+\subsection{Variable Documentation}
+\hypertarget{spp__ai_8h_ab46420126c43c1aac5eabc5db266a71c}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!\_\-dpd@{\_\-dpd}}
+\index{\_\-dpd@{\_\-dpd}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{\_\-dpd}]{\setlength{\rightskip}{0pt plus 5cm}DynamicPreprocessorData {\bf \_\-dpd}}}
+\label{spp__ai_8h_ab46420126c43c1aac5eabc5db266a71c}

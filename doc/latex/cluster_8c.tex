@@ -1,0 +1,253 @@
+\hypertarget{cluster_8c}{
+\section{cluster.c File Reference}
+\label{cluster_8c}\index{cluster.c@{cluster.c}}
+}
+{\ttfamily \#include \char`\"{}spp\_\-ai.h\char`\"{}}\par
+{\ttfamily \#include $<$stdio.h$>$}\par
+{\ttfamily \#include $<$unistd.h$>$}\par
+{\ttfamily \#include $<$limits.h$>$}\par
+{\ttfamily \#include $<$pthread.h$>$}\par
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structattribute__key}{attribute\_\-key}
+\item 
+struct \hyperlink{structattribute__value}{attribute\_\-value}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+PRIVATE int \hyperlink{cluster_8c_a81f5fa721719fdb281595a568eef2101}{\_\-heuristic\_\-func} (\hyperlink{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640}{cluster\_\-type} type)
+\begin{DoxyCompactList}\small\item\em Function that picks up the heuristic value for a clustering attribute in according to Julisch's heuristic (ACM, Vol.2, No.3, 09 2002, pag.124). \item\end{DoxyCompactList}\item 
+PRIVATE \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$ \hyperlink{cluster_8c_a2f1a22cfea64e4669da0467620c3e3b3}{\_\-hierarchy\_\-node\_\-new} (char $\ast$label, int min\_\-val, int max\_\-val)
+\begin{DoxyCompactList}\small\item\em Create a new clustering hierarchy node. \item\end{DoxyCompactList}\item 
+PRIVATE void \hyperlink{cluster_8c_a5601a1f603d9c870ef6e2df192e30c30}{\_\-hierarchy\_\-node\_\-append} (\hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$parent, \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$child)
+\begin{DoxyCompactList}\small\item\em Append a node to a clustering hierarchy node. \item\end{DoxyCompactList}\item 
+PRIVATE \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$ \hyperlink{cluster_8c_a6ddddcd505b1f763c339e81fc143e079}{\_\-AI\_\-get\_\-min\_\-hierarchy\_\-node} (int val, \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$root)
+\begin{DoxyCompactList}\small\item\em Get the minimum node in a hierarchy tree that matches a certain value. \item\end{DoxyCompactList}\item 
+PRIVATE \hyperlink{spp__ai_8h_a3e5b8192e7d9ffaf3542f1210aec18dd}{BOOL} \hyperlink{cluster_8c_a0f91c8bfc37a3975f5c26b19fd6c5cba}{\_\-AI\_\-equal\_\-alarms} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$a1, \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$a2)
+\begin{DoxyCompactList}\small\item\em Check if two alerts are semantically equal. \item\end{DoxyCompactList}\item 
+PRIVATE int \hyperlink{cluster_8c_a8ce8e5a5d8954672297fa2dedb380dcd}{\_\-AI\_\-merge\_\-alerts} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$$\ast$log)
+\begin{DoxyCompactList}\small\item\em Merge the alerts marked as equal in the log. \item\end{DoxyCompactList}\item 
+PRIVATE void \hyperlink{cluster_8c_a7d151880080470b542e99643dc0426a7}{\_\-AI\_\-print\_\-clustered\_\-alerts} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$log, FILE $\ast$fp)
+\begin{DoxyCompactList}\small\item\em Print the clustered alerts to a log file. \item\end{DoxyCompactList}\item 
+PRIVATE void $\ast$ \hyperlink{cluster_8c_a8a5eae61dc9fd0f13e0acdfa5f4478e2}{\_\-AI\_\-cluster\_\-thread} (void $\ast$arg)
+\begin{DoxyCompactList}\small\item\em Thread for periodically clustering the log information. \item\end{DoxyCompactList}\item 
+PRIVATE \hyperlink{spp__ai_8h_a3e5b8192e7d9ffaf3542f1210aec18dd}{BOOL} \hyperlink{cluster_8c_a29c35cd6c56f54e27b5b190c6d6c487a}{\_\-AI\_\-check\_\-duplicate} (\hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$node, \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$root)
+\begin{DoxyCompactList}\small\item\em Check if a certain node's range (minimum and maximum value) are already present in a clustering hierarchy. \item\end{DoxyCompactList}\item 
+void \hyperlink{cluster_8c_a1445818b37483f78cc3fb2890155842c}{AI\_\-hierarchies\_\-build} (\hyperlink{structAI__config}{AI\_\-config} $\ast$conf, \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$$\ast$nodes, int n\_\-nodes)
+\begin{DoxyCompactList}\small\item\em Build the clustering hierarchy trees. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+PRIVATE \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$ \hyperlink{cluster_8c_a97d35425cf5a0207fb50b64ee8cdda82}{h\_\-root} \mbox{[}CLUSTER\_\-TYPES\mbox{]} = \{ NULL \}
+\item 
+PRIVATE \hyperlink{structAI__config}{AI\_\-config} $\ast$ \hyperlink{cluster_8c_a91458e2d34595688e39fcb63ba418849}{\_\-config} = NULL
+\item 
+PRIVATE \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{cluster_8c_aaf4c19f60f48741b0890c6114dcff7d9}{alert\_\-log} = NULL
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{cluster_8c_a29c35cd6c56f54e27b5b190c6d6c487a}{
+\index{cluster.c@{cluster.c}!\_\-AI\_\-check\_\-duplicate@{\_\-AI\_\-check\_\-duplicate}}
+\index{\_\-AI\_\-check\_\-duplicate@{\_\-AI\_\-check\_\-duplicate}!cluster.c@{cluster.c}}
+\subsubsection[{\_\-AI\_\-check\_\-duplicate}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf BOOL} \_\-AI\_\-check\_\-duplicate (
+\begin{DoxyParamCaption}
+\item[{{\bf hierarchy\_\-node} $\ast$}]{ node, }
+\item[{{\bf hierarchy\_\-node} $\ast$}]{ root}
+\end{DoxyParamCaption}
+)}}
+\label{cluster_8c_a29c35cd6c56f54e27b5b190c6d6c487a}
+
+
+Check if a certain node's range (minimum and maximum value) are already present in a clustering hierarchy. 
+
+FUNCTION: \_\-AI\_\-check\_\-duplicate 
+\begin{DoxyParams}{Parameters}
+\item[{\em node}]Node to be checked \item[{\em root}]Clustering hierarchy \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if 'node' is already in 'root', false otherwise 
+\end{DoxyReturn}
+\hypertarget{cluster_8c_a8a5eae61dc9fd0f13e0acdfa5f4478e2}{
+\index{cluster.c@{cluster.c}!\_\-AI\_\-cluster\_\-thread@{\_\-AI\_\-cluster\_\-thread}}
+\index{\_\-AI\_\-cluster\_\-thread@{\_\-AI\_\-cluster\_\-thread}!cluster.c@{cluster.c}}
+\subsubsection[{\_\-AI\_\-cluster\_\-thread}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE void$\ast$ \_\-AI\_\-cluster\_\-thread (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{ arg}
+\end{DoxyParamCaption}
+)}}
+\label{cluster_8c_a8a5eae61dc9fd0f13e0acdfa5f4478e2}
+
+
+Thread for periodically clustering the log information. 
+
+FUNCTION: \_\-AI\_\-cluster\_\-thread \hypertarget{cluster_8c_a0f91c8bfc37a3975f5c26b19fd6c5cba}{
+\index{cluster.c@{cluster.c}!\_\-AI\_\-equal\_\-alarms@{\_\-AI\_\-equal\_\-alarms}}
+\index{\_\-AI\_\-equal\_\-alarms@{\_\-AI\_\-equal\_\-alarms}!cluster.c@{cluster.c}}
+\subsubsection[{\_\-AI\_\-equal\_\-alarms}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf BOOL} \_\-AI\_\-equal\_\-alarms (
+\begin{DoxyParamCaption}
+\item[{{\bf AI\_\-snort\_\-alert} $\ast$}]{ a1, }
+\item[{{\bf AI\_\-snort\_\-alert} $\ast$}]{ a2}
+\end{DoxyParamCaption}
+)}}
+\label{cluster_8c_a0f91c8bfc37a3975f5c26b19fd6c5cba}
+
+
+Check if two alerts are semantically equal. 
+
+FUNCTION: \_\-AI\_\-equal\_\-alarms 
+\begin{DoxyParams}{Parameters}
+\item[{\em a1}]First alert \item[{\em a2}]Second alert \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+True if they are equal, false otherwise 
+\end{DoxyReturn}
+\hypertarget{cluster_8c_a6ddddcd505b1f763c339e81fc143e079}{
+\index{cluster.c@{cluster.c}!\_\-AI\_\-get\_\-min\_\-hierarchy\_\-node@{\_\-AI\_\-get\_\-min\_\-hierarchy\_\-node}}
+\index{\_\-AI\_\-get\_\-min\_\-hierarchy\_\-node@{\_\-AI\_\-get\_\-min\_\-hierarchy\_\-node}!cluster.c@{cluster.c}}
+\subsubsection[{\_\-AI\_\-get\_\-min\_\-hierarchy\_\-node}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf hierarchy\_\-node}$\ast$ \_\-AI\_\-get\_\-min\_\-hierarchy\_\-node (
+\begin{DoxyParamCaption}
+\item[{int}]{ val, }
+\item[{{\bf hierarchy\_\-node} $\ast$}]{ root}
+\end{DoxyParamCaption}
+)}}
+\label{cluster_8c_a6ddddcd505b1f763c339e81fc143e079}
+
+
+Get the minimum node in a hierarchy tree that matches a certain value. 
+
+FUNCTION: \_\-AI\_\-get\_\-min\_\-hierarchy\_\-node 
+\begin{DoxyParams}{Parameters}
+\item[{\em val}]Value to be matched in the range \item[{\em root}]Root of the hierarchy \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The minimum node that matches the value if any, NULL otherwise 
+\end{DoxyReturn}
+\hypertarget{cluster_8c_a8ce8e5a5d8954672297fa2dedb380dcd}{
+\index{cluster.c@{cluster.c}!\_\-AI\_\-merge\_\-alerts@{\_\-AI\_\-merge\_\-alerts}}
+\index{\_\-AI\_\-merge\_\-alerts@{\_\-AI\_\-merge\_\-alerts}!cluster.c@{cluster.c}}
+\subsubsection[{\_\-AI\_\-merge\_\-alerts}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE int \_\-AI\_\-merge\_\-alerts (
+\begin{DoxyParamCaption}
+\item[{{\bf AI\_\-snort\_\-alert} $\ast$$\ast$}]{ log}
+\end{DoxyParamCaption}
+)}}
+\label{cluster_8c_a8ce8e5a5d8954672297fa2dedb380dcd}
+
+
+Merge the alerts marked as equal in the log. 
+
+FUNCTION: \_\-AI\_\-merge\_\-alerts 
+\begin{DoxyParams}{Parameters}
+\item[{\em log}]Alert log reference \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The number of merged couples 
+\end{DoxyReturn}
+\hypertarget{cluster_8c_a7d151880080470b542e99643dc0426a7}{
+\index{cluster.c@{cluster.c}!\_\-AI\_\-print\_\-clustered\_\-alerts@{\_\-AI\_\-print\_\-clustered\_\-alerts}}
+\index{\_\-AI\_\-print\_\-clustered\_\-alerts@{\_\-AI\_\-print\_\-clustered\_\-alerts}!cluster.c@{cluster.c}}
+\subsubsection[{\_\-AI\_\-print\_\-clustered\_\-alerts}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE void \_\-AI\_\-print\_\-clustered\_\-alerts (
+\begin{DoxyParamCaption}
+\item[{{\bf AI\_\-snort\_\-alert} $\ast$}]{ log, }
+\item[{FILE $\ast$}]{ fp}
+\end{DoxyParamCaption}
+)}}
+\label{cluster_8c_a7d151880080470b542e99643dc0426a7}
+
+
+Print the clustered alerts to a log file. 
+
+FUNCTION: \_\-AI\_\-print\_\-clustered\_\-alerts 
+\begin{DoxyParams}{Parameters}
+\item[{\em log}]Log containing the alerts \item[{\em fp}]File pointer where the alerts will be printed \end{DoxyParams}
+\hypertarget{cluster_8c_a81f5fa721719fdb281595a568eef2101}{
+\index{cluster.c@{cluster.c}!\_\-heuristic\_\-func@{\_\-heuristic\_\-func}}
+\index{\_\-heuristic\_\-func@{\_\-heuristic\_\-func}!cluster.c@{cluster.c}}
+\subsubsection[{\_\-heuristic\_\-func}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE int \_\-heuristic\_\-func (
+\begin{DoxyParamCaption}
+\item[{{\bf cluster\_\-type}}]{ type}
+\end{DoxyParamCaption}
+)}}
+\label{cluster_8c_a81f5fa721719fdb281595a568eef2101}
+
+
+Function that picks up the heuristic value for a clustering attribute in according to Julisch's heuristic (ACM, Vol.2, No.3, 09 2002, pag.124). 
+
+FUNCTION: \_\-heuristic\_\-func 
+\begin{DoxyParams}{Parameters}
+\item[{\em type}]Attribute type \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The heuristic coefficient for that attribute, -\/1 if no clustering information is available for that attribute 
+\end{DoxyReturn}
+\hypertarget{cluster_8c_a5601a1f603d9c870ef6e2df192e30c30}{
+\index{cluster.c@{cluster.c}!\_\-hierarchy\_\-node\_\-append@{\_\-hierarchy\_\-node\_\-append}}
+\index{\_\-hierarchy\_\-node\_\-append@{\_\-hierarchy\_\-node\_\-append}!cluster.c@{cluster.c}}
+\subsubsection[{\_\-hierarchy\_\-node\_\-append}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE void \_\-hierarchy\_\-node\_\-append (
+\begin{DoxyParamCaption}
+\item[{{\bf hierarchy\_\-node} $\ast$}]{ parent, }
+\item[{{\bf hierarchy\_\-node} $\ast$}]{ child}
+\end{DoxyParamCaption}
+)}}
+\label{cluster_8c_a5601a1f603d9c870ef6e2df192e30c30}
+
+
+Append a node to a clustering hierarchy node. 
+
+FUNCTION: \_\-hierarchy\_\-node\_\-append 
+\begin{DoxyParams}{Parameters}
+\item[{\em parent}]Parent node \item[{\em child}]Child node \end{DoxyParams}
+\hypertarget{cluster_8c_a2f1a22cfea64e4669da0467620c3e3b3}{
+\index{cluster.c@{cluster.c}!\_\-hierarchy\_\-node\_\-new@{\_\-hierarchy\_\-node\_\-new}}
+\index{\_\-hierarchy\_\-node\_\-new@{\_\-hierarchy\_\-node\_\-new}!cluster.c@{cluster.c}}
+\subsubsection[{\_\-hierarchy\_\-node\_\-new}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf hierarchy\_\-node}$\ast$ \_\-hierarchy\_\-node\_\-new (
+\begin{DoxyParamCaption}
+\item[{char $\ast$}]{ label, }
+\item[{int}]{ min\_\-val, }
+\item[{int}]{ max\_\-val}
+\end{DoxyParamCaption}
+)}}
+\label{cluster_8c_a2f1a22cfea64e4669da0467620c3e3b3}
+
+
+Create a new clustering hierarchy node. 
+
+FUNCTION: \_\-hierarchy\_\-node\_\-new 
+\begin{DoxyParams}{Parameters}
+\item[{\em label}]Label for the node \item[{\em min\_\-val}]Minimum value for the range represented by the node \item[{\em max\_\-val}]Maximum value for the range represented by the node \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The brand new node if the allocation was ok, otherwise abort the application 
+\end{DoxyReturn}
+\hypertarget{cluster_8c_a1445818b37483f78cc3fb2890155842c}{
+\index{cluster.c@{cluster.c}!AI\_\-hierarchies\_\-build@{AI\_\-hierarchies\_\-build}}
+\index{AI\_\-hierarchies\_\-build@{AI\_\-hierarchies\_\-build}!cluster.c@{cluster.c}}
+\subsubsection[{AI\_\-hierarchies\_\-build}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-hierarchies\_\-build (
+\begin{DoxyParamCaption}
+\item[{{\bf AI\_\-config} $\ast$}]{ conf, }
+\item[{{\bf hierarchy\_\-node} $\ast$$\ast$}]{ nodes, }
+\item[{int}]{ n\_\-nodes}
+\end{DoxyParamCaption}
+)}}
+\label{cluster_8c_a1445818b37483f78cc3fb2890155842c}
+
+
+Build the clustering hierarchy trees. 
+
+FUNCTION: AI\_\-hierarchies\_\-build 
+\begin{DoxyParams}{Parameters}
+\item[{\em conf}]Reference to the configuration of the module \item[{\em nodes}]Nodes containing the information about the clustering ranges \item[{\em n\_\-nodes}]Number of nodes \end{DoxyParams}
+
+
+\subsection{Variable Documentation}
+\hypertarget{cluster_8c_a91458e2d34595688e39fcb63ba418849}{
+\index{cluster.c@{cluster.c}!\_\-config@{\_\-config}}
+\index{\_\-config@{\_\-config}!cluster.c@{cluster.c}}
+\subsubsection[{\_\-config}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf AI\_\-config}$\ast$ {\bf \_\-config} = NULL}}
+\label{cluster_8c_a91458e2d34595688e39fcb63ba418849}
+\hypertarget{cluster_8c_aaf4c19f60f48741b0890c6114dcff7d9}{
+\index{cluster.c@{cluster.c}!alert\_\-log@{alert\_\-log}}
+\index{alert\_\-log@{alert\_\-log}!cluster.c@{cluster.c}}
+\subsubsection[{alert\_\-log}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf AI\_\-snort\_\-alert}$\ast$ {\bf alert\_\-log} = NULL}}
+\label{cluster_8c_aaf4c19f60f48741b0890c6114dcff7d9}
+\hypertarget{cluster_8c_a97d35425cf5a0207fb50b64ee8cdda82}{
+\index{cluster.c@{cluster.c}!h\_\-root@{h\_\-root}}
+\index{h\_\-root@{h\_\-root}!cluster.c@{cluster.c}}
+\subsubsection[{h\_\-root}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf hierarchy\_\-node}$\ast$ {\bf h\_\-root}\mbox{[}CLUSTER\_\-TYPES\mbox{]} = \{ NULL \}}}
+\label{cluster_8c_a97d35425cf5a0207fb50b64ee8cdda82}

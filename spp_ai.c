@@ -149,7 +149,8 @@ static AI_config * AI_parse(char *args)
 	BOOL has_cleanup_interval       = false,
 		has_stream_expire_interval = false,
 		has_alertfile              = false,
-		has_clusterfile            = false;
+		has_clusterfile            = false,
+		has_clustering             = false;
 
 	AI_config *config               = NULL;
 
@@ -282,10 +283,8 @@ static AI_config * AI_parse(char *args)
 	/* Parsing cluster options */
 	while ( preg_match ( "\\s*(cluster\\s*\\(\\s*)([^\\)]+)\\)", args, &matches, &nmatches ) > 0 )
 	{
-		if ( !has_clusterfile )
-		{
-			_dpd.fatalMsg ( "AIPreproc: cluster option specified in configuration: '%s'\nBut no 'clusterfile' option was specified", matches[1] );
-		}
+		if ( ! has_clustering )
+			has_clustering = true;
 
 		memset ( label, 0, sizeof(label) );
 		min_val = -1;
@@ -312,8 +311,6 @@ static AI_config * AI_parse(char *args)
 				type = src_addr;
 			else if ( !strcasecmp ( matches[0], "dst_addr" ))
 				type = dst_addr;
-			else if ( !strcasecmp ( matches[0], "time" ))
-				type = timestamp;
 			else
 				_dpd.fatalMsg ( "AIPreproc: Unknown class type in configuration: '%s'\n", matches[0] );
 
@@ -357,6 +354,11 @@ static AI_config * AI_parse(char *args)
 					{
 						min_val = strtoul ( matches[0], NULL, 10 );
 						max_val = strtoul ( matches[1], NULL, 10 );
+
+						if ( min_val > max_val )
+						{
+							_dpd.fatalMsg ( "AIPreproc: Parse error in configuration: '%s', minval > maxval\n", arg );
+						}
 
 						for ( i=0; i < nmatches; i++ )
 							free ( matches[i] );
@@ -497,29 +499,34 @@ static AI_config * AI_parse(char *args)
 
 	if ( ! has_cleanup_interval )
 	{
-		config->hashCleanupInterval = 60;
+		config->hashCleanupInterval = DEFAULT_HASH_CLEANUP_INTERVAL;
 	}
 
 	if ( ! has_stream_expire_interval )
 	{
-		config->streamExpireInterval = 600;
+		config->streamExpireInterval = DEFAULT_STREAM_EXPIRE_INTERVAL;
 	}
 
 	if ( ! has_alertfile )
 	{
-		strcpy ( config->alertfile, "/var/log/snort/alert" );
+		strncpy ( config->alertfile, DEFAULT_ALERT_LOG_FILE, sizeof ( config->alertfile ));
 	}
 
-	if ( has_clusterfile )
+	if ( has_clustering )
 	{
 		if ( ! hierarchy_nodes )
 		{
 			_dpd.fatalMsg ( "AIPreproc: cluster file specified in the configuration but no clusters were specified\n" );
 		}
 
+		if ( ! has_clusterfile )
+		{
+			strncpy ( config->clusterfile, DEFAULT_CLUSTER_LOG_FILE, sizeof ( config->clusterfile ));
+		}
+
 		if ( ! alert_clustering_interval )
 		{
-			config->alertClusteringInterval = 600;
+			config->alertClusteringInterval = DEFAULT_ALERT_CLUSTERING_INTERVAL;
 		}
 
 		AI_hierarchies_build ( config, hierarchy_nodes, n_hierarchy_nodes );
