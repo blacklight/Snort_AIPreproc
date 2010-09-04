@@ -55,66 +55,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <code>#include &lt;stdio.h&gt;</code><br/>
 <code>#include &lt;stdlib.h&gt;</code><br/>
 <code>#include &lt;string.h&gt;</code><br/>
+<code>#include &lt;alloca.h&gt;</code><br/>
 <code>#include &lt;regex.h&gt;</code><br/>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="regex_8c.html#a35f57c052a7de1ded54b67a1f7819791">preg_match</a> (const char *expr, char *str, char ***matches, int *nmatches)</td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Check if a string matches a regular expression.  <a href="#a35f57c052a7de1ded54b67a1f7819791"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__regex.html#ga35f57c052a7de1ded54b67a1f7819791">preg_match</a> (const char *expr, char *str, char ***matches, int *nmatches)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Check if a string matches a regular expression.  <a href="group__regex.html#ga35f57c052a7de1ded54b67a1f7819791"></a><br/></td></tr>
 </table>
-<hr/><h2>Function Documentation</h2>
-<a class="anchor" id="a35f57c052a7de1ded54b67a1f7819791"></a><!-- doxytag: member="regex.c::preg_match" ref="a35f57c052a7de1ded54b67a1f7819791" args="(const char *expr, char *str, char ***matches, int *nmatches)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int preg_match </td>
-          <td>(</td>
-          <td class="paramtype">const char *&nbsp;</td>
-          <td class="paramname"> <em>expr</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char *&nbsp;</td>
-          <td class="paramname"> <em>str</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char ***&nbsp;</td>
-          <td class="paramname"> <em>matches</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int *&nbsp;</td>
-          <td class="paramname"> <em>nmatches</em></td><td>&nbsp;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td><td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Check if a string matches a regular expression. </p>
-<p>FUNCTION: preg_match </p>
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td>Regular expression to be matched </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>str</em>&nbsp;</td><td>String to be checked </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>matches</em>&nbsp;</td><td>Reference to a char** that will contain the submatches (NULL if you don't need it) </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>nmatches</em>&nbsp;</td><td>Reference to a int containing the number of submatches found (NULL if you don't need it) </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>-1 if the regex is wrong, 0 if no match was found, 1 otherwise </dd></dl>
-
-</div>
-</div>
 </div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -130,7 +78,7 @@ Functions</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Mon Aug 16 2010 22:05:38 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Sat Sep 4 2010 21:30:42 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

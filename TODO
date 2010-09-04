@@ -1,6 +1,4 @@
-- Check cluster ranges are NEVER on the same ranges
 - Managing clusters for addresses, timestamps (and more?)
-- MySQL alert log parsing
 - Dynamic cluster_min_size algorithm
 - Alerts for port scan, grouped alerts, UDP and ICMP too
 

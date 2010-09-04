@@ -5,7 +5,7 @@
  *
  *    Description:  Module for managing alarm clustering and cluter hierarchies
  *
- *        Version:  1.0
+ *        Version:  0.1
  *        Created:  12/08/2010 12:43:28
  *       Revision:  none
  *       Compiler:  gcc
@@ -22,15 +22,18 @@
 #include	<stdio.h>
 #include	<unistd.h>
 #include	<limits.h>
-#include	<pthread.h>
+#include 	<pthread.h>
 
-/* Identifier key for a cluster attribute value */
+/** \defgroup cluster Manage the clustering of alarms
+ * @{ */
+
+/** Identifier key for a cluster attribute value */
 typedef struct  {
 	int min;
 	int max;
 } attribute_key;
 
-/* Representation of a cluster attribute value */
+/** Representation of a cluster attribute value */
 typedef struct  {
 	attribute_key   key;
 	cluster_type    type;
@@ -45,7 +48,6 @@ PRIVATE AI_snort_alert *alert_log             = NULL;
 
 
 /**
- * FUNCTION: _heuristic_func
  * \brief  Function that picks up the heuristic value for a clustering attribute in according to Julisch's heuristic (ACM, Vol.2, No.3, 09 2002, pag.124)
  * \param  type 	Attribute type
  * \return The heuristic coefficient for that attribute, -1 if no clustering information is available for that attribute
@@ -113,7 +115,6 @@ _heuristic_func ( cluster_type type )
 }		/* -----  end of function _heuristic_func  ----- */
 
 /**
- * FUNCTION: _hierarchy_node_new
  * \brief  Create a new clustering hierarchy node
  * \param  label 	Label for the node
  * \param  min_val 	Minimum value for the range represented by the node
@@ -143,7 +144,6 @@ _hierarchy_node_new ( char *label, int min_val, int max_val )
 
 
 /**
- * FUNCTION: _hierarchy_node_append
  * \brief  Append a node to a clustering hierarchy node
  * \param  parent 	Parent node
  * \param  child 	Child node
@@ -182,7 +182,6 @@ _hierarchy_node_append ( hierarchy_node *parent, hierarchy_node *child )
 
 
 /**
- * FUNCTION: _AI_get_min_hierarchy_node
  * \brief  Get the minimum node in a hierarchy tree that matches a certain value
  * \param  val 	Value to be matched in the range
  * \param  root 	Root of the hierarchy
@@ -219,7 +218,6 @@ _AI_get_min_hierarchy_node ( int val, hierarchy_node *root )
 }		/* -----  end of function _AI_get_min_hierarchy_node  ----- */
 
 /**
- * FUNCTION: _AI_equal_alarms
  * \brief  Check if two alerts are semantically equal
  * \param  a1 	First alert
  * \param  a2 	Second alert
@@ -267,7 +265,6 @@ _AI_equal_alarms ( AI_snort_alert *a1, AI_snort_alert *a2 )
 
 
 /**
- * FUNCTION: _AI_merge_alerts
  * \brief  Merge the alerts marked as equal in the log
  * \param  log 	Alert log reference
  * \return The number of merged couples
@@ -309,7 +306,6 @@ _AI_merge_alerts ( AI_snort_alert **log )
 
 
 /**
- * FUNCTION: _AI_print_clustered_alerts
  * \brief  Print the clustered alerts to a log file
  * \param  log 	Log containing the alerts
  * \param  fp 		File pointer where the alerts will be printed
@@ -335,34 +331,34 @@ _AI_print_clustered_alerts ( AI_snort_alert *log, FILE *fp )
 		timestamp[ strlen(timestamp)-1 ] = 0;
 		fprintf ( fp, "[Grouped alerts: %d] [Starting from: %s]\n", tmp->grouped_alarms_count, timestamp );
 
-		if ( h_root[src_addr] )
+		if ( h_root[src_addr] && tmp->h_node[src_addr] )
 		{
-			fprintf ( fp, "[%s]:", tmp->h_node[src_addr]->label );
+			fprintf ( fp, "[%s]:", (tmp->h_node[src_addr]->label) ? tmp->h_node[src_addr]->label : "no label" );
 		} else {
-			inet_ntop ( AF_INET, &(tmp->src_addr), ip, INET_ADDRSTRLEN );
+			inet_ntop ( AF_INET, &(tmp->ip_src_addr), ip, INET_ADDRSTRLEN );
 			fprintf ( fp, "%s:", ip );
 		}
 
-		if ( h_root[src_port] )
+		if ( h_root[src_port] && tmp->h_node[src_port] )
 		{
-			fprintf ( fp, "[%s] -> ", tmp->h_node[src_port]->label );
+			fprintf ( fp, "[%s] -> ", (tmp->h_node[src_port]->label) ? tmp->h_node[src_port]->label : "no label" );
 		} else {
-			fprintf ( fp, "%d -> ", htons ( tmp->src_port ));
+			fprintf ( fp, "%d -> ", htons ( tmp->tcp_src_port ));
 		}
 
-		if ( h_root[dst_addr] )
+		if ( h_root[dst_addr] && tmp->h_node[dst_addr] )
 		{
-			fprintf ( fp, "[%s]:", tmp->h_node[dst_addr]->label );
+			fprintf ( fp, "[%s]:", (tmp->h_node[dst_addr]->label) ? tmp->h_node[dst_addr]->label : "no label" );
 		} else {
-			inet_ntop ( AF_INET, &(tmp->dst_addr), ip, INET_ADDRSTRLEN );
+			inet_ntop ( AF_INET, &(tmp->ip_dst_addr), ip, INET_ADDRSTRLEN );
 			fprintf ( fp, "%s:", ip );
 		}
 
-		if ( h_root[dst_port] )
+		if ( h_root[dst_port] && tmp->h_node[dst_port] )
 		{
-			fprintf ( fp, "[%s]\n", tmp->h_node[dst_port]->label );
+			fprintf ( fp, "[%s]\n", (tmp->h_node[dst_port]->label) ? tmp->h_node[dst_port]->label : "no label" );
 		} else {
-			fprintf ( fp, "%d\n", htons ( tmp->dst_port ));
+			fprintf ( fp, "%d\n", htons ( tmp->tcp_dst_port ));
 		}
 
 		fprintf ( fp, "\n" );
@@ -371,7 +367,6 @@ _AI_print_clustered_alerts ( AI_snort_alert *log, FILE *fp )
 
 
 /**
- * FUNCTION: _AI_cluster_thread
  * \brief  Thread for periodically clustering the log information
  */
 PRIVATE void*
@@ -400,7 +395,7 @@ _AI_cluster_thread ( void* arg )
 		/* Free the current alert log and get the latest one */
 		AI_free_alerts ( alert_log );
 		
-		if ( !( alert_log = AI_get_alerts() ))
+		if ( !( alert_log = get_alerts() ))
 		{
 			continue;
 		}
@@ -432,14 +427,14 @@ _AI_cluster_thread ( void* arg )
 					{
 						case src_addr:
 						case dst_addr:
-							netval  = ( type == src_addr ) ? tmp->src_addr : tmp->dst_addr;
+							netval  = ( type == src_addr ) ? tmp->ip_src_addr : tmp->ip_dst_addr;
 							hostval = ntohl ( netval );
 							inet_ntop ( AF_INET, &(netval), label, INET_ADDRSTRLEN );
 							break;
 
 						case src_port:
 						case dst_port:
-							netval  = ( type == src_port ) ? tmp->src_port : tmp->dst_port;
+							netval  = ( type == src_port ) ? tmp->tcp_src_port : tmp->tcp_dst_port;
 							hostval = ntohs ( netval );
 							snprintf ( label, sizeof(label), "%d", hostval );
 							break;
@@ -489,9 +484,12 @@ _AI_cluster_thread ( void* arg )
 			/* For all the alerts, the corresponing clustering value is the parent of the current one in the hierarchy */
 			for ( tmp = alert_log; tmp; tmp = tmp->next )
 			{
-				if ( tmp->h_node[best_type]->parent )
+				if ( tmp->h_node[best_type] )
 				{
-					tmp->h_node[best_type] = tmp->h_node[best_type]->parent;
+					if ( tmp->h_node[best_type]->parent )
+					{
+						tmp->h_node[best_type] = tmp->h_node[best_type]->parent;
+					}
 				}
 			}
 
@@ -503,6 +501,7 @@ _AI_cluster_thread ( void* arg )
 
 		if ( !( cluster_fp = fopen ( _config->clusterfile, "w" )) )
 		{
+			pthread_exit ((void*) 0 );
 			return (void*) 0;
 		}
 
@@ -512,17 +511,18 @@ _AI_cluster_thread ( void* arg )
 		fclose ( fp );
 	}
 
+	pthread_exit ((void*) 0 );
 	return (void*) 0;
 }		/* -----  end of function AI_cluster_thread  ----- */
 
 
 /**
- * FUNCTION: _AI_check_duplicate
  * \brief  Check if a certain node's range (minimum and maximum value) are already present in a clustering hierarchy
  * \param  node 	Node to be checked
  * \param  root 	Clustering hierarchy
  * \return True if 'node' is already in 'root', false otherwise
  */
+
 PRIVATE BOOL
 _AI_check_duplicate ( hierarchy_node *node, hierarchy_node *root )
 {
@@ -543,8 +543,8 @@ _AI_check_duplicate ( hierarchy_node *node, hierarchy_node *root )
 	return false;
 }		/* -----  end of function _AI_check_duplicate  ----- */
 
+
 /**
- * FUNCTION: AI_hierarchies_build
  * \brief  Build the clustering hierarchy trees
  * \param  conf 	Reference to the configuration of the module
  * \param  nodes 	Nodes containing the information about the clustering ranges
@@ -629,4 +629,6 @@ AI_hierarchies_build ( AI_config *conf, hierarchy_node **nodes, int n_nodes )
 		_dpd.fatalMsg ( "Failed to create the hash cleanup thread\n" );
 	}
 }		/* -----  end of function AI_hierarchies_build  ----- */
+
+/** @} */
 

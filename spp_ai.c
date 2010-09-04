@@ -24,7 +24,11 @@
 #include <string.h>
 #include <pthread.h>
 
+/** \defgroup spp_ai Main file for spp_ai module
+ * @{ */
+
 tSfPolicyUserContextId ex_config = NULL;
+static void* (*alertparser_thread)(void*) = NULL;
 
 #ifdef SNORT_RELOAD
 tSfPolicyUserContextId ex_swap_config = NULL;
@@ -42,7 +46,6 @@ static void AI_reloadSwapFree(void *);
 
 
 /**
- * FUNCTION: AI_setup
  * \brief  Set up the preprocessor module
  */
 
@@ -60,7 +63,6 @@ void AI_setup(void)
 
 
 /**
- * FUNCTION: AI_init
  * \brief  Initialize the preprocessor module
  * \param  args 	Configuration arguments passed to the module
  */
@@ -99,7 +101,7 @@ static void AI_init(char *args)
 
 	if ( strlen ( config->alertfile ) > 0 )
 	{
-		if ( pthread_create ( &logparse_thread, NULL, AI_alertparser_thread, config ) != 0 )
+		if ( pthread_create ( &logparse_thread, NULL, alertparser_thread, config ) != 0 )
 		{
 			_dpd.fatalMsg ( "Failed to create the alert parser thread\n" );
 		}
@@ -111,7 +113,6 @@ static void AI_init(char *args)
 } 		/* -----  end of function AI_init  ----- */
 
 /**
- * FUNCTION: AI_config
  * \brief  Parse the arguments passed to the module saving them to a valid configuration struct
  * \param  args 	Arguments passed to the module
  * \return Pointer to AI_config keeping the configuration for the module
@@ -144,13 +145,16 @@ static AI_config * AI_parse(char *args)
 			    stream_expire_interval    = 0,
 			    alertfile_len             = 0,
 			    clusterfile_len           = 0,
-			    alert_clustering_interval = 0;
+			    alert_clustering_interval = 0,
+			    database_parsing_interval = 0;
 
 	BOOL has_cleanup_interval       = false,
 		has_stream_expire_interval = false,
+		has_database_interval      = false,
 		has_alertfile              = false,
 		has_clusterfile            = false,
-		has_clustering             = false;
+		has_clustering             = false,
+		has_database_log           = false;
 
 	AI_config *config               = NULL;
 
@@ -216,6 +220,26 @@ static AI_config * AI_parse(char *args)
 		_dpd.logMsg("    Alert clustering interval: %d\n", config->alertClusteringInterval);
 	}
 
+	/* Parsing the database_parsing_interval option */
+	if (( arg = (char*) strcasestr( args, "database_parsing_interval" ) ))
+	{
+		has_database_interval = true;
+
+		for ( arg += strlen("database_parsing_interval");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			_dpd.fatalMsg("AIPreproc: database_parsing_interval option used but "
+				"no value specified\n");
+		}
+
+		database_parsing_interval = strtoul(arg, NULL, 10);
+		config->databaseParsingInterval = database_parsing_interval;
+		_dpd.logMsg("    Database parsing interval: %d\n", config->databaseParsingInterval);
+	}
+
 	/* Parsing the alertfile option */
 	if (( arg = (char*) strcasestr( args, "alertfile" ) ))
 	{
@@ -241,6 +265,7 @@ static AI_config * AI_parse(char *args)
 				has_alertfile = false;
 			} else {
 				has_alertfile = true;
+				alertparser_thread = AI_file_alertparser_thread;
 				alertfile[ alertfile_len-1 ] = 0;
 				strncpy ( config->alertfile, alertfile, alertfile_len );
 				_dpd.logMsg("    alertfile path: %s\n", config->alertfile);
@@ -277,6 +302,87 @@ static AI_config * AI_parse(char *args)
 				strncpy ( config->clusterfile, clusterfile, clusterfile_len );
 				_dpd.logMsg("    clusterfile path: %s\n", config->clusterfile);
 			}
+		}
+	}
+
+	/* Parsing database option */
+	if ( preg_match ( "\\s*database\\s*\\(\\s*([^\\)]+)\\)", args, &matches, &nmatches ) > 0 )
+	{
+		if ( ! has_database_log )
+			has_database_log = true;
+
+		match = strdup ( matches[0] );
+
+		for ( i=0; i < nmatches; i++ )
+			free ( matches[i] );
+
+		free ( matches );
+		matches = NULL;
+
+		if ( preg_match ( "type\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
+		{
+			/* TODO Support other databases than MySQL */
+			if ( strcasecmp ( matches[0], "mysql" ))
+			{
+				_dpd.fatalMsg ( "AIPreproc: Not supported database '%s' (supported types: mysql)\n", matches[0] );
+			}
+
+			for ( i=0; i < nmatches; i++ )
+				free ( matches[i] );
+
+			free ( matches );
+			matches = NULL;
+		}
+
+		if ( preg_match ( "name\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
+		{
+			strncpy ( config->dbname, matches[0], sizeof ( config->dbname ));
+
+			for ( i=0; i < nmatches; i++ )
+				free ( matches[i] );
+
+			free ( matches );
+			matches = NULL;
+		}
+
+		if ( preg_match ( "user\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
+		{
+			strncpy ( config->dbuser, matches[0], sizeof ( config->dbuser ));
+
+			for ( i=0; i < nmatches; i++ )
+				free ( matches[i] );
+
+			free ( matches );
+			matches = NULL;
+		}
+
+		if ( preg_match ( "password\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
+		{
+			strncpy ( config->dbpass, matches[0], sizeof ( config->dbpass ));
+
+			for ( i=0; i < nmatches; i++ )
+				free ( matches[i] );
+
+			free ( matches );
+			matches = NULL;
+		}
+
+		if ( preg_match ( "host\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
+		{
+			strncpy ( config->dbhost, matches[0], sizeof ( config->dbhost ));
+
+			for ( i=0; i < nmatches; i++ )
+				free ( matches[i] );
+
+			free ( matches );
+			matches = NULL;
+		}
+
+		free ( match );
+
+		if ( !strlen ( config->dbhost ) || !strlen ( config->dbname ) || !strlen ( config->dbpass ) || !strlen ( config->dbuser ))
+		{
+			_dpd.fatalMsg ( "AIPreproc: Database option used in config, but missing configuration option (all 'host', 'type', 'name', 'user', and 'password' option must be used)\n" );
 		}
 	}
 
@@ -507,9 +613,21 @@ static AI_config * AI_parse(char *args)
 		config->streamExpireInterval = DEFAULT_STREAM_EXPIRE_INTERVAL;
 	}
 
-	if ( ! has_alertfile )
+	if ( !has_database_interval && has_database_log )
+	{
+		config->databaseParsingInterval = DEFAULT_DATABASE_INTERVAL;
+	}
+	
+	if ( !has_alertfile && !has_database_log )
 	{
 		strncpy ( config->alertfile, DEFAULT_ALERT_LOG_FILE, sizeof ( config->alertfile ));
+		has_alertfile = true;
+		alertparser_thread = AI_file_alertparser_thread;
+	} else if ( has_database_log )  {
+		has_alertfile = false;
+		alertparser_thread = AI_mysql_alertparser_thread;
+	} else if ( has_alertfile ) {
+		alertparser_thread = AI_file_alertparser_thread;
 	}
 
 	if ( has_clustering )
@@ -532,12 +650,18 @@ static AI_config * AI_parse(char *args)
 		AI_hierarchies_build ( config, hierarchy_nodes, n_hierarchy_nodes );
 	}
 
+	if ( has_database_log )
+	{
+		get_alerts = AI_mysql_get_alerts;
+	} else {
+		get_alerts = AI_get_alerts;
+	}
+
 	return config;
 } 		/* -----  end of function AI_config  ----- */
 
 
 /**
- * FUNCTION: AI_process
  * \brief  Function executed every time the module receives a packet to be processed
  * \param  pkt 	void* pointer to the packet data
  * \param  context 	void* pointer to the context
@@ -621,4 +745,6 @@ static void AI_reloadSwapFree(void *data)
 	sfPolicyConfigDelete(config);
 }
 #endif
+
+/** @} */
 

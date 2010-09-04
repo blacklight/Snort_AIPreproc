@@ -1,3 +1,14 @@
+2010-09-04  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
+	* mysql.c: This file now only contains the functions for managing MySQL
+	connections in the database wrapper
+	* db.c: Renamed from 'mysql.c' to 'db.c', now it should be abstract
+	enough for allowing the support for any database alerts without any lines
+	of code should be changed
+	* db.c: Fixed a stupid malloc() mistake that randomly brought the module
+	to crash
+	* db.h: New file, including macros and typedefs for allowing the database
+	operations wrapping
+
 2010-16-08  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
 	* cluster.c: Finished clustering algorithm and clustering log management
 

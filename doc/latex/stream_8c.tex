@@ -7,18 +7,19 @@
 {\ttfamily \#include $<$stdlib.h$>$}\par
 {\ttfamily \#include $<$time.h$>$}\par
 {\ttfamily \#include $<$unistd.h$>$}\par
+{\ttfamily \#include $<$pthread.h$>$}\par
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-PRIVATE void \hyperlink{stream_8c_a80016adf701c717a6ebfb5b15b8a5749}{\_\-AI\_\-stream\_\-free} (struct \hyperlink{structpkt__info}{pkt\_\-info} $\ast$stream)
+PRIVATE void \hyperlink{group__stream_ga80016adf701c717a6ebfb5b15b8a5749}{\_\-AI\_\-stream\_\-free} (struct \hyperlink{structpkt__info}{pkt\_\-info} $\ast$stream)
 \begin{DoxyCompactList}\small\item\em Remove a stream from the hash table (private function). \item\end{DoxyCompactList}\item 
-void $\ast$ \hyperlink{stream_8c_a24b1131374e5059564b8a12380c4eb75}{AI\_\-hashcleanup\_\-thread} (void $\ast$arg)
+void $\ast$ \hyperlink{group__stream_ga24b1131374e5059564b8a12380c4eb75}{AI\_\-hashcleanup\_\-thread} (void $\ast$arg)
 \begin{DoxyCompactList}\small\item\em Thread called for cleaning up the hash table from the traffic streams older than a certain threshold. \item\end{DoxyCompactList}\item 
-void \hyperlink{stream_8c_a7d71c5645b9baff7b6c4b9a181bf80c5}{AI\_\-pkt\_\-enqueue} (SFSnortPacket $\ast$pkt)
+void \hyperlink{group__stream_ga7d71c5645b9baff7b6c4b9a181bf80c5}{AI\_\-pkt\_\-enqueue} (SFSnortPacket $\ast$pkt)
 \begin{DoxyCompactList}\small\item\em Function called for appending a new packet to the hash table, creating a new stream or appending it to an existing stream. \item\end{DoxyCompactList}\item 
-struct \hyperlink{structpkt__info}{pkt\_\-info} $\ast$ \hyperlink{stream_8c_a2efedcabbfd12c5345f0c93a3dd4735c}{AI\_\-get\_\-stream\_\-by\_\-key} (struct \hyperlink{structpkt__key}{pkt\_\-key} key)
+struct \hyperlink{structpkt__info}{pkt\_\-info} $\ast$ \hyperlink{group__stream_ga2efedcabbfd12c5345f0c93a3dd4735c}{AI\_\-get\_\-stream\_\-by\_\-key} (struct \hyperlink{structpkt__key}{pkt\_\-key} key)
 \begin{DoxyCompactList}\small\item\em Get a TCP stream by key. \item\end{DoxyCompactList}\item 
-void \hyperlink{stream_8c_a8749989cee2ac05a7de058faac280c02}{AI\_\-set\_\-stream\_\-observed} (struct \hyperlink{structpkt__key}{pkt\_\-key} key)
+void \hyperlink{group__stream_ga8749989cee2ac05a7de058faac280c02}{AI\_\-set\_\-stream\_\-observed} (struct \hyperlink{structpkt__key}{pkt\_\-key} key)
 \begin{DoxyCompactList}\small\item\em Set the flag \char`\"{}observed\char`\"{} on a stream associated to a security alert, so that it won't be removed from the hash table. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
@@ -26,93 +27,9 @@ void \hyperlink{stream_8c_a8749989cee2ac05a7de058faac280c02}{AI\_\-set\_\-stream
 PRIVATE struct \hyperlink{structpkt__info}{pkt\_\-info} $\ast$ \hyperlink{stream_8c_a57e23cda853e9d11c37723a962ef2f68}{hash} = NULL
 \item 
 PRIVATE time\_\-t \hyperlink{stream_8c_a0597864b078ff448f28432db86950309}{start\_\-time} = 0
+\item 
+PRIVATE pthread\_\-mutex\_\-t \hyperlink{stream_8c_a4e01edd07102e71480b323db2b8f57c8}{hash\_\-mutex} = PTHREAD\_\-MUTEX\_\-INITIALIZER
 \end{DoxyCompactItemize}
-
-
-\subsection{Function Documentation}
-\hypertarget{stream_8c_a80016adf701c717a6ebfb5b15b8a5749}{
-\index{stream.c@{stream.c}!\_\-AI\_\-stream\_\-free@{\_\-AI\_\-stream\_\-free}}
-\index{\_\-AI\_\-stream\_\-free@{\_\-AI\_\-stream\_\-free}!stream.c@{stream.c}}
-\subsubsection[{\_\-AI\_\-stream\_\-free}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE void \_\-AI\_\-stream\_\-free (
-\begin{DoxyParamCaption}
-\item[{struct {\bf pkt\_\-info} $\ast$}]{ stream}
-\end{DoxyParamCaption}
-)}}
-\label{stream_8c_a80016adf701c717a6ebfb5b15b8a5749}
-
-
-Remove a stream from the hash table (private function). 
-
-FUNCTION: \_\-AI\_\-stream\_\-free 
-\begin{DoxyParams}{Parameters}
-\item[{\em stream}]Stream to be removed \end{DoxyParams}
-\hypertarget{stream_8c_a2efedcabbfd12c5345f0c93a3dd4735c}{
-\index{stream.c@{stream.c}!AI\_\-get\_\-stream\_\-by\_\-key@{AI\_\-get\_\-stream\_\-by\_\-key}}
-\index{AI\_\-get\_\-stream\_\-by\_\-key@{AI\_\-get\_\-stream\_\-by\_\-key}!stream.c@{stream.c}}
-\subsubsection[{AI\_\-get\_\-stream\_\-by\_\-key}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf pkt\_\-info}$\ast$ AI\_\-get\_\-stream\_\-by\_\-key (
-\begin{DoxyParamCaption}
-\item[{struct {\bf pkt\_\-key}}]{ key}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily  \mbox{[}read\mbox{]}}}}
-\label{stream_8c_a2efedcabbfd12c5345f0c93a3dd4735c}
-
-
-Get a TCP stream by key. 
-
-FUNCTION: AI\_\-get\_\-stream\_\-by\_\-key 
-\begin{DoxyParams}{Parameters}
-\item[{\em key}]Key of the stream to be picked up (struct \hyperlink{structpkt__key}{pkt\_\-key}) \end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-A \hyperlink{structpkt__info}{pkt\_\-info} pointer to the stream if found, NULL otherwise 
-\end{DoxyReturn}
-\hypertarget{stream_8c_a24b1131374e5059564b8a12380c4eb75}{
-\index{stream.c@{stream.c}!AI\_\-hashcleanup\_\-thread@{AI\_\-hashcleanup\_\-thread}}
-\index{AI\_\-hashcleanup\_\-thread@{AI\_\-hashcleanup\_\-thread}!stream.c@{stream.c}}
-\subsubsection[{AI\_\-hashcleanup\_\-thread}]{\setlength{\rightskip}{0pt plus 5cm}void$\ast$ AI\_\-hashcleanup\_\-thread (
-\begin{DoxyParamCaption}
-\item[{void $\ast$}]{ arg}
-\end{DoxyParamCaption}
-)}}
-\label{stream_8c_a24b1131374e5059564b8a12380c4eb75}
-
-
-Thread called for cleaning up the hash table from the traffic streams older than a certain threshold. 
-
-FUNCTION: AI\_\-hashcleanup\_\-thread 
-\begin{DoxyParams}{Parameters}
-\item[{\em arg}]Pointer to the \hyperlink{structAI__config}{AI\_\-config} struct \end{DoxyParams}
-\hypertarget{stream_8c_a7d71c5645b9baff7b6c4b9a181bf80c5}{
-\index{stream.c@{stream.c}!AI\_\-pkt\_\-enqueue@{AI\_\-pkt\_\-enqueue}}
-\index{AI\_\-pkt\_\-enqueue@{AI\_\-pkt\_\-enqueue}!stream.c@{stream.c}}
-\subsubsection[{AI\_\-pkt\_\-enqueue}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-pkt\_\-enqueue (
-\begin{DoxyParamCaption}
-\item[{SFSnortPacket $\ast$}]{ pkt}
-\end{DoxyParamCaption}
-)}}
-\label{stream_8c_a7d71c5645b9baff7b6c4b9a181bf80c5}
-
-
-Function called for appending a new packet to the hash table, creating a new stream or appending it to an existing stream. 
-
-FUNCTION: AI\_\-pkt\_\-enqueue 
-\begin{DoxyParams}{Parameters}
-\item[{\em pkt}]Packet to be appended \end{DoxyParams}
-\hypertarget{stream_8c_a8749989cee2ac05a7de058faac280c02}{
-\index{stream.c@{stream.c}!AI\_\-set\_\-stream\_\-observed@{AI\_\-set\_\-stream\_\-observed}}
-\index{AI\_\-set\_\-stream\_\-observed@{AI\_\-set\_\-stream\_\-observed}!stream.c@{stream.c}}
-\subsubsection[{AI\_\-set\_\-stream\_\-observed}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-set\_\-stream\_\-observed (
-\begin{DoxyParamCaption}
-\item[{struct {\bf pkt\_\-key}}]{ key}
-\end{DoxyParamCaption}
-)}}
-\label{stream_8c_a8749989cee2ac05a7de058faac280c02}
-
-
-Set the flag \char`\"{}observed\char`\"{} on a stream associated to a security alert, so that it won't be removed from the hash table. 
-
-FUNCTION: AI\_\-set\_\-stream\_\-observed 
-\begin{DoxyParams}{Parameters}
-\item[{\em key}]Key of the stream to be set as \char`\"{}observed\char`\"{} \end{DoxyParams}
 
 
 \subsection{Variable Documentation}
@@ -121,7 +38,12 @@ FUNCTION: AI\_\-set\_\-stream\_\-observed
 \index{hash@{hash}!stream.c@{stream.c}}
 \subsubsection[{hash}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE struct {\bf pkt\_\-info}$\ast$ {\bf hash} = NULL}}
 \label{stream_8c_a57e23cda853e9d11c37723a962ef2f68}
-\hypertarget{stream_8c_a0597864b078ff448f28432db86950309}{
+\hypertarget{stream_8c_a4e01edd07102e71480b323db2b8f57c8}{
+\index{stream.c@{stream.c}!hash\_\-mutex@{hash\_\-mutex}}
+\index{hash\_\-mutex@{hash\_\-mutex}!stream.c@{stream.c}}
+\subsubsection[{hash\_\-mutex}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE pthread\_\-mutex\_\-t {\bf hash\_\-mutex} = PTHREAD\_\-MUTEX\_\-INITIALIZER}}
+\label{stream_8c_a4e01edd07102e71480b323db2b8f57c8}
+pthread mutex for managing the access of multiple readers/writers to the hash table \hypertarget{stream_8c_a0597864b078ff448f28432db86950309}{
 \index{stream.c@{stream.c}!start\_\-time@{start\_\-time}}
 \index{start\_\-time@{start\_\-time}!stream.c@{stream.c}}
 \subsubsection[{start\_\-time}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE time\_\-t {\bf start\_\-time} = 0}}

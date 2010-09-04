@@ -61,8 +61,13 @@ Data Fields</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#a9f7680615027d4fb74b4aa144a7028a4">hashCleanupInterval</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#abbe77d5f94b8c5164bea47acba09c98b">streamExpireInterval</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#a7d0d098b8263aa3d8415b11d1ec7f93d">alertClusteringInterval</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#ae6ca715cab1d90b70c3aad443133c263">databaseParsingInterval</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#a2efa9590d7eea6dce8b5dd9aa76ed8ca">alertfile</a> [1024]</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#a6da02a3f7116fd3810a41b738e8883a3">clusterfile</a> [1024]</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#ac8a93607f12106e2f5c9b43af27107da">dbname</a> [256]</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#aa004adebfdafb6d14092aecd7f4912b0">dbuser</a> [256]</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#aa1cda349763faf60b2ebdbf2d187ae7d">dbpass</a> [256]</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#a8e56f1a1b2095d3d329c8068ea0f3aab">dbhost</a> [256]</td></tr>
 </table>
 <hr/><h2>Field Documentation</h2>
 <a class="anchor" id="a7d0d098b8263aa3d8415b11d1ec7f93d"></a><!-- doxytag: member="AI_config::alertClusteringInterval" ref="a7d0d098b8263aa3d8415b11d1ec7f93d" args="" -->
@@ -75,6 +80,7 @@ Data Fields</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
+<p>Interval in seconds for the alert clustering thread </p>
 
 </div>
 </div>
@@ -88,6 +94,7 @@ Data Fields</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
+<p>Alert file </p>
 
 </div>
 </div>
@@ -101,6 +108,77 @@ Data Fields</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
+<p>Clustered alerts file </p>
+
+</div>
+</div>
+<a class="anchor" id="ae6ca715cab1d90b70c3aad443133c263"></a><!-- doxytag: member="AI_config::databaseParsingInterval" ref="ae6ca715cab1d90b70c3aad443133c263" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned long <a class="el" href="structAI__config.html#ae6ca715cab1d90b70c3aad443133c263">AI_config::databaseParsingInterval</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Interval in seconds for reading the alert database, if database logging is used </p>
+
+</div>
+</div>
+<a class="anchor" id="a8e56f1a1b2095d3d329c8068ea0f3aab"></a><!-- doxytag: member="AI_config::dbhost" ref="a8e56f1a1b2095d3d329c8068ea0f3aab" args="[256]" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char <a class="el" href="structAI__config.html#a8e56f1a1b2095d3d329c8068ea0f3aab">AI_config::dbhost</a>[256]</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Database host, if database logging is used </p>
+
+</div>
+</div>
+<a class="anchor" id="ac8a93607f12106e2f5c9b43af27107da"></a><!-- doxytag: member="AI_config::dbname" ref="ac8a93607f12106e2f5c9b43af27107da" args="[256]" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char <a class="el" href="structAI__config.html#ac8a93607f12106e2f5c9b43af27107da">AI_config::dbname</a>[256]</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Database name, if database logging is used </p>
+
+</div>
+</div>
+<a class="anchor" id="aa1cda349763faf60b2ebdbf2d187ae7d"></a><!-- doxytag: member="AI_config::dbpass" ref="aa1cda349763faf60b2ebdbf2d187ae7d" args="[256]" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char <a class="el" href="structAI__config.html#aa1cda349763faf60b2ebdbf2d187ae7d">AI_config::dbpass</a>[256]</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Database password, if database logging is used </p>
+
+</div>
+</div>
+<a class="anchor" id="aa004adebfdafb6d14092aecd7f4912b0"></a><!-- doxytag: member="AI_config::dbuser" ref="aa004adebfdafb6d14092aecd7f4912b0" args="[256]" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char <a class="el" href="structAI__config.html#aa004adebfdafb6d14092aecd7f4912b0">AI_config::dbuser</a>[256]</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Database user, if database logging is used </p>
 
 </div>
 </div>
@@ -114,6 +192,7 @@ Data Fields</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
+<p>Interval in seconds for the stream cleanup thread </p>
 
 </div>
 </div>
@@ -127,6 +206,7 @@ Data Fields</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
+<p>Interval in seconds for considering an idle stream timed out </p>
 
 </div>
 </div>
@@ -148,7 +228,7 @@ Data Fields</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Mon Aug 16 2010 22:05:38 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Sat Sep 4 2010 21:30:42 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -10,92 +10,18 @@
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-static void \hyperlink{spp__ai_8c_a3524cbdf8fddbcf38c4ed55241002242}{AI\_\-init} (char $\ast$args)
+static void \hyperlink{group__spp__ai_ga3524cbdf8fddbcf38c4ed55241002242}{AI\_\-init} (char $\ast$args)
 \begin{DoxyCompactList}\small\item\em Initialize the preprocessor module. \item\end{DoxyCompactList}\item 
-static void \hyperlink{spp__ai_8c_a57c05cda012c443cb4c358dc327cd3d1}{AI\_\-process} (void $\ast$pkt, void $\ast$context)
+static void \hyperlink{group__spp__ai_ga57c05cda012c443cb4c358dc327cd3d1}{AI\_\-process} (void $\ast$pkt, void $\ast$context)
 \begin{DoxyCompactList}\small\item\em Function executed every time the module receives a packet to be processed. \item\end{DoxyCompactList}\item 
-static \hyperlink{structAI__config}{AI\_\-config} $\ast$ \hyperlink{spp__ai_8c_ae1c5c4b38ee2819d427848eb3046373e}{AI\_\-parse} (char $\ast$args)
+static \hyperlink{structAI__config}{AI\_\-config} $\ast$ \hyperlink{group__spp__ai_gae1c5c4b38ee2819d427848eb3046373e}{AI\_\-parse} (char $\ast$args)
 \begin{DoxyCompactList}\small\item\em Parse the arguments passed to the module saving them to a valid configuration struct. \item\end{DoxyCompactList}\item 
-void \hyperlink{spp__ai_8c_a1b9ebb5c719c7d9426ddfc1f3da36570}{AI\_\-setup} (void)
+void \hyperlink{group__spp__ai_ga1b9ebb5c719c7d9426ddfc1f3da36570}{AI\_\-setup} (void)
 \begin{DoxyCompactList}\small\item\em Set up the preprocessor module. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
-tSfPolicyUserContextId \hyperlink{spp__ai_8c_a3dd75596c540d148643fe6d1fdc02628}{ex\_\-config} = NULL
+tSfPolicyUserContextId \hyperlink{group__spp__ai_ga3dd75596c540d148643fe6d1fdc02628}{ex\_\-config} = NULL
+\item 
+static void $\ast$($\ast$ \hyperlink{group__spp__ai_gaa3100e48acef5cf4370c3042ff548ed0}{alertparser\_\-thread} )(void $\ast$) = NULL
 \end{DoxyCompactItemize}
-
-
-\subsection{Function Documentation}
-\hypertarget{spp__ai_8c_a3524cbdf8fddbcf38c4ed55241002242}{
-\index{spp\_\-ai.c@{spp\_\-ai.c}!AI\_\-init@{AI\_\-init}}
-\index{AI\_\-init@{AI\_\-init}!spp_ai.c@{spp\_\-ai.c}}
-\subsubsection[{AI\_\-init}]{\setlength{\rightskip}{0pt plus 5cm}static void AI\_\-init (
-\begin{DoxyParamCaption}
-\item[{char $\ast$}]{ args}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
-\label{spp__ai_8c_a3524cbdf8fddbcf38c4ed55241002242}
-
-
-Initialize the preprocessor module. 
-
-FUNCTION: AI\_\-init 
-\begin{DoxyParams}{Parameters}
-\item[{\em args}]Configuration arguments passed to the module \end{DoxyParams}
-\hypertarget{spp__ai_8c_ae1c5c4b38ee2819d427848eb3046373e}{
-\index{spp\_\-ai.c@{spp\_\-ai.c}!AI\_\-parse@{AI\_\-parse}}
-\index{AI\_\-parse@{AI\_\-parse}!spp_ai.c@{spp\_\-ai.c}}
-\subsubsection[{AI\_\-parse}]{\setlength{\rightskip}{0pt plus 5cm}static {\bf AI\_\-config} $\ast$ AI\_\-parse (
-\begin{DoxyParamCaption}
-\item[{char $\ast$}]{ args}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
-\label{spp__ai_8c_ae1c5c4b38ee2819d427848eb3046373e}
-
-
-Parse the arguments passed to the module saving them to a valid configuration struct. 
-
-FUNCTION: \hyperlink{structAI__config}{AI\_\-config} 
-\begin{DoxyParams}{Parameters}
-\item[{\em args}]Arguments passed to the module \end{DoxyParams}
-\begin{DoxyReturn}{Returns}
-Pointer to \hyperlink{structAI__config}{AI\_\-config} keeping the configuration for the module 
-\end{DoxyReturn}
-\hypertarget{spp__ai_8c_a57c05cda012c443cb4c358dc327cd3d1}{
-\index{spp\_\-ai.c@{spp\_\-ai.c}!AI\_\-process@{AI\_\-process}}
-\index{AI\_\-process@{AI\_\-process}!spp_ai.c@{spp\_\-ai.c}}
-\subsubsection[{AI\_\-process}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-process (
-\begin{DoxyParamCaption}
-\item[{void $\ast$}]{ pkt, }
-\item[{void $\ast$}]{ context}
-\end{DoxyParamCaption}
-)\hspace{0.3cm}{\ttfamily  \mbox{[}static\mbox{]}}}}
-\label{spp__ai_8c_a57c05cda012c443cb4c358dc327cd3d1}
-
-
-Function executed every time the module receives a packet to be processed. 
-
-FUNCTION: AI\_\-process 
-\begin{DoxyParams}{Parameters}
-\item[{\em pkt}]void$\ast$ pointer to the packet data \item[{\em context}]void$\ast$ pointer to the context \end{DoxyParams}
-\hypertarget{spp__ai_8c_a1b9ebb5c719c7d9426ddfc1f3da36570}{
-\index{spp\_\-ai.c@{spp\_\-ai.c}!AI\_\-setup@{AI\_\-setup}}
-\index{AI\_\-setup@{AI\_\-setup}!spp_ai.c@{spp\_\-ai.c}}
-\subsubsection[{AI\_\-setup}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-setup (
-\begin{DoxyParamCaption}
-\item[{void}]{}
-\end{DoxyParamCaption}
-)}}
-\label{spp__ai_8c_a1b9ebb5c719c7d9426ddfc1f3da36570}
-
-
-Set up the preprocessor module. 
-
-FUNCTION: AI\_\-setup 
-
-\subsection{Variable Documentation}
-\hypertarget{spp__ai_8c_a3dd75596c540d148643fe6d1fdc02628}{
-\index{spp\_\-ai.c@{spp\_\-ai.c}!ex\_\-config@{ex\_\-config}}
-\index{ex\_\-config@{ex\_\-config}!spp_ai.c@{spp\_\-ai.c}}
-\subsubsection[{ex\_\-config}]{\setlength{\rightskip}{0pt plus 5cm}tSfPolicyUserContextId {\bf ex\_\-config} = NULL}}
-\label{spp__ai_8c_a3dd75596c540d148643fe6d1fdc02628}

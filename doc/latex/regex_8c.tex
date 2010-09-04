@@ -5,34 +5,10 @@
 {\ttfamily \#include $<$stdio.h$>$}\par
 {\ttfamily \#include $<$stdlib.h$>$}\par
 {\ttfamily \#include $<$string.h$>$}\par
+{\ttfamily \#include $<$alloca.h$>$}\par
 {\ttfamily \#include $<$regex.h$>$}\par
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-int \hyperlink{regex_8c_a35f57c052a7de1ded54b67a1f7819791}{preg\_\-match} (const char $\ast$expr, char $\ast$str, char $\ast$$\ast$$\ast$matches, int $\ast$nmatches)
+int \hyperlink{group__regex_ga35f57c052a7de1ded54b67a1f7819791}{preg\_\-match} (const char $\ast$expr, char $\ast$str, char $\ast$$\ast$$\ast$matches, int $\ast$nmatches)
 \begin{DoxyCompactList}\small\item\em Check if a string matches a regular expression. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
-
-
-\subsection{Function Documentation}
-\hypertarget{regex_8c_a35f57c052a7de1ded54b67a1f7819791}{
-\index{regex.c@{regex.c}!preg\_\-match@{preg\_\-match}}
-\index{preg\_\-match@{preg\_\-match}!regex.c@{regex.c}}
-\subsubsection[{preg\_\-match}]{\setlength{\rightskip}{0pt plus 5cm}int preg\_\-match (
-\begin{DoxyParamCaption}
-\item[{const char $\ast$}]{ expr, }
-\item[{char $\ast$}]{ str, }
-\item[{char $\ast$$\ast$$\ast$}]{ matches, }
-\item[{int $\ast$}]{ nmatches}
-\end{DoxyParamCaption}
-)}}
-\label{regex_8c_a35f57c052a7de1ded54b67a1f7819791}
-
-
-Check if a string matches a regular expression. 
-
-FUNCTION: preg\_\-match 
-\begin{DoxyParams}{Parameters}
-\item[{\em expr}]Regular expression to be matched \item[{\em str}]String to be checked \item[{\em matches}]Reference to a char$\ast$$\ast$ that will contain the submatches (NULL if you don't need it) \item[{\em nmatches}]Reference to a int containing the number of submatches found (NULL if you don't need it) \end{DoxyParams}
-\begin{DoxyReturn}{Returns}
--\/1 if the regex is wrong, 0 if no match was found, 1 otherwise 
-\end{DoxyReturn}

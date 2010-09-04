@@ -1,0 +1,58 @@
+\hypertarget{mysql_8c}{
+\section{mysql.c File Reference}
+\label{mysql_8c}\index{mysql.c@{mysql.c}}
+}
+{\ttfamily \#include \char`\"{}spp\_\-ai.h\char`\"{}}\par
+{\ttfamily \#include $<$mysql/mysql.h$>$}\par
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void $\ast$ \hyperlink{mysql_8c_a3fba38c3da4a252a55d81088c6fe9078}{mysql\_\-do\_\-init} (\hyperlink{structAI__config}{AI\_\-config} $\ast$\hyperlink{group__mysql_ga6439d32dccbbc77c9b2aad04897bfa74}{config})
+\item 
+MYSQL\_\-RES $\ast$ \hyperlink{mysql_8c_a90f2e6f4081c0c66f8da54b98aee2674}{mysql\_\-do\_\-query} (const char $\ast$query)
+\item 
+void \hyperlink{mysql_8c_a55eb83ebfb4caefbc4d9cee8aa0095e3}{mysql\_\-do\_\-close} ()
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+PRIVATE MYSQL $\ast$ \hyperlink{mysql_8c_aedbcc8d9f1bd3c64adf6ad8ccfcd48a4}{db} = NULL
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{mysql_8c_a55eb83ebfb4caefbc4d9cee8aa0095e3}{
+\index{mysql.c@{mysql.c}!mysql\_\-do\_\-close@{mysql\_\-do\_\-close}}
+\index{mysql\_\-do\_\-close@{mysql\_\-do\_\-close}!mysql.c@{mysql.c}}
+\subsubsection[{mysql\_\-do\_\-close}]{\setlength{\rightskip}{0pt plus 5cm}void mysql\_\-do\_\-close (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}
+\label{mysql_8c_a55eb83ebfb4caefbc4d9cee8aa0095e3}
+\hypertarget{mysql_8c_a3fba38c3da4a252a55d81088c6fe9078}{
+\index{mysql.c@{mysql.c}!mysql\_\-do\_\-init@{mysql\_\-do\_\-init}}
+\index{mysql\_\-do\_\-init@{mysql\_\-do\_\-init}!mysql.c@{mysql.c}}
+\subsubsection[{mysql\_\-do\_\-init}]{\setlength{\rightskip}{0pt plus 5cm}void$\ast$ mysql\_\-do\_\-init (
+\begin{DoxyParamCaption}
+\item[{{\bf AI\_\-config} $\ast$}]{ config}
+\end{DoxyParamCaption}
+)}}
+\label{mysql_8c_a3fba38c3da4a252a55d81088c6fe9078}
+\hypertarget{mysql_8c_a90f2e6f4081c0c66f8da54b98aee2674}{
+\index{mysql.c@{mysql.c}!mysql\_\-do\_\-query@{mysql\_\-do\_\-query}}
+\index{mysql\_\-do\_\-query@{mysql\_\-do\_\-query}!mysql.c@{mysql.c}}
+\subsubsection[{mysql\_\-do\_\-query}]{\setlength{\rightskip}{0pt plus 5cm}MYSQL\_\-RES$\ast$ mysql\_\-do\_\-query (
+\begin{DoxyParamCaption}
+\item[{const char $\ast$}]{ query}
+\end{DoxyParamCaption}
+)}}
+\label{mysql_8c_a90f2e6f4081c0c66f8da54b98aee2674}
+
+
+\subsection{Variable Documentation}
+\hypertarget{mysql_8c_aedbcc8d9f1bd3c64adf6ad8ccfcd48a4}{
+\index{mysql.c@{mysql.c}!db@{db}}
+\index{db@{db}!mysql.c@{mysql.c}}
+\subsubsection[{db}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE MYSQL$\ast$ {\bf db} = NULL}}
+\label{mysql_8c_aedbcc8d9f1bd3c64adf6ad8ccfcd48a4}

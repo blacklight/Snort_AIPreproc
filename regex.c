@@ -20,10 +20,13 @@
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
+#include	<alloca.h>
 #include	<regex.h>
 
+/** \defgroup regex Regex management
+ * @{ */
+
 /**
- * FUNCTION: preg_match
  * \brief  Check if a string matches a regular expression
  * \param  expr 	Regular expression to be matched
  * \param  str 	String to be checked
@@ -46,7 +49,8 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
 
 	if ( regex.re_nsub > 0 )
 	{
-		if ( !(m = (regmatch_t*) malloc ( (regex.re_nsub+1) * sizeof(regmatch_t) )) )
+		/* if ( !(m = (regmatch_t*) malloc ( (regex.re_nsub+1) * sizeof(regmatch_t) )) ) */
+		if ( !(m = (regmatch_t*) alloca ( (regex.re_nsub+1) * sizeof(regmatch_t) )) )
 		{
 			regfree ( &regex );
 			fprintf ( stderr, "\nDynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
@@ -56,7 +60,6 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
 		if ( !( *matches = (char**) malloc ( (regex.re_nsub+1) * sizeof(char*) )) )
 		{
 			regfree ( &regex );
-			free ( m );
 			m = NULL;
 			fprintf ( stderr, "\nDynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
 			exit ( EXIT_FAILURE );
@@ -64,14 +67,12 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
 
 		if ( regexec ( &regex, str, regex.re_nsub+1, m, 0 ) == REG_NOMATCH )  {
 			regfree ( &regex );
-			free ( m );
 			m = NULL;
 			return 0;
 		}
 	} else {
 		if ( regexec ( &regex, str, 0, NULL, 0 ) == REG_NOMATCH )  {
 			regfree ( &regex );
-			free ( m );
 			m = NULL;
 			return 0;
 		}
@@ -94,8 +95,9 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
 	}
 
 	regfree ( &regex );
-	free ( m );
 	m = NULL;
 	return 1;
 }		/* -----  end of function preg_match  ----- */
+
+/** @} */
 

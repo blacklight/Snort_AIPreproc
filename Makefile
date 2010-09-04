@@ -6,7 +6,7 @@ INCLUDES=-I. -I../../.. -I../include -I./uthash
 DEFINES=-D_GNU_SOURCE -D_XOPEN_SOURCE -DDYNAMIC_PLUGIN -DSUP_IP6 -DENABLE_MYSQL -DHAVE_CONFIG_H
 CMDLINE=-g -O2 -fvisibility=hidden -fno-strict-aliasing -Wall -fstack-protector
 LIBPATH=-L/usr/lib
-LDLINKS=-lpthread
+LDLINKS=-lpthread -lmysqlclient
 LIBTOOL=./libtool --tag=CC 
 OUTPUT=libsf_ai_preproc.la
 LDOPTIONS=-export-dynamic -rpath ${PREPROC_PATH}
@@ -18,7 +18,9 @@ spp_ai.lo \
 stream.lo \
 alert_parser.lo \
 regex.lo \
-cluster.lo
+cluster.lo \
+db.lo \
+mysql.lo
 
 all:
 	/bin/sh ${LIBTOOL} --mode=compile gcc ${CMDLINE} ${INCLUDES} ${DEFINES} -c -o sf_dynamic_preproc_lib.lo sf_dynamic_preproc_lib.c
@@ -28,6 +30,8 @@ all:
 	/bin/sh ${LIBTOOL} --mode=compile gcc ${CMDLINE} ${INCLUDES} ${DEFINES} -c -o stream.lo stream.c
 	/bin/sh ${LIBTOOL} --mode=compile gcc ${CMDLINE} ${INCLUDES} ${DEFINES} -c -o spp_ai.lo spp_ai.c
 	/bin/sh ${LIBTOOL} --mode=compile gcc ${CMDLINE} ${INCLUDES} ${DEFINES} -c -o cluster.lo cluster.c
+	/bin/sh ${LIBTOOL} --mode=compile gcc ${CMDLINE} ${INCLUDES} ${DEFINES} -c -o db.lo db.c
+	/bin/sh ${LIBTOOL} --mode=compile gcc ${CMDLINE} ${INCLUDES} ${DEFINES} -c -o mysql.lo mysql.c
 	/bin/sh ${LIBTOOL} --mode=link gcc ${CMDLINE} ${LDOPTIONS} ${LIBPATH} -o ${OUTPUT} ${OBJECTS} ${LDLINKS}
 
 clean:

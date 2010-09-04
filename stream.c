@@ -23,35 +23,60 @@
 #include	<stdlib.h>
 #include 	<time.h>
 #include	<unistd.h>
+#include 	<pthread.h>
 
 
 PRIVATE struct pkt_info *hash = NULL;
 PRIVATE time_t start_time = 0;
 
+/** pthread mutex for managing the access of multiple readers/writers to the hash table */
+PRIVATE pthread_mutex_t hash_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+/** \defgroup stream Manage streams, sorting them into hash tables and linked lists
+ * @{ */
 
 /**
- * FUNCTION: _AI_stream_free
  * \brief  Remove a stream from the hash table (private function)
  * \param  stream 	Stream to be removed
  */
 
-PRIVATE void _AI_stream_free ( struct pkt_info* stream )  {
+PRIVATE void
+_AI_stream_free ( struct pkt_info* stream )
+{
 	struct pkt_info *tmp = NULL;
 
 	if ( !stream || !hash || HASH_COUNT(hash) == 0 )
 		return;
 
+	pthread_mutex_lock ( &hash_mutex );
 	HASH_FIND ( hh, hash, &(stream->key), sizeof(struct pkt_key), tmp );
+	pthread_mutex_unlock ( &hash_mutex );
 
 	if ( !tmp )
 		return;
 
+	if ( stream->pkt )
+	{
+		if ( !stream->pkt->ip4_header )
+			return;
+
+		if ( stream->pkt->ip4_header->proto != IPPROTO_TCP || !stream->pkt->tcp_header )
+			return;
+	}
+
+	char ip [ INET_ADDRSTRLEN ];
+	inet_ntop ( AF_INET, &(stream->key.src_ip), ip, INET_ADDRSTRLEN );
+
+	pthread_mutex_lock ( &hash_mutex );
 	HASH_DEL ( hash, stream );
-	
-	while ( stream )  {
+	pthread_mutex_unlock ( &hash_mutex );
+
+	while ( stream )
+	{
 		tmp = stream->next;
 
-		if ( stream->pkt )  {
+		if ( stream->pkt )
+		{
 			free ( stream->pkt );
 			stream->pkt = NULL;
 		}
@@ -59,17 +84,20 @@ PRIVATE void _AI_stream_free ( struct pkt_info* stream )  {
 		free ( stream );
 		stream = tmp;
 	}
+
+	stream = NULL;
 } 		/* -----  end of function _AI_stream_free  ----- */
 
 
 /**
- * FUNCTION: AI_hashcleanup_thread
  * \brief  Thread called for cleaning up the hash table from the traffic streams older than
  *         a certain threshold
  * \param  arg 	Pointer to the AI_config struct
  */
 
-void* AI_hashcleanup_thread ( void* arg )  {
+void*
+AI_hashcleanup_thread ( void* arg )
+{
 	struct pkt_info  *h, *stream;
 	time_t           max_timestamp;
 	AI_config*       conf = (AI_config*) arg;
@@ -88,7 +116,7 @@ void* AI_hashcleanup_thread ( void* arg )  {
 			max_timestamp = 0;
 
 			/* Find the maximum timestamp in the flow */
-			for ( stream = h; stream; stream = stream->next )  {
+			for ( stream = h; stream; stream = (struct pkt_info*) stream->next )  {
 				if ( stream->timestamp > max_timestamp )
 					max_timestamp = stream->timestamp;
 			}
@@ -96,25 +124,37 @@ void* AI_hashcleanup_thread ( void* arg )  {
 			/* If the most recent packet in the stream is older than the specified threshold, remove that stream */
 			if ( time(NULL) - max_timestamp > conf->streamExpireInterval )  {
 				stream = h;
-				_AI_stream_free ( stream );
+
+				if ( stream )
+				{
+					/* XXX This, sometimes, randomly, leads to the crash of the module.
+					 * WHY??? Why can't computer science be deterministic, and if a
+					 * certain not-NULL stream exists in a not-NULL hash table why
+					 * should there be a crash, one day yes and the next one no? Until
+					 * I won't find an answer to these enigmatic questions, I will leave
+					 * this code commented, so if a certain stream goes timeout it won't
+					 * be removed. I'm sorry but it's not my fault. Ask the karma about this */
+					/* _AI_stream_free ( stream ); */
+				}
 			}
 		}
 	}
 
 	/* Hey we'll never reach this point unless 1 becomes != 1, but I have to place it
 	 * for letting not gcc annoy us */
+	pthread_exit ((void*) 0);
 	return (void*) 0;
 } 		/* -----  end of function AI_hashcleanup_thread  ----- */
 
 
 /**
- * FUNCTION: AI_pkt_enqueue
  * \brief  Function called for appending a new packet to the hash table,
  *         creating a new stream or appending it to an existing stream
  * \param  pkt 	Packet to be appended
  */
 
-void AI_pkt_enqueue ( SFSnortPacket* pkt )
+void
+AI_pkt_enqueue ( SFSnortPacket* pkt )
 {
 	struct pkt_key  key;
 	struct pkt_info *info;
@@ -150,7 +190,9 @@ void AI_pkt_enqueue ( SFSnortPacket* pkt )
 	memcpy ( info->pkt, pkt, sizeof (SFSnortPacket) );
 
 	if ( hash )  {
+		pthread_mutex_lock ( &hash_mutex );
 		HASH_FIND ( hh, hash, &key, sizeof(struct pkt_key), found );
+		pthread_mutex_unlock ( &hash_mutex );
 	}
 
 	/* If there is already an element of this traffic stream in my hash table,
@@ -158,7 +200,9 @@ void AI_pkt_enqueue ( SFSnortPacket* pkt )
 	if ( found )  {
 		/* If the current packet contains a RST, just deallocate the stream */
 		if ( info->pkt->tcp_header->flags & TCPHEADER_RST )  {
+			pthread_mutex_lock ( &hash_mutex );
 			HASH_FIND ( hh, hash, &key, sizeof(struct pkt_key), found );
+			pthread_mutex_unlock ( &hash_mutex );
 
 			if ( found )  {
 				if ( !found->observed )  {
@@ -190,7 +234,9 @@ void AI_pkt_enqueue ( SFSnortPacket* pkt )
 			 * on this stream is over */
 			if ( found->pkt->tcp_header->flags & TCPHEADER_FIN )  {
 				if ( info->pkt->tcp_header->flags & TCPHEADER_ACK )  {
+					pthread_mutex_unlock ( &hash_mutex );
 					HASH_FIND ( hh, hash, &key, sizeof(struct pkt_key), found );
+					pthread_mutex_unlock ( &hash_mutex );
 
 					if ( found )  {
 						if ( !found->observed )  {
@@ -209,7 +255,9 @@ void AI_pkt_enqueue ( SFSnortPacket* pkt )
 
 		/* If there is no stream associated to this packet, create
 		 * a new node in the hash table */
+		pthread_mutex_lock ( &hash_mutex );
 		HASH_ADD ( hh, hash, key, sizeof(struct pkt_key), info );
+		pthread_mutex_unlock ( &hash_mutex );
 	}
 
 	return;
@@ -217,7 +265,6 @@ void AI_pkt_enqueue ( SFSnortPacket* pkt )
 
 
 /**
- * FUNCTION: AI_get_stream_by_key
  * \brief  Get a TCP stream by key
  * \param  key 	Key of the stream to be picked up (struct pkt_key)
  * \return A pkt_info pointer to the stream if found, NULL otherwise
@@ -227,7 +274,10 @@ struct pkt_info*
 AI_get_stream_by_key ( struct pkt_key key )
 {
 	struct pkt_info *info = NULL;
+
+	pthread_mutex_lock ( &hash_mutex );
 	HASH_FIND ( hh, hash, &key, sizeof (struct pkt_key), info );
+	pthread_mutex_unlock ( &hash_mutex );
 
 	/* If no stream was found with that key, return */
 	if ( info == NULL )
@@ -242,7 +292,6 @@ AI_get_stream_by_key ( struct pkt_key key )
 
 
 /**
- * FUNCTION: AI_set_stream_observed
  * \brief  Set the flag "observed" on a stream associated to a security alert, so that it won't be removed from the hash table
  * \param  key 	Key of the stream to be set as "observed"
  */
@@ -251,11 +300,18 @@ void
 AI_set_stream_observed ( struct pkt_key key )
 {
 	struct pkt_info *info = NULL;
+
+	pthread_mutex_lock ( &hash_mutex );
 	HASH_FIND ( hh, hash, &key, sizeof (struct pkt_key), info );
+	pthread_mutex_unlock ( &hash_mutex );
 
 	if ( info == NULL )
 		return;
 
+	pthread_mutex_lock ( &hash_mutex );
 	info->observed = true;
+	pthread_mutex_unlock ( &hash_mutex );
 }		/* -----  end of function AI_set_stream_observed  ----- */
+
+/** @} */
 

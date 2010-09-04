@@ -24,19 +24,22 @@
 #include	<time.h>
 #include	<sys/inotify.h>
 #include	<sys/stat.h>
+#include 	<pthread.h>
 
 
 PRIVATE AI_snort_alert *alerts   = NULL;
 PRIVATE FILE           *alert_fp = NULL;
 
+/** \defgroup alert_parser Parse the alert log into binary structures
+ * @{ */
+
 /**
- * FUNCTION: AI_alertparser_thread
  * \brief  Thread for parsing Snort's alert file
  * \param  arg 	void* pointer to module's configuration
  */
 
 void*
-AI_alertparser_thread ( void* arg )
+AI_file_alertparser_thread ( void* arg )
 {
 	struct logtime  {
 		unsigned short  day;
@@ -68,8 +71,6 @@ AI_alertparser_thread ( void* arg )
 
 	while ( 1 )
 	{
-		FILE *fp = fopen ( "/home/blacklight/LOG", "a" );
-
 		if (( ifd = inotify_init() ) < 0 )
 		{
 			_dpd.fatalMsg ( "Could not initialize an inotify object on the alert log file" );
@@ -101,6 +102,8 @@ AI_alertparser_thread ( void* arg )
 
 		fseek ( alert_fp, 0, SEEK_END );
 		read ( ifd, line, sizeof(line) );
+		inotify_rm_watch ( ifd, wd );
+		close ( ifd );
 
 		while ( !feof ( alert_fp ))
 		{
@@ -117,10 +120,10 @@ AI_alertparser_thread ( void* arg )
 			{
 				if ( in_alert )
 				{
-					if ( alert->ipproto == IPPROTO_TCP )
+					if ( alert->ip_proto == IPPROTO_TCP )
 					{
-						key.src_ip   = alert->src_addr;
-						key.dst_port = alert->dst_port;
+						key.src_ip   = alert->ip_src_addr;
+						key.dst_port = alert->tcp_dst_port;
 
 						if (( info = AI_get_stream_by_key ( key ) ))
 						{
@@ -211,10 +214,10 @@ AI_alertparser_thread ( void* arg )
 				strptime ( strtime, "%d/%m/%Y, %H:%M:%S", _tm );
 				alert->timestamp = mktime ( _tm );
 
-				alert->src_addr = inet_addr ( matches[5] );
-				alert->dst_addr = inet_addr ( matches[7] );
-				alert->src_port = htons ( atoi( matches[6] ));
-				alert->dst_port = htons ( atoi( matches[8] ));
+				alert->ip_src_addr  = inet_addr ( matches[5] );
+				alert->ip_dst_addr  = inet_addr ( matches[7] );
+				alert->tcp_src_port = htons ( atoi( matches[6] ));
+				alert->tcp_dst_port = htons ( atoi( matches[8] ));
 
 				for ( i=0; i < nmatches; i++ )
 					free ( matches[i] );
@@ -240,8 +243,8 @@ AI_alertparser_thread ( void* arg )
 				strptime ( strtime, "%d/%m/%Y, %H:%M:%S", _tm );
 				alert->timestamp = mktime ( _tm );
 
-				alert->src_addr = inet_addr ( matches[5] );
-				alert->dst_addr = inet_addr ( matches[6] );
+				alert->ip_src_addr = inet_addr ( matches[5] );
+				alert->ip_dst_addr = inet_addr ( matches[6] );
 
 				for ( i=0; i < nmatches; i++ )
 					free ( matches[i] );
@@ -251,26 +254,26 @@ AI_alertparser_thread ( void* arg )
 			} else if ( preg_match ( "^([^\\s+]+)\\s+TTL:\\s*([0-9]+)\\s+TOS:\\s*0x([0-9A-F]+)\\s+ID:\\s*([0-9]+)\\s+IpLen:\\s*([0-9]+)",
 						line, &matches, &nmatches ) > 0 ) {
 				if ( !strcasecmp ( matches[0], "tcp" ) )  {
-					alert->ipproto = IPPROTO_TCP;
+					alert->ip_proto = IPPROTO_TCP;
 				} else if ( !strcasecmp ( matches[0], "udp" ) )  {
-					alert->ipproto = IPPROTO_UDP;
+					alert->ip_proto = IPPROTO_UDP;
 				} else if ( !strcasecmp ( matches[0], "icmp" ) )  {
-					alert->ipproto = IPPROTO_ICMP;
+					alert->ip_proto = IPPROTO_ICMP;
 				} else {
-					alert->ipproto = IPPROTO_NONE;
+					alert->ip_proto = IPPROTO_NONE;
 				}
 
-				alert->ttl   = htons ( (uint16_t) strtoul ( matches[1], NULL, 10 ));
-				alert->tos   = htons ( (uint16_t) strtoul ( matches[2], NULL, 16 ));
-				alert->id    = htons ( (uint16_t) strtoul ( matches[3], NULL, 10 ));
-				alert->iplen = htons ( (uint16_t) strtoul ( matches[4], NULL, 10 ));
+				alert->ip_ttl   = htons ( (uint16_t) strtoul ( matches[1], NULL, 10 ));
+				alert->ip_tos   = htons ( (uint16_t) strtoul ( matches[2], NULL, 16 ));
+				alert->ip_id    = htons ( (uint16_t) strtoul ( matches[3], NULL, 10 ));
+				alert->ip_len   = htons ( (uint16_t) strtoul ( matches[4], NULL, 10 ));
 
 				for ( i=0; i < nmatches; i++ )
 					free ( matches[i] );
 
 				free ( matches );
 				matches = NULL;
-			} else if ( preg_match ( "^([\\*UAPRSF]{8})\\s+Seq:\\s*0x([0-9A-F]+)\\s+Ack:\\s*0x([0-9A-F]+)\\s+Win:\\s*0x([0-9A-F]+)\\s+TcpLen:\\s*([0-9]+)",
+			} else if ( preg_match ( "^([\\*CEUAPRSF]{8})\\s+Seq:\\s*0x([0-9A-F]+)\\s+Ack:\\s*0x([0-9A-F]+)\\s+Win:\\s*0x([0-9A-F]+)\\s+TcpLen:\\s*([0-9]+)",
 						line, &matches, &nmatches ) > 0 ) {
 				alert->tcp_flags = 0;
 				alert->tcp_flags |= ( strstr ( matches[0], "C" ) ) ? TCPHEADER_RES1 : 0;
@@ -282,10 +285,10 @@ AI_alertparser_thread ( void* arg )
 				alert->tcp_flags |= ( strstr ( matches[0], "S" ) ) ? TCPHEADER_SYN  : 0;
 				alert->tcp_flags |= ( strstr ( matches[0], "F" ) ) ? TCPHEADER_FIN  : 0;
 
-				alert->sequence = htonl ( strtoul ( matches[1], NULL, 16 ));
-				alert->ack      = htonl ( strtoul ( matches[2], NULL, 16 ));
-				alert->window   = htons ( (uint16_t) strtoul ( matches[3], NULL, 16 ));
-				alert->tcplen   = htons ( (uint16_t) strtoul ( matches[4], NULL, 10 ));
+				alert->tcp_seq      = htonl ( strtoul ( matches[1], NULL, 16 ));
+				alert->tcp_ack      = htonl ( strtoul ( matches[2], NULL, 16 ));
+				alert->tcp_window   = htons ( (uint16_t) strtoul ( matches[3], NULL, 16 ));
+				alert->tcp_len      = htons ( (uint16_t) strtoul ( matches[4], NULL, 10 ));
 
 				for ( i=0; i < nmatches; i++ )
 					free ( matches[i] );
@@ -294,17 +297,14 @@ AI_alertparser_thread ( void* arg )
 				matches = NULL;
 			}
 		}
-
-		fclose ( fp );
 	}
 
+	pthread_exit ((void*) 0 );
 	return (void*) 0;
-}		/* -----  end of function AI_alertparser_thread  ----- */
-
+}		/* -----  end of function AI_file_alertparser_thread  ----- */
 
 
 /**
- * FUNCTION: _AI_copy_alerts
  * \brief  Create a copy of the alert log struct (this is done for leaving the alert log structure in this file as read-only)
  * \param  node 	Starting node (used for the recursion)
  * \return A copy of the alert log linked list
@@ -336,7 +336,6 @@ _AI_copy_alerts ( AI_snort_alert *node )
 
 
 /**
- * FUNCTION: AI_get_alerts
  * \brief  Return the alerts parsed so far as a linked list
  * \return An AI_snort_alert pointer identifying the list of alerts
  */
@@ -348,7 +347,6 @@ AI_get_alerts ()
 
 
 /**
- * FUNCTION: AI_free_alerts
  * \brief  Deallocate the memory of a log alert linked list
  * \param  node 	Linked list to be freed
  */
@@ -364,4 +362,6 @@ AI_free_alerts ( AI_snort_alert *node )
 	free ( node );
 	node = NULL;
 }		/* -----  end of function AI_free_alerts  ----- */
+
+/** @} */
 

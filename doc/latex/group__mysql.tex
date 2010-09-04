@@ -1,0 +1,95 @@
+\hypertarget{group__mysql}{
+\section{Manage alerts on a MySQL database}
+\label{group__mysql}\index{Manage alerts on a MySQL database@{Manage alerts on a MySQL database}}
+}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void $\ast$ \hyperlink{group__mysql_gadf275635641f88725930de208fb5523f}{AI\_\-mysql\_\-alertparser\_\-thread} (void $\ast$arg)
+\begin{DoxyCompactList}\small\item\em Thread for parsing alerts from MySQL database. \item\end{DoxyCompactList}\item 
+PRIVATE \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__mysql_gab14c269b1187da75d35d4af3eb70a302}{\_\-AI\_\-mysql\_\-copy\_\-alerts} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$node)
+\begin{DoxyCompactList}\small\item\em Create a copy of the alert log struct (this is done for leaving the alert log structure in this file as read-\/only). \item\end{DoxyCompactList}\item 
+\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__mysql_ga0ead3c1e46063e215168e76d7999d65b}{AI\_\-mysql\_\-get\_\-alerts} ()
+\begin{DoxyCompactList}\small\item\em Return the alerts parsed so far as a linked list. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+PRIVATE \hyperlink{structAI__config}{AI\_\-config} $\ast$ \hyperlink{group__mysql_ga6439d32dccbbc77c9b2aad04897bfa74}{config}
+\item 
+PRIVATE \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__mysql_gae837fc04e61c0eb052f997c54b4fd9fe}{alerts} = NULL
+\item 
+PRIVATE pthread\_\-mutex\_\-t \hyperlink{group__mysql_ga40bb4c7d0679e36cc0ec4fa41d36d96c}{db\_\-mutex} = PTHREAD\_\-MUTEX\_\-INITIALIZER
+\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{group__mysql_gab14c269b1187da75d35d4af3eb70a302}{
+\index{mysql@{mysql}!\_\-AI\_\-mysql\_\-copy\_\-alerts@{\_\-AI\_\-mysql\_\-copy\_\-alerts}}
+\index{\_\-AI\_\-mysql\_\-copy\_\-alerts@{\_\-AI\_\-mysql\_\-copy\_\-alerts}!mysql@{mysql}}
+\subsubsection[{\_\-AI\_\-mysql\_\-copy\_\-alerts}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf AI\_\-snort\_\-alert}$\ast$ \_\-AI\_\-mysql\_\-copy\_\-alerts (
+\begin{DoxyParamCaption}
+\item[{{\bf AI\_\-snort\_\-alert} $\ast$}]{ node}
+\end{DoxyParamCaption}
+)}}
+\label{group__mysql_gab14c269b1187da75d35d4af3eb70a302}
+
+
+Create a copy of the alert log struct (this is done for leaving the alert log structure in this file as read-\/only). 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em node}]Starting node (used for the recursion) \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A copy of the alert log linked list 
+\end{DoxyReturn}
+\hypertarget{group__mysql_gadf275635641f88725930de208fb5523f}{
+\index{mysql@{mysql}!AI\_\-mysql\_\-alertparser\_\-thread@{AI\_\-mysql\_\-alertparser\_\-thread}}
+\index{AI\_\-mysql\_\-alertparser\_\-thread@{AI\_\-mysql\_\-alertparser\_\-thread}!mysql@{mysql}}
+\subsubsection[{AI\_\-mysql\_\-alertparser\_\-thread}]{\setlength{\rightskip}{0pt plus 5cm}void$\ast$ AI\_\-mysql\_\-alertparser\_\-thread (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{ arg}
+\end{DoxyParamCaption}
+)}}
+\label{group__mysql_gadf275635641f88725930de208fb5523f}
+
+
+Thread for parsing alerts from MySQL database. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em arg}]void$\ast$ pointer to the module configuration \end{DoxyParams}
+\hypertarget{group__mysql_ga0ead3c1e46063e215168e76d7999d65b}{
+\index{mysql@{mysql}!AI\_\-mysql\_\-get\_\-alerts@{AI\_\-mysql\_\-get\_\-alerts}}
+\index{AI\_\-mysql\_\-get\_\-alerts@{AI\_\-mysql\_\-get\_\-alerts}!mysql@{mysql}}
+\subsubsection[{AI\_\-mysql\_\-get\_\-alerts}]{\setlength{\rightskip}{0pt plus 5cm}{\bf AI\_\-snort\_\-alert}$\ast$ AI\_\-mysql\_\-get\_\-alerts (
+\begin{DoxyParamCaption}
+\item[{void}]{}
+\end{DoxyParamCaption}
+)}}
+\label{group__mysql_ga0ead3c1e46063e215168e76d7999d65b}
+
+
+Return the alerts parsed so far as a linked list. 
+
+\begin{DoxyReturn}{Returns}
+An AI\_\-snort\_\-alert pointer identifying the list of alerts 
+\end{DoxyReturn}
+
+
+\subsection{Variable Documentation}
+\hypertarget{group__mysql_gae837fc04e61c0eb052f997c54b4fd9fe}{
+\index{mysql@{mysql}!alerts@{alerts}}
+\index{alerts@{alerts}!mysql@{mysql}}
+\subsubsection[{alerts}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf AI\_\-snort\_\-alert}$\ast$ {\bf alerts} = NULL}}
+\label{group__mysql_gae837fc04e61c0eb052f997c54b4fd9fe}
+\hypertarget{group__mysql_ga6439d32dccbbc77c9b2aad04897bfa74}{
+\index{mysql@{mysql}!config@{config}}
+\index{config@{config}!mysql@{mysql}}
+\subsubsection[{config}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf AI\_\-config}$\ast$ {\bf config}}}
+\label{group__mysql_ga6439d32dccbbc77c9b2aad04897bfa74}
+\hypertarget{group__mysql_ga40bb4c7d0679e36cc0ec4fa41d36d96c}{
+\index{mysql@{mysql}!db\_\-mutex@{db\_\-mutex}}
+\index{db\_\-mutex@{db\_\-mutex}!mysql@{mysql}}
+\subsubsection[{db\_\-mutex}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE pthread\_\-mutex\_\-t {\bf db\_\-mutex} = PTHREAD\_\-MUTEX\_\-INITIALIZER}}
+\label{group__mysql_ga40bb4c7d0679e36cc0ec4fa41d36d96c}
+pthread mutex for accessing database data 

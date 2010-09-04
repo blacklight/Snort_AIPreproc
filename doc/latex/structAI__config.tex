@@ -15,9 +15,19 @@ unsigned long \hyperlink{structAI__config_abbe77d5f94b8c5164bea47acba09c98b}{str
 \item 
 unsigned long \hyperlink{structAI__config_a7d0d098b8263aa3d8415b11d1ec7f93d}{alertClusteringInterval}
 \item 
+unsigned long \hyperlink{structAI__config_ae6ca715cab1d90b70c3aad443133c263}{databaseParsingInterval}
+\item 
 char \hyperlink{structAI__config_a2efa9590d7eea6dce8b5dd9aa76ed8ca}{alertfile} \mbox{[}1024\mbox{]}
 \item 
 char \hyperlink{structAI__config_a6da02a3f7116fd3810a41b738e8883a3}{clusterfile} \mbox{[}1024\mbox{]}
+\item 
+char \hyperlink{structAI__config_ac8a93607f12106e2f5c9b43af27107da}{dbname} \mbox{[}256\mbox{]}
+\item 
+char \hyperlink{structAI__config_aa004adebfdafb6d14092aecd7f4912b0}{dbuser} \mbox{[}256\mbox{]}
+\item 
+char \hyperlink{structAI__config_aa1cda349763faf60b2ebdbf2d187ae7d}{dbpass} \mbox{[}256\mbox{]}
+\item 
+char \hyperlink{structAI__config_a8e56f1a1b2095d3d329c8068ea0f3aab}{dbhost} \mbox{[}256\mbox{]}
 \end{DoxyCompactItemize}
 
 
@@ -27,27 +37,52 @@ char \hyperlink{structAI__config_a6da02a3f7116fd3810a41b738e8883a3}{clusterfile}
 \index{alertClusteringInterval@{alertClusteringInterval}!AI_config@{AI\_\-config}}
 \subsubsection[{alertClusteringInterval}]{\setlength{\rightskip}{0pt plus 5cm}unsigned long {\bf AI\_\-config::alertClusteringInterval}}}
 \label{structAI__config_a7d0d098b8263aa3d8415b11d1ec7f93d}
-\hypertarget{structAI__config_a2efa9590d7eea6dce8b5dd9aa76ed8ca}{
+Interval in seconds for the alert clustering thread \hypertarget{structAI__config_a2efa9590d7eea6dce8b5dd9aa76ed8ca}{
 \index{AI\_\-config@{AI\_\-config}!alertfile@{alertfile}}
 \index{alertfile@{alertfile}!AI_config@{AI\_\-config}}
 \subsubsection[{alertfile}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf AI\_\-config::alertfile}\mbox{[}1024\mbox{]}}}
 \label{structAI__config_a2efa9590d7eea6dce8b5dd9aa76ed8ca}
-\hypertarget{structAI__config_a6da02a3f7116fd3810a41b738e8883a3}{
+Alert file \hypertarget{structAI__config_a6da02a3f7116fd3810a41b738e8883a3}{
 \index{AI\_\-config@{AI\_\-config}!clusterfile@{clusterfile}}
 \index{clusterfile@{clusterfile}!AI_config@{AI\_\-config}}
 \subsubsection[{clusterfile}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf AI\_\-config::clusterfile}\mbox{[}1024\mbox{]}}}
 \label{structAI__config_a6da02a3f7116fd3810a41b738e8883a3}
-\hypertarget{structAI__config_a9f7680615027d4fb74b4aa144a7028a4}{
+Clustered alerts file \hypertarget{structAI__config_ae6ca715cab1d90b70c3aad443133c263}{
+\index{AI\_\-config@{AI\_\-config}!databaseParsingInterval@{databaseParsingInterval}}
+\index{databaseParsingInterval@{databaseParsingInterval}!AI_config@{AI\_\-config}}
+\subsubsection[{databaseParsingInterval}]{\setlength{\rightskip}{0pt plus 5cm}unsigned long {\bf AI\_\-config::databaseParsingInterval}}}
+\label{structAI__config_ae6ca715cab1d90b70c3aad443133c263}
+Interval in seconds for reading the alert database, if database logging is used \hypertarget{structAI__config_a8e56f1a1b2095d3d329c8068ea0f3aab}{
+\index{AI\_\-config@{AI\_\-config}!dbhost@{dbhost}}
+\index{dbhost@{dbhost}!AI_config@{AI\_\-config}}
+\subsubsection[{dbhost}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf AI\_\-config::dbhost}\mbox{[}256\mbox{]}}}
+\label{structAI__config_a8e56f1a1b2095d3d329c8068ea0f3aab}
+Database host, if database logging is used \hypertarget{structAI__config_ac8a93607f12106e2f5c9b43af27107da}{
+\index{AI\_\-config@{AI\_\-config}!dbname@{dbname}}
+\index{dbname@{dbname}!AI_config@{AI\_\-config}}
+\subsubsection[{dbname}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf AI\_\-config::dbname}\mbox{[}256\mbox{]}}}
+\label{structAI__config_ac8a93607f12106e2f5c9b43af27107da}
+Database name, if database logging is used \hypertarget{structAI__config_aa1cda349763faf60b2ebdbf2d187ae7d}{
+\index{AI\_\-config@{AI\_\-config}!dbpass@{dbpass}}
+\index{dbpass@{dbpass}!AI_config@{AI\_\-config}}
+\subsubsection[{dbpass}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf AI\_\-config::dbpass}\mbox{[}256\mbox{]}}}
+\label{structAI__config_aa1cda349763faf60b2ebdbf2d187ae7d}
+Database password, if database logging is used \hypertarget{structAI__config_aa004adebfdafb6d14092aecd7f4912b0}{
+\index{AI\_\-config@{AI\_\-config}!dbuser@{dbuser}}
+\index{dbuser@{dbuser}!AI_config@{AI\_\-config}}
+\subsubsection[{dbuser}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf AI\_\-config::dbuser}\mbox{[}256\mbox{]}}}
+\label{structAI__config_aa004adebfdafb6d14092aecd7f4912b0}
+Database user, if database logging is used \hypertarget{structAI__config_a9f7680615027d4fb74b4aa144a7028a4}{
 \index{AI\_\-config@{AI\_\-config}!hashCleanupInterval@{hashCleanupInterval}}
 \index{hashCleanupInterval@{hashCleanupInterval}!AI_config@{AI\_\-config}}
 \subsubsection[{hashCleanupInterval}]{\setlength{\rightskip}{0pt plus 5cm}unsigned long {\bf AI\_\-config::hashCleanupInterval}}}
 \label{structAI__config_a9f7680615027d4fb74b4aa144a7028a4}
-\hypertarget{structAI__config_abbe77d5f94b8c5164bea47acba09c98b}{
+Interval in seconds for the stream cleanup thread \hypertarget{structAI__config_abbe77d5f94b8c5164bea47acba09c98b}{
 \index{AI\_\-config@{AI\_\-config}!streamExpireInterval@{streamExpireInterval}}
 \index{streamExpireInterval@{streamExpireInterval}!AI_config@{AI\_\-config}}
 \subsubsection[{streamExpireInterval}]{\setlength{\rightskip}{0pt plus 5cm}unsigned long {\bf AI\_\-config::streamExpireInterval}}}
 \label{structAI__config_abbe77d5f94b8c5164bea47acba09c98b}
-
+Interval in seconds for considering an idle stream timed out 
 
 The documentation for this struct was generated from the following file:\begin{DoxyCompactItemize}
 \item 

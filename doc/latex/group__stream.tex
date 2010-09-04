@@ -1,0 +1,103 @@
+\hypertarget{group__stream}{
+\section{Manage streams, sorting them into hash tables and linked lists}
+\label{group__stream}\index{Manage streams, sorting them into hash tables and linked lists@{Manage streams, sorting them into hash tables and linked lists}}
+}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+PRIVATE void \hyperlink{group__stream_ga80016adf701c717a6ebfb5b15b8a5749}{\_\-AI\_\-stream\_\-free} (struct \hyperlink{structpkt__info}{pkt\_\-info} $\ast$stream)
+\begin{DoxyCompactList}\small\item\em Remove a stream from the hash table (private function). \item\end{DoxyCompactList}\item 
+void $\ast$ \hyperlink{group__stream_ga24b1131374e5059564b8a12380c4eb75}{AI\_\-hashcleanup\_\-thread} (void $\ast$arg)
+\begin{DoxyCompactList}\small\item\em Thread called for cleaning up the hash table from the traffic streams older than a certain threshold. \item\end{DoxyCompactList}\item 
+void \hyperlink{group__stream_ga7d71c5645b9baff7b6c4b9a181bf80c5}{AI\_\-pkt\_\-enqueue} (SFSnortPacket $\ast$pkt)
+\begin{DoxyCompactList}\small\item\em Function called for appending a new packet to the hash table, creating a new stream or appending it to an existing stream. \item\end{DoxyCompactList}\item 
+struct \hyperlink{structpkt__info}{pkt\_\-info} $\ast$ \hyperlink{group__stream_ga2efedcabbfd12c5345f0c93a3dd4735c}{AI\_\-get\_\-stream\_\-by\_\-key} (struct \hyperlink{structpkt__key}{pkt\_\-key} key)
+\begin{DoxyCompactList}\small\item\em Get a TCP stream by key. \item\end{DoxyCompactList}\item 
+void \hyperlink{group__stream_ga8749989cee2ac05a7de058faac280c02}{AI\_\-set\_\-stream\_\-observed} (struct \hyperlink{structpkt__key}{pkt\_\-key} key)
+\begin{DoxyCompactList}\small\item\em Set the flag \char`\"{}observed\char`\"{} on a stream associated to a security alert, so that it won't be removed from the hash table. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\hypertarget{group__stream_ga80016adf701c717a6ebfb5b15b8a5749}{
+\index{stream@{stream}!\_\-AI\_\-stream\_\-free@{\_\-AI\_\-stream\_\-free}}
+\index{\_\-AI\_\-stream\_\-free@{\_\-AI\_\-stream\_\-free}!stream@{stream}}
+\subsubsection[{\_\-AI\_\-stream\_\-free}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE void \_\-AI\_\-stream\_\-free (
+\begin{DoxyParamCaption}
+\item[{struct {\bf pkt\_\-info} $\ast$}]{ stream}
+\end{DoxyParamCaption}
+)}}
+\label{group__stream_ga80016adf701c717a6ebfb5b15b8a5749}
+
+
+Remove a stream from the hash table (private function). 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em stream}]Stream to be removed \end{DoxyParams}
+\hypertarget{group__stream_ga2efedcabbfd12c5345f0c93a3dd4735c}{
+\index{stream@{stream}!AI\_\-get\_\-stream\_\-by\_\-key@{AI\_\-get\_\-stream\_\-by\_\-key}}
+\index{AI\_\-get\_\-stream\_\-by\_\-key@{AI\_\-get\_\-stream\_\-by\_\-key}!stream@{stream}}
+\subsubsection[{AI\_\-get\_\-stream\_\-by\_\-key}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf pkt\_\-info}$\ast$ AI\_\-get\_\-stream\_\-by\_\-key (
+\begin{DoxyParamCaption}
+\item[{struct {\bf pkt\_\-key}}]{ key}
+\end{DoxyParamCaption}
+)\hspace{0.3cm}{\ttfamily  \mbox{[}read\mbox{]}}}}
+\label{group__stream_ga2efedcabbfd12c5345f0c93a3dd4735c}
+
+
+Get a TCP stream by key. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em key}]Key of the stream to be picked up (struct \hyperlink{structpkt__key}{pkt\_\-key}) \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A \hyperlink{structpkt__info}{pkt\_\-info} pointer to the stream if found, NULL otherwise 
+\end{DoxyReturn}
+\hypertarget{group__stream_ga24b1131374e5059564b8a12380c4eb75}{
+\index{stream@{stream}!AI\_\-hashcleanup\_\-thread@{AI\_\-hashcleanup\_\-thread}}
+\index{AI\_\-hashcleanup\_\-thread@{AI\_\-hashcleanup\_\-thread}!stream@{stream}}
+\subsubsection[{AI\_\-hashcleanup\_\-thread}]{\setlength{\rightskip}{0pt plus 5cm}void$\ast$ AI\_\-hashcleanup\_\-thread (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{ arg}
+\end{DoxyParamCaption}
+)}}
+\label{group__stream_ga24b1131374e5059564b8a12380c4eb75}
+
+
+Thread called for cleaning up the hash table from the traffic streams older than a certain threshold. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em arg}]Pointer to the \hyperlink{structAI__config}{AI\_\-config} struct \end{DoxyParams}
+\hypertarget{group__stream_ga7d71c5645b9baff7b6c4b9a181bf80c5}{
+\index{stream@{stream}!AI\_\-pkt\_\-enqueue@{AI\_\-pkt\_\-enqueue}}
+\index{AI\_\-pkt\_\-enqueue@{AI\_\-pkt\_\-enqueue}!stream@{stream}}
+\subsubsection[{AI\_\-pkt\_\-enqueue}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-pkt\_\-enqueue (
+\begin{DoxyParamCaption}
+\item[{SFSnortPacket $\ast$}]{ pkt}
+\end{DoxyParamCaption}
+)}}
+\label{group__stream_ga7d71c5645b9baff7b6c4b9a181bf80c5}
+
+
+Function called for appending a new packet to the hash table, creating a new stream or appending it to an existing stream. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em pkt}]Packet to be appended \end{DoxyParams}
+\hypertarget{group__stream_ga8749989cee2ac05a7de058faac280c02}{
+\index{stream@{stream}!AI\_\-set\_\-stream\_\-observed@{AI\_\-set\_\-stream\_\-observed}}
+\index{AI\_\-set\_\-stream\_\-observed@{AI\_\-set\_\-stream\_\-observed}!stream@{stream}}
+\subsubsection[{AI\_\-set\_\-stream\_\-observed}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-set\_\-stream\_\-observed (
+\begin{DoxyParamCaption}
+\item[{struct {\bf pkt\_\-key}}]{ key}
+\end{DoxyParamCaption}
+)}}
+\label{group__stream_ga8749989cee2ac05a7de058faac280c02}
+
+
+Set the flag \char`\"{}observed\char`\"{} on a stream associated to a security alert, so that it won't be removed from the hash table. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em key}]Key of the stream to be set as \char`\"{}observed\char`\"{} \end{DoxyParams}
