@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  mysql.c
+ *       Filename:  db.c
  *
  *    Description:  Parse the alert log saved by Snort on a database
  *
@@ -17,6 +17,7 @@
  * =====================================================================================
  */
 
+#ifdef 	ENABLE_DB
 
 #include	"spp_ai.h"
 #include	"db.h"
@@ -25,7 +26,7 @@
 #include	<time.h>
 #include 	<pthread.h>
 
-/** \defgroup mysql Manage alerts on a MySQL database
+/** \defgroup db Manage alerts on a database
  * @{ */
 
 
@@ -36,12 +37,12 @@ PRIVATE AI_snort_alert *alerts = NULL;
 PRIVATE pthread_mutex_t db_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /**
- * \brief  Thread for parsing alerts from MySQL database
+ * \brief  Thread for parsing alerts from a database
  * \param  arg 	void* pointer to the module configuration
  */
 
 void*
-AI_mysql_alertparser_thread ( void *arg )
+AI_db_alertparser_thread ( void *arg )
 {
 	char           query[1024];
 	int            rows        = 0;
@@ -224,7 +225,7 @@ AI_mysql_alertparser_thread ( void *arg )
 	DB_close();
 	pthread_exit ((void*) 0 );
 	return (void*) 0;
-}		/* -----  end of function AI_mysql_alert_parse  ----- */
+}		/* -----  end of function AI_db_alert_parse  ----- */
 
 /**
  * \brief  Create a copy of the alert log struct (this is done for leaving the alert log structure in this file as read-only)
@@ -232,7 +233,7 @@ AI_mysql_alertparser_thread ( void *arg )
  * \return A copy of the alert log linked list
  */
 PRIVATE AI_snort_alert*
-_AI_mysql_copy_alerts ( AI_snort_alert *node )
+_AI_db_copy_alerts ( AI_snort_alert *node )
 {
 	AI_snort_alert *current = NULL, *next = NULL;
 
@@ -243,7 +244,7 @@ _AI_mysql_copy_alerts ( AI_snort_alert *node )
 
 	if ( node->next )
 	{
-		next = _AI_mysql_copy_alerts ( node->next );
+		next = _AI_db_copy_alerts ( node->next );
 	}
 
 	if ( !( current = ( AI_snort_alert* ) malloc ( sizeof ( AI_snort_alert )) ))
@@ -254,7 +255,7 @@ _AI_mysql_copy_alerts ( AI_snort_alert *node )
 	memcpy ( current, node, sizeof ( AI_snort_alert ));
 	current->next = next;
 	return current;
-}		/* -----  end of function _AI_mysql_copy_alerts  ----- */
+}		/* -----  end of function _AI_db_copy_alerts  ----- */
 
 
 /**
@@ -262,10 +263,12 @@ _AI_mysql_copy_alerts ( AI_snort_alert *node )
  * \return An AI_snort_alert pointer identifying the list of alerts
  */
 AI_snort_alert*
-AI_mysql_get_alerts ()
+AI_db_get_alerts ()
 {
-	return _AI_mysql_copy_alerts ( alerts );
-}		/* -----  end of function AI_mysql_get_alerts  ----- */
+	return _AI_db_copy_alerts ( alerts );
+}		/* -----  end of function AI_db_get_alerts  ----- */
 
 /** @} */
+
+#endif
 

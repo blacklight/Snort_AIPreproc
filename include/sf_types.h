@@ -83,6 +83,7 @@ typedef uint64_t    u_int64_t;
 typedef u_int64_t    uint64_t;
 #    endif  /* !defined(HAVE_UINT64_T) && !defined(HAVE_U_INT64_T) */
 #  endif  /* !defined(HAVE_UINT64_T) || !defined(HAVE_U_INT64_T) */
+
 #  ifndef HAVE_INT8_T
 typedef char     int8_t;
 #  endif
@@ -103,6 +104,7 @@ typedef long long int    int64_t;
 typedef long int         int64_t;
 #    endif
 #  endif
+
 #  ifndef WIN32
 #    ifdef HAVE_INTTYPES_H
 /* <inttypes.h> includes <stdint.h> */

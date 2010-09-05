@@ -17,6 +17,8 @@
  * =====================================================================================
  */
 
+#ifdef 	ENABLE_MYSQL
+
 #include	"spp_ai.h"
 #include	<mysql/mysql.h>
 
@@ -69,4 +71,6 @@ mysql_do_close ()
 	free ( db );
 	db = NULL;
 }
+
+#endif
 

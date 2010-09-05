@@ -186,7 +186,12 @@ int                preg_match ( const char*, char*, char***, int* );
 
 void*              AI_hashcleanup_thread ( void* );
 void*              AI_file_alertparser_thread ( void* );
-void*              AI_mysql_alertparser_thread ( void* );
+
+#ifdef 	ENABLE_DB
+void*              AI_db_alertparser_thread ( void* );
+AI_snort_alert*    AI_db_get_alerts ( void );
+void               AI_db_free_alerts ( AI_snort_alert *node );
+#endif
 
 void               AI_pkt_enqueue ( SFSnortPacket* );
 void               AI_set_stream_observed ( struct pkt_key key );
@@ -195,10 +200,8 @@ void               AI_hierarchies_build ( AI_config*, hierarchy_node**, int );
 struct pkt_info*   AI_get_stream_by_key ( struct pkt_key );
 
 AI_snort_alert*    AI_get_alerts ( void );
-AI_snort_alert*    AI_mysql_get_alerts ( void );
 
 void               AI_free_alerts ( AI_snort_alert *node );
-void               AI_mysql_free_alerts ( AI_snort_alert *node );
 
 /** Function pointer to the function used for getting the alert list (from log file, db, ...) */
 AI_snort_alert* (*get_alerts)(void);

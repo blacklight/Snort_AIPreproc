@@ -625,7 +625,10 @@ static AI_config * AI_parse(char *args)
 		alertparser_thread = AI_file_alertparser_thread;
 	} else if ( has_database_log )  {
 		has_alertfile = false;
-		alertparser_thread = AI_mysql_alertparser_thread;
+
+		#ifdef 	ENABLE_DB
+		alertparser_thread = AI_db_alertparser_thread;
+		#endif
 	} else if ( has_alertfile ) {
 		alertparser_thread = AI_file_alertparser_thread;
 	}
@@ -652,7 +655,9 @@ static AI_config * AI_parse(char *args)
 
 	if ( has_database_log )
 	{
-		get_alerts = AI_mysql_get_alerts;
+		#ifdef 	ENABLE_DB
+		get_alerts = AI_db_get_alerts;
+		#endif
 	} else {
 		get_alerts = AI_get_alerts;
 	}

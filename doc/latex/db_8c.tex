@@ -2,26 +2,3 @@
 \section{db.c File Reference}
 \label{db_8c}\index{db.c@{db.c}}
 }
-{\ttfamily \#include \char`\"{}spp\_\-ai.h\char`\"{}}\par
-{\ttfamily \#include \char`\"{}db.h\char`\"{}}\par
-{\ttfamily \#include $<$unistd.h$>$}\par
-{\ttfamily \#include $<$time.h$>$}\par
-{\ttfamily \#include $<$pthread.h$>$}\par
-\subsection*{Functions}
-\begin{DoxyCompactItemize}
-\item 
-void $\ast$ \hyperlink{group__mysql_gadf275635641f88725930de208fb5523f}{AI\_\-mysql\_\-alertparser\_\-thread} (void $\ast$arg)
-\begin{DoxyCompactList}\small\item\em Thread for parsing alerts from MySQL database. \item\end{DoxyCompactList}\item 
-PRIVATE \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__mysql_gab14c269b1187da75d35d4af3eb70a302}{\_\-AI\_\-mysql\_\-copy\_\-alerts} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$node)
-\begin{DoxyCompactList}\small\item\em Create a copy of the alert log struct (this is done for leaving the alert log structure in this file as read-\/only). \item\end{DoxyCompactList}\item 
-\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__mysql_ga0ead3c1e46063e215168e76d7999d65b}{AI\_\-mysql\_\-get\_\-alerts} ()
-\begin{DoxyCompactList}\small\item\em Return the alerts parsed so far as a linked list. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
-\subsection*{Variables}
-\begin{DoxyCompactItemize}
-\item 
-PRIVATE \hyperlink{structAI__config}{AI\_\-config} $\ast$ \hyperlink{group__mysql_ga6439d32dccbbc77c9b2aad04897bfa74}{config}
-\item 
-PRIVATE \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__mysql_gae837fc04e61c0eb052f997c54b4fd9fe}{alerts} = NULL
-\item 
-PRIVATE pthread\_\-mutex\_\-t \hyperlink{group__mysql_ga40bb4c7d0679e36cc0ec4fa41d36d96c}{db\_\-mutex} = PTHREAD\_\-MUTEX\_\-INITIALIZER
-\end{DoxyCompactItemize}

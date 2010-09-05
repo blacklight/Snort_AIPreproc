@@ -750,6 +750,8 @@ am__EXEEXT_TRUE
 LTLIBOBJS
 LIB@&t@OBJS
 ALLOCA
+MYSQL
+extra_incl
 CPP
 OTOOL64
 OTOOL
@@ -865,6 +867,7 @@ enable_fast_install
 enable_dependency_tracking
 with_gnu_ld
 enable_libtool_lock
+with_mysql
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1510,6 +1513,7 @@ Optional Packages:
   --with-pic              try to use only PIC/non-PIC objects @<:@default=use
                           both@:>@
   --with-gnu-ld           assume the C compiler uses GNU ld @<:@default=no@:>@
+  --with-mysql            Enable support for MySQL alert logs @<:@default=no@:>@
 
 Some influential environment variables:
   CC          C compiler command
@@ -10523,6 +10527,125 @@ CC="$lt_save_CC"
 
 
 
+case "$host" in
+  *-openbsd2.6|*-openbsd2.5|*-openbsd2.4|*-openbsd2.3*)
+    
+$as_echo "@%:@define OPENBSD 1" >>confdefs.h
+
+    
+$as_echo "@%:@define BROKEN_SIOCGIFMTU 1" >>confdefs.h
+
+
+    ;;
+  *-openbsd*)
+    
+$as_echo "@%:@define OPENBSD 1" >>confdefs.h
+
+
+    ;;
+  *-sgi-irix5*)
+    
+$as_echo "@%:@define IRIX 1" >>confdefs.h
+
+    no_libsocket="yes"
+    no_libnsl="yes"
+    if test -z "$GCC"; then
+      sgi_cc="yes"
+    fi
+    LDFLAGS="${LDFLAGS} -L/usr/local/lib"
+    extra_incl="-I/usr/local/include"
+    ;;
+  *-sgi-irix6*)
+    
+$as_echo "@%:@define IRIX 1" >>confdefs.h
+
+    no_libsocket="yes"
+    no_libnsl="yes"
+    if test -z "$GCC"; then
+      sgi_cc="yes"
+    fi
+    LDFLAGS="${LDFLAGS} -L/usr/local/lib"
+    extra_incl="-I/usr/local/include"
+    ;;
+  *-solaris*)
+    
+$as_echo "@%:@define SOLARIS 1" >>confdefs.h
+
+    CPPFLAGS="${CPPFLAGS} -DBSD_COMP -D_REENTRANT"
+    rt_nanosleep="yes"
+    ;;
+  *-sunos*)
+    
+$as_echo "@%:@define SUNOS 1" >>confdefs.h
+
+    sunos4="yes"
+    ;;
+  *-linux*)
+    linux="yes"
+    
+$as_echo "@%:@define LINUX 1" >>confdefs.h
+
+    # libpcap doesn't even LOOK at the timeout you give it under Linux
+    
+$as_echo "@%:@define PCAP_TIMEOUT_IGNORED 1" >>confdefs.h
+
+    
+    extra_incl="-I/usr/include/pcap"
+    ;;
+  *-hpux10*|*-hpux11*)
+    
+$as_echo "@%:@define HPUX 1" >>confdefs.h
+
+    
+$as_echo "@%:@define WORDS_BIGENDIAN 1" >>confdefs.h
+
+    
+    extra_incl="-I/usr/local/include"
+    ;;
+
+  *-freebsd*)
+    
+$as_echo "@%:@define FREEBSD 1" >>confdefs.h
+
+
+    ;;
+  *-bsdi*)
+    
+$as_echo "@%:@define BSDI 1" >>confdefs.h
+
+    ;;
+  *-aix*)
+    
+$as_echo "@%:@define AIX 1" >>confdefs.h
+
+    ;;
+  *-osf4*)
+    
+$as_echo "@%:@define OSF1 1" >>confdefs.h
+
+    ;;
+  *-osf5.1*)
+    
+$as_echo "@%:@define OSF1 1" >>confdefs.h
+
+    ;;
+  *-tru64*)
+    
+$as_echo "@%:@define OSF1 1" >>confdefs.h
+
+    ;;
+# it is actually <platform>-apple-darwin1.2 or <platform>-apple-rhapsody5.x but lets stick with this for the moment    
+  *-apple*)
+    
+$as_echo "@%:@define MACOS 1" >>confdefs.h
+
+    
+$as_echo "@%:@define BROKEN_SIOCGIFMTU 1" >>confdefs.h
+
+    LDFLAGS="${LDFLAGS} -L/sw/lib"
+    extra_incl="-I/sw/include"
+esac
+
 # Checks for programs.
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -11234,14 +11357,25 @@ $as_echo "no" >&6; }
 fi
 
 
+# Check for optional features
+
+@%:@ Check whether --with-mysql was given.
+if test "${with_mysql+set}" = set; then :
+  withval=$with_mysql; with_mysql=yes
+else
+  with_mysql=no
+fi
+
+
 # Checks for libraries.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for mysql_query in -lmysqlclient" >&5
+if test "x$with_mysql" != xno; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for mysql_query in -lmysqlclient" >&5
 $as_echo_n "checking for mysql_query in -lmysqlclient... " >&6; }
 if test "${ac_cv_lib_mysqlclient_mysql_query+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmysqlclient  $LIBS"
+LIBS="-lmysqlclient -lmysqlclient $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -11272,14 +11406,27 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mysqlclient_mysql_query" >&5
 $as_echo "$ac_cv_lib_mysqlclient_mysql_query" >&6; }
 if test "x$ac_cv_lib_mysqlclient_mysql_query" = x""yes; then :
-  cat >>confdefs.h <<_ACEOF
-@%:@define HAVE_LIBMYSQLCLIENT 1
-_ACEOF
+  MYSQL="-lmysqlclient"
 
-  LIBS="-lmysqlclient $LIBS"
+		
+$as_echo "@%:@define ENABLE_MYSQL 1" >>confdefs.h
+
+		
+$as_echo "@%:@define ENABLE_DB 1" >>confdefs.h
+
+	
+else
+  if test "x$with_mysql" != xno; then
+		{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "--with-mysql option used, but libmysqlclient was not found
+See \`config.log' for more details" "$LINENO" 5 ; }
+	fi
+fi
 
 fi
 
+#AC_CHECK_LIB([mysqlclient], [mysql_query])
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_create in -lpthread" >&5
 $as_echo_n "checking for pthread_create in -lpthread... " >&6; }
 if test "${ac_cv_lib_pthread_pthread_create+set}" = set; then :
@@ -11516,7 +11663,7 @@ _ACEOF
 
 fi
 
-for ac_header in inttypes.h limits.h stddef.h stdlib.h string.h unistd.h
+for ac_header in inttypes.h limits.h stddef.h stdlib.h string.h unistd.h wchar.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -11528,6 +11675,118 @@ _ACEOF
 fi
 
 done
+
+
+# Check for int types
+ac_fn_c_check_type "$LINENO" "u_int8_t" "ac_cv_type_u_int8_t" "$ac_includes_default"
+if test "x$ac_cv_type_u_int8_t" = x""yes; then :
+  
+cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_U_INT8_T 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_type "$LINENO" "u_int16_t" "ac_cv_type_u_int16_t" "$ac_includes_default"
+if test "x$ac_cv_type_u_int16_t" = x""yes; then :
+  
+cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_U_INT16_T 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_type "$LINENO" "u_int32_t" "ac_cv_type_u_int32_t" "$ac_includes_default"
+if test "x$ac_cv_type_u_int32_t" = x""yes; then :
+  
+cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_U_INT32_T 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_type "$LINENO" "u_int64_t" "ac_cv_type_u_int64_t" "$ac_includes_default"
+if test "x$ac_cv_type_u_int64_t" = x""yes; then :
+  
+cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_U_INT64_T 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_type "$LINENO" "uint8_t" "ac_cv_type_uint8_t" "$ac_includes_default"
+if test "x$ac_cv_type_uint8_t" = x""yes; then :
+  
+cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_UINT8_T 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_type "$LINENO" "uint16_t" "ac_cv_type_uint16_t" "$ac_includes_default"
+if test "x$ac_cv_type_uint16_t" = x""yes; then :
+  
+cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_UINT16_T 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_type "$LINENO" "uint32_t" "ac_cv_type_uint32_t" "$ac_includes_default"
+if test "x$ac_cv_type_uint32_t" = x""yes; then :
+  
+cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_UINT32_T 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_type "$LINENO" "uint64_t" "ac_cv_type_uint64_t" "$ac_includes_default"
+if test "x$ac_cv_type_uint64_t" = x""yes; then :
+  
+cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_UINT64_T 1
+_ACEOF
+
+
+fi
+
+ac_fn_c_check_type "$LINENO" "int8_t" "ac_cv_type_int8_t" "$ac_includes_default"
+if test "x$ac_cv_type_int8_t" = x""yes; then :
+  
+cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_INT8_T 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_type "$LINENO" "int16_t" "ac_cv_type_int16_t" "$ac_includes_default"
+if test "x$ac_cv_type_int16_t" = x""yes; then :
+  
+cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_INT16_T 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_type "$LINENO" "int32_t" "ac_cv_type_int32_t" "$ac_includes_default"
+if test "x$ac_cv_type_int32_t" = x""yes; then :
+  
+cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_INT32_T 1
+_ACEOF
+
+
+fi
+ac_fn_c_check_type "$LINENO" "int64_t" "ac_cv_type_int64_t" "$ac_includes_default"
+if test "x$ac_cv_type_int64_t" = x""yes; then :
+  
+cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_INT64_T 1
+_ACEOF
+
+
+fi
 
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -12147,6 +12406,35 @@ _ACEOF
  
 fi
 done
+
+
+
+$as_echo "@%:@define VERSION \"0.1.0\"" >>confdefs.h
+
+
+$as_echo "@%:@define PACKAGE \"sf_ai_preprocessor\"" >>confdefs.h
+
+
+$as_echo "@%:@define PACKAGE_BUGREPORT \"blacklight@autistici.org\"" >>confdefs.h
+
+
+$as_echo "@%:@define PACKAGE_NAME \"sf_ai_preprocessor\"" >>confdefs.h
+
+
+$as_echo "@%:@define PACKAGE_STRING \"Snort AI preprocessor\"" >>confdefs.h
+
+
+$as_echo "@%:@define PACKAGE_TARNAME \"sf_ai_preprocessor\"" >>confdefs.h
+
+
+$as_echo "@%:@define PACKAGE_VERSION \"0.1.0\"" >>confdefs.h
+
+
+$as_echo "@%:@define SUP_IP6 /**/" >>confdefs.h
+
+
+
+$as_echo "@%:@define HAVE_VISIBILITY 1" >>confdefs.h
 
 
 ac_config_files="$ac_config_files Makefile"

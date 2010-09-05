@@ -109,8 +109,6 @@ Functions</h2></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Thread called for cleaning up the hash table from the traffic streams older than a certain threshold.  <a href="group__stream.html#ga24b1131374e5059564b8a12380c4eb75"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__alert__parser.html#ga5aab8d9bdf0e92a51731442fd787f61f">AI_file_alertparser_thread</a> (void *)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Thread for parsing Snort's alert file.  <a href="group__alert__parser.html#ga5aab8d9bdf0e92a51731442fd787f61f"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__mysql.html#gadf275635641f88725930de208fb5523f">AI_mysql_alertparser_thread</a> (void *)</td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Thread for parsing alerts from MySQL database.  <a href="group__mysql.html#gadf275635641f88725930de208fb5523f"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__stream.html#ga7d71c5645b9baff7b6c4b9a181bf80c5">AI_pkt_enqueue</a> (SFSnortPacket *)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Function called for appending a new packet to the hash table, creating a new stream or appending it to an existing stream.  <a href="group__stream.html#ga7d71c5645b9baff7b6c4b9a181bf80c5"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__stream.html#ga8749989cee2ac05a7de058faac280c02">AI_set_stream_observed</a> (struct <a class="el" href="structpkt__key.html">pkt_key</a> key)</td></tr>
@@ -121,11 +119,8 @@ Functions</h2></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get a TCP stream by key.  <a href="group__stream.html#ga2efedcabbfd12c5345f0c93a3dd4735c"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__alert__parser.html#ga99474495643197b3075ac22ec6f6c70f">AI_get_alerts</a> (void)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Return the alerts parsed so far as a linked list.  <a href="group__alert__parser.html#ga99474495643197b3075ac22ec6f6c70f"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__mysql.html#ga0ead3c1e46063e215168e76d7999d65b">AI_mysql_get_alerts</a> (void)</td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Return the alerts parsed so far as a linked list.  <a href="group__mysql.html#ga0ead3c1e46063e215168e76d7999d65b"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__alert__parser.html#ga270e86669a0aa64a8da37bc16cda645b">AI_free_alerts</a> (<a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> *node)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Deallocate the memory of a log alert linked list.  <a href="group__alert__parser.html#ga270e86669a0aa64a8da37bc16cda645b"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8h.html#ad0d003c241328962df5757398329b809">AI_mysql_free_alerts</a> (<a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> *node)</td></tr>
 <tr><td colspan="2"><h2><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">DynamicPreprocessorData&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8h.html#ab46420126c43c1aac5eabc5db266a71c">_dpd</a></td></tr>
@@ -348,25 +343,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<hr/><h2>Function Documentation</h2>
-<a class="anchor" id="ad0d003c241328962df5757398329b809"></a><!-- doxytag: member="spp_ai.h::AI_mysql_free_alerts" ref="ad0d003c241328962df5757398329b809" args="(AI_snort_alert *node)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void AI_mysql_free_alerts </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> *&nbsp;</td>
-          <td class="paramname"> <em>node</em></td>
-          <td>&nbsp;)&nbsp;</td>
-          <td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
 <hr/><h2>Variable Documentation</h2>
 <a class="anchor" id="ab46420126c43c1aac5eabc5db266a71c"></a><!-- doxytag: member="spp_ai.h::_dpd" ref="ab46420126c43c1aac5eabc5db266a71c" args="" -->
 <div class="memitem">
@@ -410,7 +386,7 @@ Variables</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Sat Sep 4 2010 21:30:42 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Sun Sep 5 2010 23:53:47 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

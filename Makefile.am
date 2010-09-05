@@ -4,8 +4,8 @@ AUTOMAKE_OPTIONS=foreign no-dependencies
 
 libdir = ${exec_prefix}/lib/snort_dynamicpreprocessor
 lib_LTLIBRARIES = libsf_ai_preproc.la
-libsf_ai_preproc_la_CFLAGS  = -D_XOPEN_SOURCE -D_GNU_SOURCE -DDYNAMIC_PLUGIN -DSUP_IP6 -fvisibility=hidden -fno-strict-aliasing -Wall -fstack-protector
-libsf_ai_preproc_la_LDFLAGS = -module -export-dynamic
+libsf_ai_preproc_la_CFLAGS   = -I./uthash -I./include -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -fstack-protector
+libsf_ai_preproc_la_LDFLAGS  = -module -export-dynamic
 
 BUILT_SOURCES = \
 include/sf_dynamic_preproc_lib.c \
@@ -25,6 +25,4 @@ spp_ai.c \
 stream.c
 
 ACLOCAL_AMFLAGS = -I m4
-# AM_CFLAGS = -DHAVE_CONFIG_H -DDYNAMIC_PLUGIN -DSUP_IP6 -fvisibility=hidden -fno-strict-aliasing -Wall -fstack-protector
-INCLUDES = -I./uthash -I./include
 

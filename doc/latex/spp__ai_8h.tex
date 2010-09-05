@@ -74,8 +74,6 @@ void $\ast$ \hyperlink{group__stream_ga24b1131374e5059564b8a12380c4eb75}{AI\_\-h
 \begin{DoxyCompactList}\small\item\em Thread called for cleaning up the hash table from the traffic streams older than a certain threshold. \item\end{DoxyCompactList}\item 
 void $\ast$ \hyperlink{group__alert__parser_ga5aab8d9bdf0e92a51731442fd787f61f}{AI\_\-file\_\-alertparser\_\-thread} (void $\ast$)
 \begin{DoxyCompactList}\small\item\em Thread for parsing Snort's alert file. \item\end{DoxyCompactList}\item 
-void $\ast$ \hyperlink{group__mysql_gadf275635641f88725930de208fb5523f}{AI\_\-mysql\_\-alertparser\_\-thread} (void $\ast$)
-\begin{DoxyCompactList}\small\item\em Thread for parsing alerts from MySQL database. \item\end{DoxyCompactList}\item 
 void \hyperlink{group__stream_ga7d71c5645b9baff7b6c4b9a181bf80c5}{AI\_\-pkt\_\-enqueue} (SFSnortPacket $\ast$)
 \begin{DoxyCompactList}\small\item\em Function called for appending a new packet to the hash table, creating a new stream or appending it to an existing stream. \item\end{DoxyCompactList}\item 
 void \hyperlink{group__stream_ga8749989cee2ac05a7de058faac280c02}{AI\_\-set\_\-stream\_\-observed} (struct \hyperlink{structpkt__key}{pkt\_\-key} key)
@@ -86,12 +84,8 @@ struct \hyperlink{structpkt__info}{pkt\_\-info} $\ast$ \hyperlink{group__stream_
 \begin{DoxyCompactList}\small\item\em Get a TCP stream by key. \item\end{DoxyCompactList}\item 
 \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__alert__parser_ga99474495643197b3075ac22ec6f6c70f}{AI\_\-get\_\-alerts} (void)
 \begin{DoxyCompactList}\small\item\em Return the alerts parsed so far as a linked list. \item\end{DoxyCompactList}\item 
-\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__mysql_ga0ead3c1e46063e215168e76d7999d65b}{AI\_\-mysql\_\-get\_\-alerts} (void)
-\begin{DoxyCompactList}\small\item\em Return the alerts parsed so far as a linked list. \item\end{DoxyCompactList}\item 
 void \hyperlink{group__alert__parser_ga270e86669a0aa64a8da37bc16cda645b}{AI\_\-free\_\-alerts} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$node)
-\begin{DoxyCompactList}\small\item\em Deallocate the memory of a log alert linked list. \item\end{DoxyCompactList}\item 
-void \hyperlink{spp__ai_8h_ad0d003c241328962df5757398329b809}{AI\_\-mysql\_\-free\_\-alerts} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$node)
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Deallocate the memory of a log alert linked list. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
@@ -222,18 +216,6 @@ CLUSTER\_\-TYPES}
 }]\end{description}
 \end{Desc}
 
-
-
-\subsection{Function Documentation}
-\hypertarget{spp__ai_8h_ad0d003c241328962df5757398329b809}{
-\index{spp\_\-ai.h@{spp\_\-ai.h}!AI\_\-mysql\_\-free\_\-alerts@{AI\_\-mysql\_\-free\_\-alerts}}
-\index{AI\_\-mysql\_\-free\_\-alerts@{AI\_\-mysql\_\-free\_\-alerts}!spp_ai.h@{spp\_\-ai.h}}
-\subsubsection[{AI\_\-mysql\_\-free\_\-alerts}]{\setlength{\rightskip}{0pt plus 5cm}void AI\_\-mysql\_\-free\_\-alerts (
-\begin{DoxyParamCaption}
-\item[{{\bf AI\_\-snort\_\-alert} $\ast$}]{ node}
-\end{DoxyParamCaption}
-)}}
-\label{spp__ai_8h_ad0d003c241328962df5757398329b809}
 
 
 \subsection{Variable Documentation}
