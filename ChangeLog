@@ -1,3 +1,6 @@
+2010-09-05  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
+	* all: Using autotools now
+
 2010-09-04  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
 	* mysql.c: This file now only contains the functions for managing MySQL
 	connections in the database wrapper

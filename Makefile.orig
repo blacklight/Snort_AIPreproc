@@ -1,5 +1,7 @@
 # Path to your Snort preprocess directory (default: /usr/lib/snort_dynamicpreprocessor)
 # CHANGE THIS LINE IF YOU INSTALLED SNORT SOMEWHERE ELSE!!!!!!!!!!
+# /bin/sh ./libtool --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I./uthash -I./include   -DDYNAMIC_PLUGIN -DSUP_IP6 -fvisibility=hidden -fno-strict-aliasing -Wall -fstack-protector -g -O2 -c -o alert_parser.lo alert_parser.c
+# /bin/sh ./libtool --tag=CC   --mode=link gcc -DDYNAMIC_PLUGIN -DSUP_IP6 -fvisibility=hidden -fno-strict-aliasing -Wall -fstack-protector -g -O2 -module -export-dynamic  -o libsf_ai_preproc.la -rpath /home/blacklight/local/snort/lib/snort_dynamicpreprocessor alert_parser.lo cluster.lo db.lo mysql.lo regex.lo spp_ai.lo stream.lo sf_dynamic_preproc_lib.lo sfPolicyUserData.lo  -lpthread -lmysqlclient
 PREPROC_PATH=/home/blacklight/local/snort/lib/snort_dynamicpreprocessor
 
 INCLUDES=-I. -I../../.. -I../include -I./uthash
