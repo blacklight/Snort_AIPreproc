@@ -20,6 +20,10 @@
 #ifndef _SPP_AI_H
 #define _SPP_AI_H
 
+#ifdef 	HAVE_CONFIG_H
+#include	"config.h"
+#endif
+
 #include 	"sf_snort_packet.h"
 #include 	"sf_dynamic_preprocessor.h"
 #include	"uthash.h"
@@ -38,11 +42,17 @@
 /** Default interval in seconds for the thread clustering alerts */
 #define 	DEFAULT_ALERT_CLUSTERING_INTERVAL 		3600
 
+/** Default interval in seconds for running the graph correlation thread */
+#define 	DEFAULT_ALERT_CORRELATION_INTERVAL 	300
+
 /** Default path to Snort's log file */
 #define 	DEFAULT_ALERT_LOG_FILE 				"/var/log/snort/alert"
 
 /** Default path to Snort's clustered alerts file */
 #define 	DEFAULT_CLUSTER_LOG_FILE 			"/var/log/snort/cluster_alert"
+
+/** Default path to alert correlation rules directory */
+#define 	DEFAULT_CORR_RULES_DIR 				"/etc/snort/corr_rules"
 
 extern DynamicPreprocessorData _dpd;
 typedef unsigned char   uint8_t;
@@ -51,18 +61,19 @@ typedef unsigned int    uint32_t;
 
 typedef enum { false, true } BOOL;
 
+/*****************************************************************/
 /** Possible types of clustering attributes */
 typedef enum {
 	none, src_addr, dst_addr, src_port, dst_port, CLUSTER_TYPES
 } cluster_type;
-
+/*****************************************************************/
 /** Each stream in the hash table is identified by the couple (src_ip, dst_port) */
 struct pkt_key
 {
 	uint32_t src_ip;
 	uint16_t dst_port;
 };
-
+/*****************************************************************/
 /** Identifier of a packet in a stream */
 struct pkt_info
 {
@@ -84,7 +95,7 @@ struct pkt_info
 	/** Make the struct 'hashable' */
 	UT_hash_handle    hh;
 };
-
+/*****************************************************************/
 /* Data type containing the configuration of the module */
 typedef struct
 {
@@ -100,11 +111,17 @@ typedef struct
 	/** Interval in seconds for reading the alert database, if database logging is used */
 	unsigned long databaseParsingInterval;
 
+	/** Interval in seconds for running the thread for building alert correlation graphs */
+	unsigned long correlationGraphInterval;
+
 	/** Alert file */
 	char          alertfile[1024];
 
 	/** Clustered alerts file */
 	char          clusterfile[1024];
+
+	/** Correlation rules path */
+	char          corr_rules_dir[1024];
 
 	/** Database name, if database logging is used */
 	char          dbname[256];
@@ -118,8 +135,8 @@ typedef struct
 	/** Database host, if database logging is used */
 	char          dbhost[256];
 } AI_config;
-
-/* Data type for hierarchies used for clustering */
+/*****************************************************************/
+/** Data type for hierarchies used for clustering */
 typedef struct _hierarchy_node
 {
 	cluster_type            type;
@@ -130,7 +147,37 @@ typedef struct _hierarchy_node
 	struct _hierarchy_node  *parent;
 	struct _hierarchy_node  **children;
 } hierarchy_node;
+/*****************************************************************/
+/** Key for the hyperalert hash table */
+typedef struct
+{
+	unsigned int gid;
+	unsigned int sid;
+	unsigned int rev;
+} AI_hyperalert_key;
+/*****************************************************************/
+/** Hyperalert hash table */
+typedef struct
+{
+	/** Hyperalert key */
+	AI_hyperalert_key  key;
 
+	/** Pre-conditions, as array of strings */
+	char               **preconds;
+
+	/** Number of pre-conditions */
+	unsigned int       n_preconds;
+
+	/** Post-conditions, as array of strings */
+	char               **postconds;
+
+	/** Number of post-conditions */
+	unsigned int       n_postconds;
+
+	/** Make the struct 'hashable' */
+	UT_hash_handle     hh;
+} AI_hyperalert_info;
+/*****************************************************************/
 /** Data type for Snort alerts */
 typedef struct _AI_snort_alert  {
 	/* Identifiers of the alert */
@@ -164,44 +211,51 @@ typedef struct _AI_snort_alert  {
 	uint16_t        tcp_window;
 	uint16_t        tcp_len;
 
-	/* Reference to the TCP stream
+	/** Reference to the TCP stream
 	 * associated to the alert, if any */
 	struct pkt_info *stream;
 
-	/* Pointer to the next alert in
+	/** Pointer to the next alert in
 	 * the log, if any*/
 	struct _AI_snort_alert *next;
 
-	/* Hierarchies for addresses and ports,
+	/** Hierarchies for addresses and ports,
 	 * if the clustering algorithm is used */
 	hierarchy_node  *h_node[CLUSTER_TYPES];
 
-	/* If the clustering algorithm is used,
+	/** If the clustering algorithm is used,
 	 * we also count how many alerts this
 	 * single alert groups */
 	unsigned int    grouped_alarms_count;
+
+	/** Hyperalert information, pre-conditions
+	 * and post-conditions*/
+	AI_hyperalert_info  *hyperalert;
 } AI_snort_alert;
+/*****************************************************************/
 
 int                preg_match ( const char*, char*, char***, int* );
+char*              str_replace ( char *str, char *orig, char *rep );
+char*              str_replace_all ( char *str, char *orig, char *rep );
 
 void*              AI_hashcleanup_thread ( void* );
 void*              AI_file_alertparser_thread ( void* );
+void*              AI_alert_correlation_thread ( void* );
 
 #ifdef 	ENABLE_DB
-void*              AI_db_alertparser_thread ( void* );
 AI_snort_alert*    AI_db_get_alerts ( void );
 void               AI_db_free_alerts ( AI_snort_alert *node );
+void*              AI_db_alertparser_thread ( void* );
 #endif
 
 void               AI_pkt_enqueue ( SFSnortPacket* );
 void               AI_set_stream_observed ( struct pkt_key key );
 void               AI_hierarchies_build ( AI_config*, hierarchy_node**, int );
+void               AI_free_alerts ( AI_snort_alert *node );
 
 struct pkt_info*   AI_get_stream_by_key ( struct pkt_key );
-
 AI_snort_alert*    AI_get_alerts ( void );
-
-void               AI_free_alerts ( AI_snort_alert *node );
+AI_snort_alert*    AI_get_clustered_alerts ( void );
 
 /** Function pointer to the function used for getting the alert list (from log file, db, ...) */
 AI_snort_alert* (*get_alerts)(void);

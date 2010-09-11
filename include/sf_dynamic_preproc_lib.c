@@ -175,6 +175,6 @@ PREPROC_LINKAGE int LibVersion(DynamicPluginMeta *dpm)
 }
 
 /* Variables to check type of InitializeEngine and LibVersion */
-//PREPROC_LINKAGE InitEngineLibFunc initEngineFunc = &InitializeEngine;
-//PREPROC_LINKAGE LibVersionFunc libVersionFunc = &LibVersion;
+/*PREPROC_LINKAGE InitEngineLibFunc initEngineFunc = &InitializeEngine;*/
+/*PREPROC_LINKAGE LibVersionFunc libVersionFunc = &LibVersion;*/
 

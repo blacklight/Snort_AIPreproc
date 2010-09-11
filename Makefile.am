@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS=foreign no-dependencies
 
 libdir = ${exec_prefix}/lib/snort_dynamicpreprocessor
 lib_LTLIBRARIES = libsf_ai_preproc.la
-libsf_ai_preproc_la_CFLAGS   = -I./uthash -I./include -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -fstack-protector
+libsf_ai_preproc_la_CFLAGS   = -I./uthash -I./include ${LIBXML2_INCLUDES} -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -pedantic -pedantic-errors -fstack-protector
 libsf_ai_preproc_la_LDFLAGS  = -module -export-dynamic
 
 BUILT_SOURCES = \
@@ -18,6 +18,7 @@ include/sfPolicyUserData.c
 libsf_ai_preproc_la_SOURCES = \
 alert_parser.c \
 cluster.c \
+correlation.c \
 db.c \
 mysql.c \
 regex.c \
@@ -25,4 +26,7 @@ spp_ai.c \
 stream.c
 
 ACLOCAL_AMFLAGS = -I m4
+EXTRA_DIST = README INSTALL ChangeLog AUTHORS COPYING Doxyfile NEWS TODO doc etc include uthash etc/corr_rules *.h
+corr_rulesdir = ${CORR_RULES_PREFIX}
+corr_rules_DATA = corr_rules/*
 

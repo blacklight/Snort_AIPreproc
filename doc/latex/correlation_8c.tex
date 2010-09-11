@@ -1,0 +1,42 @@
+\hypertarget{correlation_8c}{
+\section{correlation.c File Reference}
+\label{correlation_8c}\index{correlation.c@{correlation.c}}
+}
+{\ttfamily \#include \char`\"{}spp\_\-ai.h\char`\"{}}\par
+{\ttfamily \#include $<$unistd.h$>$}\par
+{\ttfamily \#include $<$sys/stat.h$>$}\par
+{\ttfamily \#include $<$pthread.h$>$}\par
+{\ttfamily \#include $<$libxml/xmlreader.h$>$}\par
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structhyperalert__key}{hyperalert\_\-key}
+\item 
+struct \hyperlink{structhyperalert}{hyperalert}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \par
+\hyperlink{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba0b3b5f651ab0c6355666ff7b1c778af8}{inHyperAlert}, 
+\hyperlink{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba52d913c46f650f89a5da3ff4bfb7a45d}{inSnortIdTag}, 
+\hyperlink{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba828f2ec4acb20bae9b9c9fb0c5e0881f}{inPreTag}, 
+\hyperlink{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55baf6430d8e5b9791cca74ec3b325a8339f}{inPostTag}, 
+\par
+\hyperlink{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba551d1861515058fbfe34955d4170ae67}{TAG\_\-NUM}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+PRIVATE \hyperlink{structhyperalert}{hyperalert} $\ast$ \hyperlink{group__correlation_gacb46174cec5a2cce0a9bb1ca2b0f6850}{\_\-AI\_\-hyperalert\_\-from\_\-XML} (\hyperlink{structhyperalert__key}{hyperalert\_\-key} key)
+\begin{DoxyCompactList}\small\item\em Parse info about a hyperalert from a correlation XML file, if it exists. \item\end{DoxyCompactList}\item 
+void $\ast$ \hyperlink{group__correlation_ga939353a4e15de7a8f4145ab986f584be}{AI\_\-alert\_\-correlation\_\-thread} (void $\ast$arg)
+\begin{DoxyCompactList}\small\item\em Thread for correlating clustered alerts. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+PRIVATE \hyperlink{structhyperalert}{hyperalert} $\ast$ \hyperlink{group__correlation_ga343192ed5e938536f3dc150e51f8acf6}{hyperalerts} = NULL
+\item 
+PRIVATE \hyperlink{structAI__config}{AI\_\-config} $\ast$ \hyperlink{group__correlation_gaad7a982b6016390e7cd1164bd7db8bca}{conf} = NULL
+\end{DoxyCompactItemize}

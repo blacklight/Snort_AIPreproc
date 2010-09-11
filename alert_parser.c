@@ -120,28 +120,31 @@ AI_file_alertparser_thread ( void* arg )
 			{
 				if ( in_alert )
 				{
-					if ( alert->ip_proto == IPPROTO_TCP )
+					if ( alert->ip_src_addr && ( alert->ip_proto == IPPROTO_TCP || alert->ip_proto == IPPROTO_UDP ))
 					{
 						key.src_ip   = alert->ip_src_addr;
 						key.dst_port = alert->tcp_dst_port;
 
-						if (( info = AI_get_stream_by_key ( key ) ))
+						if ( alert->ip_proto == IPPROTO_TCP )
 						{
-							AI_set_stream_observed ( key );
-							alert->stream = info;
-
-							if ( alerts == NULL )
+							if (( info = AI_get_stream_by_key ( key ) ))
 							{
-								alerts = alert;
-								alerts->next = NULL;
-							} else {
-								for ( tmp = alerts; tmp->next; tmp = tmp->next );
-								tmp->next = alert;
+								AI_set_stream_observed ( key );
+								alert->stream = info;
 							}
-
-							/* TODO Do something!! */
 						}
 					}
+
+					if ( alerts == NULL )
+					{
+						alerts = alert;
+						alerts->next = NULL;
+					} else {
+						for ( tmp = alerts; tmp->next; tmp = tmp->next );
+						tmp->next = alert;
+					}
+
+					/* TODO Do something!! */
 
 					in_alert = false;
 					alert = NULL;
@@ -156,7 +159,7 @@ AI_file_alertparser_thread ( void* arg )
 				{
 					in_alert = true;
 
-					if ( !( alert = ( AI_snort_alert* ) malloc ( sizeof(AI_snort_alert) )) )
+					if ( !( alert = ( AI_snort_alert* ) malloc ( sizeof( AI_snort_alert ))))
 					{
 						_dpd.fatalMsg ( "\nDynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
 					}
@@ -353,11 +356,27 @@ AI_get_alerts ()
 void
 AI_free_alerts ( AI_snort_alert *node )
 {
+	int i;
+
 	if ( !node )
 		return;
 
 	if ( node->next )
 		AI_free_alerts ( node->next );
+
+	if ( node->hyperalert )
+	{
+		for ( i=0; i < node->hyperalert->n_preconds; i++ )
+			free ( node->hyperalert->preconds[i] );
+		free ( node->hyperalert->preconds );
+
+		for ( i=0; i < node->hyperalert->n_postconds; i++ )
+			free ( node->hyperalert->postconds[i] );
+
+		free ( node->hyperalert->postconds );
+		free ( node->hyperalert );
+		node->hyperalert = NULL;
+	}
 
 	free ( node );
 	node = NULL;

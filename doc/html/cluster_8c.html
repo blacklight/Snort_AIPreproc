@@ -84,8 +84,12 @@ Functions</h2></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Thread for periodically clustering the log information.  <a href="group__cluster.html#ga8a5eae61dc9fd0f13e0acdfa5f4478e2"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">PRIVATE <a class="el" href="spp__ai_8h.html#a3e5b8192e7d9ffaf3542f1210aec18dd">BOOL</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cluster.html#ga29c35cd6c56f54e27b5b190c6d6c487a">_AI_check_duplicate</a> (<a class="el" href="struct__hierarchy__node.html">hierarchy_node</a> *node, <a class="el" href="struct__hierarchy__node.html">hierarchy_node</a> *root)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Check if a certain node's range (minimum and maximum value) are already present in a clustering hierarchy.  <a href="group__cluster.html#ga29c35cd6c56f54e27b5b190c6d6c487a"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cluster.html#ga1445818b37483f78cc3fb2890155842c">AI_hierarchies_build</a> (<a class="el" href="structAI__config.html">AI_config</a> *conf, <a class="el" href="struct__hierarchy__node.html">hierarchy_node</a> **nodes, int n_nodes)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cluster.html#ga1445818b37483f78cc3fb2890155842c">AI_hierarchies_build</a> (<a class="el" href="structAI__config.html">AI_config</a> *<a class="el" href="group__correlation.html#gaad7a982b6016390e7cd1164bd7db8bca">conf</a>, <a class="el" href="struct__hierarchy__node.html">hierarchy_node</a> **nodes, int n_nodes)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Build the clustering hierarchy trees.  <a href="group__cluster.html#ga1445818b37483f78cc3fb2890155842c"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">PRIVATE <a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cluster.html#gab4c8ab92691e85a6f0ac4abb122712fd">_AI_copy_clustered_alerts</a> (<a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> *node)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Return a copy of the clustered alerts.  <a href="group__cluster.html#gab4c8ab92691e85a6f0ac4abb122712fd"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cluster.html#ga2553c678eeb83282c230d649a0e8fcd4">AI_get_clustered_alerts</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Return the alerts parsed so far as a linked list.  <a href="group__cluster.html#ga2553c678eeb83282c230d649a0e8fcd4"></a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">PRIVATE <a class="el" href="struct__hierarchy__node.html">hierarchy_node</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cluster.html#ga97d35425cf5a0207fb50b64ee8cdda82">h_root</a> [CLUSTER_TYPES] = { NULL }</td></tr>
@@ -107,7 +111,7 @@ Variables</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Sun Sep 5 2010 23:53:47 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Sep 10 2010 02:56:16 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -49,7 +49,7 @@ typedef struct _ip_node {
 #endif
     struct _ip_node *next;
     int flags;
-                    // XXX
+                    /*  XXX */
     int addr_flags; /* Flags used exlusively by Snort */
                     /* Keeping these variables seperate keeps 
                      * this from stepping on Snort's toes. */
@@ -68,7 +68,7 @@ typedef struct _var_t {
 
     /* The mode above will select whether to use the sfip_node_t linked list
      * or the IP routing table */
-//    sfrt rt;
+/*     sfrt rt; */
     
     /* Linked list of IP variables for the variable table */
     struct _var_t *next;

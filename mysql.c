@@ -17,10 +17,13 @@
  * =====================================================================================
  */
 
+#include	"spp_ai.h"
 #ifdef 	ENABLE_MYSQL
 
-#include	"spp_ai.h"
 #include	<mysql/mysql.h>
+
+/** \defgroup mysql Module for the interface with a MySQL DBMS
+ * @{ */
 
 PRIVATE MYSQL     *db  = NULL;
 
@@ -71,6 +74,8 @@ mysql_do_close ()
 	free ( db );
 	db = NULL;
 }
+
+/** @} */
 
 #endif
 

@@ -59,7 +59,7 @@ void sfPolicyConfigDelete(
         tSfPolicyUserContextId pContext
         );
 
-//Functions for setting, getting and clearing policy ids
+/* Functions for setting, getting and clearing policy ids */
 static INLINE void sfPolicyUserPolicySet (
         tSfPolicyUserContextId pContext, 
         tSfPolicyId policyId 
@@ -82,7 +82,7 @@ static INLINE unsigned int sfPolicyUserPolicyGetActive (
     return (pContext->numActivePolicies);
 }
 
-//Functions for setting, getting and clearing user data specific to policies.
+/* Functions for setting, getting and clearing user data specific to policies. */
 int sfPolicyUserDataSet (
         tSfPolicyUserContextId pContext, 
         tSfPolicyId policyId, 

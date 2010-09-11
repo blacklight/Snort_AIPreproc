@@ -87,12 +87,12 @@ typedef struct _ip {
         u_int8_t  u6_addr8[16];
         u_int16_t u6_addr16[8];
         u_int32_t u6_addr32[4];
-//        u_int64_t    u6_addr64[2];
+/*         u_int64_t    u6_addr64[2]; */
     } ip;
     #define ip8  ip.u6_addr8
     #define ip16 ip.u6_addr16
     #define ip32 ip.u6_addr32
-//    #define ip64 ip.u6_addr64
+/*     #define ip64 ip.u6_addr64 */
 } sfip_t;
 
 typedef enum _return_values {
@@ -155,7 +155,7 @@ static INLINE unsigned int sfip_size(sfip_t* ipt)
 /* Returns the family of "ip", either AF_INET or AF_INET6 */
 /* XXX This is a performance critical function,
 *  need to determine if it's safe to not check these pointers */
-// ARG_CHECK1(ip, 0);
+/*  ARG_CHECK1(ip, 0); */
 #define sfip_family(ip) ip->family
 
 /* Returns the number of bits used for masking "ip" */
@@ -175,7 +175,7 @@ static INLINE void sfip_set_bits(sfip_t *p, int bits) {
 }
 
 /* Returns the raw IP address as an in6_addr */
-//inline struct in6_addr sfip_to_raw(sfip_t *);
+/* inline struct in6_addr sfip_to_raw(sfip_t *); */
 
 
 
@@ -189,7 +189,7 @@ SFIP_RET sfip_contains(sfip_t *net, sfip_t *ip);
 /* XXX This is a performance critical function, \
  *  need to determine if it's safe to not check these pointers */\
 static INLINE int sfip_is_set(sfip_t *ip) {
-//    ARG_CHECK1(ip, -1);
+/*     ARG_CHECK1(ip, -1); */
     return ip->ip32[0] || 
             ( (ip->family == AF_INET6) && 
               (ip->ip32[1] || 
@@ -427,5 +427,5 @@ char *sfip_to_str(const sfip_t *ip);
 #define sfip_ntoa(x) sfip_to_str(x)
 void sfip_raw_ntop(int family, const void *ip_raw, char *buf, int bufsize);
 
-#endif // SF_IP_H
+#endif /*  SF_IP_H */
 

@@ -62,8 +62,10 @@ Data Fields</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#abbe77d5f94b8c5164bea47acba09c98b">streamExpireInterval</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#a7d0d098b8263aa3d8415b11d1ec7f93d">alertClusteringInterval</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#ae6ca715cab1d90b70c3aad443133c263">databaseParsingInterval</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#aa736375e57a59936e2e782b7cd200e41">correlationGraphInterval</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#a2efa9590d7eea6dce8b5dd9aa76ed8ca">alertfile</a> [1024]</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#a6da02a3f7116fd3810a41b738e8883a3">clusterfile</a> [1024]</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#ab7ea93bbe72b85c4019b4f5656ad62fc">corr_rules_dir</a> [1024]</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#ac8a93607f12106e2f5c9b43af27107da">dbname</a> [256]</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#aa004adebfdafb6d14092aecd7f4912b0">dbuser</a> [256]</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#aa1cda349763faf60b2ebdbf2d187ae7d">dbpass</a> [256]</td></tr>
@@ -109,6 +111,34 @@ Data Fields</h2></td></tr>
 </div>
 <div class="memdoc">
 <p>Clustered alerts file </p>
+
+</div>
+</div>
+<a class="anchor" id="ab7ea93bbe72b85c4019b4f5656ad62fc"></a><!-- doxytag: member="AI_config::corr_rules_dir" ref="ab7ea93bbe72b85c4019b4f5656ad62fc" args="[1024]" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char <a class="el" href="structAI__config.html#ab7ea93bbe72b85c4019b4f5656ad62fc">AI_config::corr_rules_dir</a>[1024]</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Correlation rules path </p>
+
+</div>
+</div>
+<a class="anchor" id="aa736375e57a59936e2e782b7cd200e41"></a><!-- doxytag: member="AI_config::correlationGraphInterval" ref="aa736375e57a59936e2e782b7cd200e41" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned long <a class="el" href="structAI__config.html#aa736375e57a59936e2e782b7cd200e41">AI_config::correlationGraphInterval</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Interval in seconds for running the thread for building alert correlation graphs </p>
 
 </div>
 </div>
@@ -228,7 +258,7 @@ Data Fields</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Sun Sep 5 2010 23:53:47 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Sep 10 2010 02:56:16 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

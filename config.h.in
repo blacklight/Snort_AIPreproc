@@ -57,6 +57,9 @@
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
 
+/* Define to 1 if you have the `xml2' library (-lxml2). */
+#undef HAVE_LIBXML2
+
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
 
@@ -206,6 +209,9 @@
 
 /* Define if pcap timeout is ignored */
 #undef PCAP_TIMEOUT_IGNORED
+
+/* Installation prefix */
+#undef PREFIX
 
 /* Define if Solaris */
 #undef SOLARIS

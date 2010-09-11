@@ -31,9 +31,13 @@ struct \hyperlink{struct__AI__snort__alert}{\_\-AI\_\-snort\_\-alert}
 \item 
 \#define \hyperlink{spp__ai_8h_a0c4b6fce670e46083e33b9f53b78f39e}{DEFAULT\_\-ALERT\_\-CLUSTERING\_\-INTERVAL}~3600
 \item 
+\#define \hyperlink{spp__ai_8h_af0edda6cc018d9674b6822f6df4abe74}{DEFAULT\_\-ALERT\_\-CORRELATION\_\-INTERVAL}~300
+\item 
 \#define \hyperlink{spp__ai_8h_a6d9bf552c32371e0144dc6a6209c7e4a}{DEFAULT\_\-ALERT\_\-LOG\_\-FILE}~\char`\"{}/var/log/snort/alert\char`\"{}
 \item 
 \#define \hyperlink{spp__ai_8h_a803dc913297ccdace9e604dbfecda97d}{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE}~\char`\"{}/var/log/snort/cluster\_\-alert\char`\"{}
+\item 
+\#define \hyperlink{spp__ai_8h_a89448386cad5d5533992ae7ee84f4f1d}{DEFAULT\_\-CORR\_\-RULES\_\-DIR}~\char`\"{}/etc/snort/corr\_\-rules\char`\"{}
 \end{DoxyCompactItemize}
 \subsection*{Typedefs}
 \begin{DoxyCompactItemize}
@@ -74,18 +78,22 @@ void $\ast$ \hyperlink{group__stream_ga24b1131374e5059564b8a12380c4eb75}{AI\_\-h
 \begin{DoxyCompactList}\small\item\em Thread called for cleaning up the hash table from the traffic streams older than a certain threshold. \item\end{DoxyCompactList}\item 
 void $\ast$ \hyperlink{group__alert__parser_ga5aab8d9bdf0e92a51731442fd787f61f}{AI\_\-file\_\-alertparser\_\-thread} (void $\ast$)
 \begin{DoxyCompactList}\small\item\em Thread for parsing Snort's alert file. \item\end{DoxyCompactList}\item 
+void $\ast$ \hyperlink{group__correlation_ga939353a4e15de7a8f4145ab986f584be}{AI\_\-alert\_\-correlation\_\-thread} (void $\ast$)
+\begin{DoxyCompactList}\small\item\em Thread for correlating clustered alerts. \item\end{DoxyCompactList}\item 
 void \hyperlink{group__stream_ga7d71c5645b9baff7b6c4b9a181bf80c5}{AI\_\-pkt\_\-enqueue} (SFSnortPacket $\ast$)
 \begin{DoxyCompactList}\small\item\em Function called for appending a new packet to the hash table, creating a new stream or appending it to an existing stream. \item\end{DoxyCompactList}\item 
 void \hyperlink{group__stream_ga8749989cee2ac05a7de058faac280c02}{AI\_\-set\_\-stream\_\-observed} (struct \hyperlink{structpkt__key}{pkt\_\-key} key)
 \begin{DoxyCompactList}\small\item\em Set the flag \char`\"{}observed\char`\"{} on a stream associated to a security alert, so that it won't be removed from the hash table. \item\end{DoxyCompactList}\item 
 void \hyperlink{group__cluster_ga1445818b37483f78cc3fb2890155842c}{AI\_\-hierarchies\_\-build} (\hyperlink{structAI__config}{AI\_\-config} $\ast$, \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$$\ast$, int)
 \begin{DoxyCompactList}\small\item\em Build the clustering hierarchy trees. \item\end{DoxyCompactList}\item 
+void \hyperlink{group__alert__parser_ga270e86669a0aa64a8da37bc16cda645b}{AI\_\-free\_\-alerts} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$node)
+\begin{DoxyCompactList}\small\item\em Deallocate the memory of a log alert linked list. \item\end{DoxyCompactList}\item 
 struct \hyperlink{structpkt__info}{pkt\_\-info} $\ast$ \hyperlink{group__stream_ga2efedcabbfd12c5345f0c93a3dd4735c}{AI\_\-get\_\-stream\_\-by\_\-key} (struct \hyperlink{structpkt__key}{pkt\_\-key})
 \begin{DoxyCompactList}\small\item\em Get a TCP stream by key. \item\end{DoxyCompactList}\item 
 \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__alert__parser_ga99474495643197b3075ac22ec6f6c70f}{AI\_\-get\_\-alerts} (void)
 \begin{DoxyCompactList}\small\item\em Return the alerts parsed so far as a linked list. \item\end{DoxyCompactList}\item 
-void \hyperlink{group__alert__parser_ga270e86669a0aa64a8da37bc16cda645b}{AI\_\-free\_\-alerts} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$node)
-\begin{DoxyCompactList}\small\item\em Deallocate the memory of a log alert linked list. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__cluster_ga2553c678eeb83282c230d649a0e8fcd4}{AI\_\-get\_\-clustered\_\-alerts} (void)
+\begin{DoxyCompactList}\small\item\em Return the alerts parsed so far as a linked list. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
@@ -101,7 +109,12 @@ DynamicPreprocessorData \hyperlink{spp__ai_8h_ab46420126c43c1aac5eabc5db266a71c}
 \index{DEFAULT\_\-ALERT\_\-CLUSTERING\_\-INTERVAL@{DEFAULT\_\-ALERT\_\-CLUSTERING\_\-INTERVAL}!spp_ai.h@{spp\_\-ai.h}}
 \subsubsection[{DEFAULT\_\-ALERT\_\-CLUSTERING\_\-INTERVAL}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-ALERT\_\-CLUSTERING\_\-INTERVAL~3600}}
 \label{spp__ai_8h_a0c4b6fce670e46083e33b9f53b78f39e}
-Default interval in seconds for the thread clustering alerts \hypertarget{spp__ai_8h_a6d9bf552c32371e0144dc6a6209c7e4a}{
+Default interval in seconds for the thread clustering alerts \hypertarget{spp__ai_8h_af0edda6cc018d9674b6822f6df4abe74}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-ALERT\_\-CORRELATION\_\-INTERVAL@{DEFAULT\_\-ALERT\_\-CORRELATION\_\-INTERVAL}}
+\index{DEFAULT\_\-ALERT\_\-CORRELATION\_\-INTERVAL@{DEFAULT\_\-ALERT\_\-CORRELATION\_\-INTERVAL}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{DEFAULT\_\-ALERT\_\-CORRELATION\_\-INTERVAL}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-ALERT\_\-CORRELATION\_\-INTERVAL~300}}
+\label{spp__ai_8h_af0edda6cc018d9674b6822f6df4abe74}
+Default interval in seconds for running the graph correlation thread \hypertarget{spp__ai_8h_a6d9bf552c32371e0144dc6a6209c7e4a}{
 \index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-ALERT\_\-LOG\_\-FILE@{DEFAULT\_\-ALERT\_\-LOG\_\-FILE}}
 \index{DEFAULT\_\-ALERT\_\-LOG\_\-FILE@{DEFAULT\_\-ALERT\_\-LOG\_\-FILE}!spp_ai.h@{spp\_\-ai.h}}
 \subsubsection[{DEFAULT\_\-ALERT\_\-LOG\_\-FILE}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-ALERT\_\-LOG\_\-FILE~\char`\"{}/var/log/snort/alert\char`\"{}}}
@@ -111,7 +124,12 @@ Default path to Snort's log file \hypertarget{spp__ai_8h_a803dc913297ccdace9e604
 \index{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE@{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE}!spp_ai.h@{spp\_\-ai.h}}
 \subsubsection[{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE~\char`\"{}/var/log/snort/cluster\_\-alert\char`\"{}}}
 \label{spp__ai_8h_a803dc913297ccdace9e604dbfecda97d}
-Default path to Snort's clustered alerts file \hypertarget{spp__ai_8h_a3c4984a0ee515fbc091ac6e33b05e310}{
+Default path to Snort's clustered alerts file \hypertarget{spp__ai_8h_a89448386cad5d5533992ae7ee84f4f1d}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-CORR\_\-RULES\_\-DIR@{DEFAULT\_\-CORR\_\-RULES\_\-DIR}}
+\index{DEFAULT\_\-CORR\_\-RULES\_\-DIR@{DEFAULT\_\-CORR\_\-RULES\_\-DIR}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{DEFAULT\_\-CORR\_\-RULES\_\-DIR}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-CORR\_\-RULES\_\-DIR~\char`\"{}/etc/snort/corr\_\-rules\char`\"{}}}
+\label{spp__ai_8h_a89448386cad5d5533992ae7ee84f4f1d}
+Default path to alert correlation rules directory \hypertarget{spp__ai_8h_a3c4984a0ee515fbc091ac6e33b05e310}{
 \index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-DATABASE\_\-INTERVAL@{DEFAULT\_\-DATABASE\_\-INTERVAL}}
 \index{DEFAULT\_\-DATABASE\_\-INTERVAL@{DEFAULT\_\-DATABASE\_\-INTERVAL}!spp_ai.h@{spp\_\-ai.h}}
 \subsubsection[{DEFAULT\_\-DATABASE\_\-INTERVAL}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-DATABASE\_\-INTERVAL~30}}

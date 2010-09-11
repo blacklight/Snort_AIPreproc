@@ -17,9 +17,9 @@
  * =====================================================================================
  */
 
+#include	"spp_ai.h"
 #ifdef 	ENABLE_DB
 
-#include	"spp_ai.h"
 #include	"db.h"
 
 #include	<unistd.h>

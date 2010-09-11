@@ -162,25 +162,6 @@ _hierarchy_node_append ( hierarchy_node *parent, hierarchy_node *child )
 }		/* -----  end of function _hierarchy_node_append  ----- */
 
 
-/* PRIVATE void */
-/* _hierarchy_node_free ( hierarchy_node *n ) */
-/* { */
-/* 	int i; */
-/*  */
-/* 	if ( !n ) */
-/* 		return; */
-/*  */
-/* 	for ( i=0; i < n->nchildren; i++ ) */
-/* 	{ */
-/* 		if ( n->children[i] ) */
-/* 			_hierarchy_node_free ( n->children[i] ); */
-/* 	} */
-/*  */
-/* 	free ( n ); */
-/* 	n = NULL; */
-/* } */
-
-
 /**
  * \brief  Get the minimum node in a hierarchy tree that matches a certain value
  * \param  val 	Value to be matched in the range
@@ -400,7 +381,6 @@ _AI_cluster_thread ( void* arg )
 			continue;
 		}
 
-		FILE *fp = fopen ( "/home/blacklight/LOG", "a" );
 		has_small_clusters = true;
 
 		for ( tmp = alert_log, alert_count=0; tmp; tmp = tmp->next, alert_count++ )
@@ -440,6 +420,7 @@ _AI_cluster_thread ( void* arg )
 							break;
 
 						default:
+							pthread_exit (( void* ) 0 );
 							return (void*) 0;
 					}
 
@@ -462,7 +443,8 @@ _AI_cluster_thread ( void* arg )
 
 		alert_count -= _AI_merge_alerts ( &alert_log );
 
-		while ( has_small_clusters && alert_count > cluster_min_size )
+		/* while ( has_small_clusters && alert_count > cluster_min_size ) */
+		do
 		{
 			old_alert_count = alert_count;
 			minval = INT_MAX;
@@ -484,7 +466,7 @@ _AI_cluster_thread ( void* arg )
 			/* For all the alerts, the corresponing clustering value is the parent of the current one in the hierarchy */
 			for ( tmp = alert_log; tmp; tmp = tmp->next )
 			{
-				if ( tmp->h_node[best_type] )
+				if ( tmp->grouped_alarms_count < cluster_min_size && tmp->h_node[best_type] )
 				{
 					if ( tmp->h_node[best_type]->parent )
 					{
@@ -495,9 +477,9 @@ _AI_cluster_thread ( void* arg )
 
 			alert_count -= _AI_merge_alerts ( &alert_log );
 
-			if ( old_alert_count == alert_count )
-				break;
-		}
+			/* if ( old_alert_count == alert_count ) */
+			/* 	break; */
+		} while ( old_alert_count != alert_count );
 
 		if ( !( cluster_fp = fopen ( _config->clusterfile, "w" )) )
 		{
@@ -507,8 +489,6 @@ _AI_cluster_thread ( void* arg )
 
 		_AI_print_clustered_alerts ( alert_log, cluster_fp );
 		fclose ( cluster_fp );
-
-		fclose ( fp );
 	}
 
 	pthread_exit ((void*) 0 );
@@ -629,6 +609,49 @@ AI_hierarchies_build ( AI_config *conf, hierarchy_node **nodes, int n_nodes )
 		_dpd.fatalMsg ( "Failed to create the hash cleanup thread\n" );
 	}
 }		/* -----  end of function AI_hierarchies_build  ----- */
+
+
+/**
+ * \brief Return a copy of the clustered alerts
+ * \return An AI_snort_alert pointer identifying the list of clustered alerts
+ */
+
+PRIVATE AI_snort_alert*
+_AI_copy_clustered_alerts ( AI_snort_alert *node )
+{
+	AI_snort_alert *current = NULL, *next = NULL;
+
+	if ( !node )
+	{
+		return NULL;
+	}
+
+	if ( node->next )
+	{
+		next = _AI_copy_clustered_alerts ( node->next );
+	}
+
+	if ( !( current = ( AI_snort_alert* ) malloc ( sizeof ( AI_snort_alert )) ))
+	{
+		_dpd.fatalMsg ( "Fatal dynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+	}
+
+	memcpy ( current, node, sizeof ( AI_snort_alert ));
+	current->next = next;
+	return current;
+}		/* -----  end of function _AI_copy_clustered_alerts  ----- */
+
+
+/**
+ * \brief  Return the alerts parsed so far as a linked list
+ * \return An AI_snort_alert pointer identifying the list of clustered alerts
+ */
+
+AI_snort_alert*
+AI_get_clustered_alerts ()
+{
+	return _AI_copy_clustered_alerts ( alert_log );
+}		/* -----  end of function AI_get_clustered_alerts  ----- */
 
 /** @} */
 

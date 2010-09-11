@@ -23,7 +23,7 @@
 #include "sf_types.h"
 #include "debug.h"
 
-///////////////////
+/* ///////////////// */
 /* IPv6 and IPv4 */
 #ifdef SUP_IP6
 
@@ -127,7 +127,7 @@ static INLINE int sfip_equal (snort_ip* ip1, snort_ip* ip2)
 }
 
 #else
-///////////////
+/* ///////////// */
 /* IPv4 only */
 #include <sys/types.h>
 #ifdef HAVE_CONFIG_H

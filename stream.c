@@ -44,6 +44,7 @@ PRIVATE void
 _AI_stream_free ( struct pkt_info* stream )
 {
 	struct pkt_info *tmp = NULL;
+	char ip [ INET_ADDRSTRLEN ];
 
 	if ( !stream || !hash || HASH_COUNT(hash) == 0 )
 		return;
@@ -64,7 +65,6 @@ _AI_stream_free ( struct pkt_info* stream )
 			return;
 	}
 
-	char ip [ INET_ADDRSTRLEN ];
 	inet_ntop ( AF_INET, &(stream->key.src_ip), ip, INET_ADDRSTRLEN );
 
 	pthread_mutex_lock ( &hash_mutex );

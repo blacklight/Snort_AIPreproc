@@ -53,7 +53,7 @@ typedef struct _VlanHeader
 
 } VlanHeader;
 
-//#define NO_NON_ETHER_DECODER
+/* #define NO_NON_ETHER_DECODER */
 #define ETHER_HDR_LEN  14
 #define ETHERNET_TYPE_IP    0x0800
 #define ETHERNET_TYPE_8021Q 0x8100
@@ -511,8 +511,8 @@ typedef struct _SFSnortPacket
     int outer_family;
     int number_bytes_to_check;
 
-    //int ip_payload_length;
-    //int ip_payload_offset;
+    /* int ip_payload_length; */
+    /* int ip_payload_offset; */
 
     u_int32_t preprocessor_bit_mask;
     u_int32_t preproc_reassembly_pkt_bit_mask;

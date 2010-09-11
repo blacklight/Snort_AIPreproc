@@ -35,8 +35,12 @@ PRIVATE void $\ast$ \hyperlink{group__cluster_ga8a5eae61dc9fd0f13e0acdfa5f4478e2
 \begin{DoxyCompactList}\small\item\em Thread for periodically clustering the log information. \item\end{DoxyCompactList}\item 
 PRIVATE \hyperlink{spp__ai_8h_a3e5b8192e7d9ffaf3542f1210aec18dd}{BOOL} \hyperlink{group__cluster_ga29c35cd6c56f54e27b5b190c6d6c487a}{\_\-AI\_\-check\_\-duplicate} (\hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$node, \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$root)
 \begin{DoxyCompactList}\small\item\em Check if a certain node's range (minimum and maximum value) are already present in a clustering hierarchy. \item\end{DoxyCompactList}\item 
-void \hyperlink{group__cluster_ga1445818b37483f78cc3fb2890155842c}{AI\_\-hierarchies\_\-build} (\hyperlink{structAI__config}{AI\_\-config} $\ast$conf, \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$$\ast$nodes, int n\_\-nodes)
-\begin{DoxyCompactList}\small\item\em Build the clustering hierarchy trees. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+void \hyperlink{group__cluster_ga1445818b37483f78cc3fb2890155842c}{AI\_\-hierarchies\_\-build} (\hyperlink{structAI__config}{AI\_\-config} $\ast$\hyperlink{group__correlation_gaad7a982b6016390e7cd1164bd7db8bca}{conf}, \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$$\ast$nodes, int n\_\-nodes)
+\begin{DoxyCompactList}\small\item\em Build the clustering hierarchy trees. \item\end{DoxyCompactList}\item 
+PRIVATE \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__cluster_gab4c8ab92691e85a6f0ac4abb122712fd}{\_\-AI\_\-copy\_\-clustered\_\-alerts} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$node)
+\begin{DoxyCompactList}\small\item\em Return a copy of the clustered alerts. \item\end{DoxyCompactList}\item 
+\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__cluster_ga2553c678eeb83282c230d649a0e8fcd4}{AI\_\-get\_\-clustered\_\-alerts} ()
+\begin{DoxyCompactList}\small\item\em Return the alerts parsed so far as a linked list. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 

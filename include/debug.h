@@ -51,8 +51,8 @@
 #define DEBUG_CONFIGRULES     0x00000002  /* 2 */
 #define DEBUG_PLUGIN          0x00000004  /* 4 */
 #define DEBUG_DATALINK        0x00000008  /* 8 */
-//#define DEBUG_IP              0x00000010  /* 16 */
-//#define DEBUG_TCPUDP          0x00000020  /* 32 */
+/* #define DEBUG_IP              0x00000010  16 */
+/* #define DEBUG_TCPUDP          0x00000020  32 */
 #define DEBUG_DECODE          0x00000040  /* 64 */
 #define DEBUG_LOG             0x00000080  /* 128 */
 #define DEBUG_MSTRING         0x00000100  /* 256 */
@@ -66,9 +66,9 @@
 #define DEBUG_SKYPE           0x00010000  /* 65536 */
 #define DEBUG_FRAG            0x00020000  /* 131072 */
 #define DEBUG_HTTP_DECODE     0x00040000  /* 262144 */
-//#define DEBUG_PORTSCAN2       0x00080000  /* 524288 / (+ conv2 ) 589824 */
+/* #define DEBUG_PORTSCAN2       0x00080000  524288 / (+ conv2 ) 589824 */
 #define DEBUG_RPC             0x00100000  /* 1048576 */
-//#define DEBUG_FLOWSYS         0x00200000  /* 2097152 */
+/* #define DEBUG_FLOWSYS         0x00200000  2097152 */
 #define DEBUG_HTTPINSPECT     0x00400000  /* 4194304 */
 #define DEBUG_STREAM_STATE    0x00800000  /* 8388608 */
 #define DEBUG_ASN1            0x01000000  /* 16777216 */

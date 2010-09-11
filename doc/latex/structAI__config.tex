@@ -17,9 +17,13 @@ unsigned long \hyperlink{structAI__config_a7d0d098b8263aa3d8415b11d1ec7f93d}{ale
 \item 
 unsigned long \hyperlink{structAI__config_ae6ca715cab1d90b70c3aad443133c263}{databaseParsingInterval}
 \item 
+unsigned long \hyperlink{structAI__config_aa736375e57a59936e2e782b7cd200e41}{correlationGraphInterval}
+\item 
 char \hyperlink{structAI__config_a2efa9590d7eea6dce8b5dd9aa76ed8ca}{alertfile} \mbox{[}1024\mbox{]}
 \item 
 char \hyperlink{structAI__config_a6da02a3f7116fd3810a41b738e8883a3}{clusterfile} \mbox{[}1024\mbox{]}
+\item 
+char \hyperlink{structAI__config_ab7ea93bbe72b85c4019b4f5656ad62fc}{corr\_\-rules\_\-dir} \mbox{[}1024\mbox{]}
 \item 
 char \hyperlink{structAI__config_ac8a93607f12106e2f5c9b43af27107da}{dbname} \mbox{[}256\mbox{]}
 \item 
@@ -47,7 +51,17 @@ Alert file \hypertarget{structAI__config_a6da02a3f7116fd3810a41b738e8883a3}{
 \index{clusterfile@{clusterfile}!AI_config@{AI\_\-config}}
 \subsubsection[{clusterfile}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf AI\_\-config::clusterfile}\mbox{[}1024\mbox{]}}}
 \label{structAI__config_a6da02a3f7116fd3810a41b738e8883a3}
-Clustered alerts file \hypertarget{structAI__config_ae6ca715cab1d90b70c3aad443133c263}{
+Clustered alerts file \hypertarget{structAI__config_ab7ea93bbe72b85c4019b4f5656ad62fc}{
+\index{AI\_\-config@{AI\_\-config}!corr\_\-rules\_\-dir@{corr\_\-rules\_\-dir}}
+\index{corr\_\-rules\_\-dir@{corr\_\-rules\_\-dir}!AI_config@{AI\_\-config}}
+\subsubsection[{corr\_\-rules\_\-dir}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf AI\_\-config::corr\_\-rules\_\-dir}\mbox{[}1024\mbox{]}}}
+\label{structAI__config_ab7ea93bbe72b85c4019b4f5656ad62fc}
+Correlation rules path \hypertarget{structAI__config_aa736375e57a59936e2e782b7cd200e41}{
+\index{AI\_\-config@{AI\_\-config}!correlationGraphInterval@{correlationGraphInterval}}
+\index{correlationGraphInterval@{correlationGraphInterval}!AI_config@{AI\_\-config}}
+\subsubsection[{correlationGraphInterval}]{\setlength{\rightskip}{0pt plus 5cm}unsigned long {\bf AI\_\-config::correlationGraphInterval}}}
+\label{structAI__config_aa736375e57a59936e2e782b7cd200e41}
+Interval in seconds for running the thread for building alert correlation graphs \hypertarget{structAI__config_ae6ca715cab1d90b70c3aad443133c263}{
 \index{AI\_\-config@{AI\_\-config}!databaseParsingInterval@{databaseParsingInterval}}
 \index{databaseParsingInterval@{databaseParsingInterval}!AI_config@{AI\_\-config}}
 \subsubsection[{databaseParsingInterval}]{\setlength{\rightskip}{0pt plus 5cm}unsigned long {\bf AI\_\-config::databaseParsingInterval}}}

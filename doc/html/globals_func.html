@@ -76,11 +76,17 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>_AI_copy_alerts()
 : <a class="el" href="group__alert__parser.html#ga6c5014cae9155379fdc4db649b2c862d">alert_parser.c</a>
 </li>
+<li>_AI_copy_clustered_alerts()
+: <a class="el" href="group__cluster.html#gab4c8ab92691e85a6f0ac4abb122712fd">cluster.c</a>
+</li>
 <li>_AI_equal_alarms()
 : <a class="el" href="group__cluster.html#ga0f91c8bfc37a3975f5c26b19fd6c5cba">cluster.c</a>
 </li>
 <li>_AI_get_min_hierarchy_node()
 : <a class="el" href="group__cluster.html#ga6ddddcd505b1f763c339e81fc143e079">cluster.c</a>
+</li>
+<li>_AI_hyperalert_from_XML()
+: <a class="el" href="group__correlation.html#gacb46174cec5a2cce0a9bb1ca2b0f6850">correlation.c</a>
 </li>
 <li>_AI_merge_alerts()
 : <a class="el" href="group__cluster.html#ga8ce8e5a5d8954672297fa2dedb380dcd">cluster.c</a>
@@ -104,29 +110,37 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 
 <h3><a class="anchor" id="index_a"></a>- a -</h3><ul>
+<li>AI_alert_correlation_thread()
+: <a class="el" href="group__correlation.html#ga939353a4e15de7a8f4145ab986f584be">correlation.c</a>
+, <a class="el" href="group__correlation.html#ga939353a4e15de7a8f4145ab986f584be">spp_ai.h</a>
+</li>
 <li>AI_file_alertparser_thread()
-: <a class="el" href="group__alert__parser.html#ga5aab8d9bdf0e92a51731442fd787f61f">alert_parser.c</a>
-, <a class="el" href="group__alert__parser.html#ga5aab8d9bdf0e92a51731442fd787f61f">spp_ai.h</a>
+: <a class="el" href="group__alert__parser.html#ga5aab8d9bdf0e92a51731442fd787f61f">spp_ai.h</a>
+, <a class="el" href="group__alert__parser.html#ga5aab8d9bdf0e92a51731442fd787f61f">alert_parser.c</a>
 </li>
 <li>AI_free_alerts()
-: <a class="el" href="group__alert__parser.html#ga270e86669a0aa64a8da37bc16cda645b">spp_ai.h</a>
-, <a class="el" href="group__alert__parser.html#ga270e86669a0aa64a8da37bc16cda645b">alert_parser.c</a>
+: <a class="el" href="group__alert__parser.html#ga270e86669a0aa64a8da37bc16cda645b">alert_parser.c</a>
+, <a class="el" href="group__alert__parser.html#ga270e86669a0aa64a8da37bc16cda645b">spp_ai.h</a>
 </li>
 <li>AI_get_alerts()
-: <a class="el" href="group__alert__parser.html#ga99474495643197b3075ac22ec6f6c70f">alert_parser.c</a>
-, <a class="el" href="group__alert__parser.html#ga99474495643197b3075ac22ec6f6c70f">spp_ai.h</a>
+: <a class="el" href="group__alert__parser.html#ga99474495643197b3075ac22ec6f6c70f">spp_ai.h</a>
+, <a class="el" href="group__alert__parser.html#ga99474495643197b3075ac22ec6f6c70f">alert_parser.c</a>
+</li>
+<li>AI_get_clustered_alerts()
+: <a class="el" href="group__cluster.html#ga2553c678eeb83282c230d649a0e8fcd4">cluster.c</a>
+, <a class="el" href="group__cluster.html#ga2553c678eeb83282c230d649a0e8fcd4">spp_ai.h</a>
 </li>
 <li>AI_get_stream_by_key()
-: <a class="el" href="group__stream.html#ga2efedcabbfd12c5345f0c93a3dd4735c">stream.c</a>
-, <a class="el" href="group__stream.html#ga2efedcabbfd12c5345f0c93a3dd4735c">spp_ai.h</a>
+: <a class="el" href="group__stream.html#ga2efedcabbfd12c5345f0c93a3dd4735c">spp_ai.h</a>
+, <a class="el" href="group__stream.html#ga2efedcabbfd12c5345f0c93a3dd4735c">stream.c</a>
 </li>
 <li>AI_hashcleanup_thread()
 : <a class="el" href="group__stream.html#ga24b1131374e5059564b8a12380c4eb75">spp_ai.h</a>
 , <a class="el" href="group__stream.html#ga24b1131374e5059564b8a12380c4eb75">stream.c</a>
 </li>
 <li>AI_hierarchies_build()
-: <a class="el" href="group__cluster.html#ga1445818b37483f78cc3fb2890155842c">cluster.c</a>
-, <a class="el" href="group__cluster.html#ga1445818b37483f78cc3fb2890155842c">spp_ai.h</a>
+: <a class="el" href="group__cluster.html#ga1445818b37483f78cc3fb2890155842c">spp_ai.h</a>
+, <a class="el" href="group__cluster.html#ga1445818b37483f78cc3fb2890155842c">cluster.c</a>
 </li>
 <li>AI_init()
 : <a class="el" href="group__spp__ai.html#ga3524cbdf8fddbcf38c4ed55241002242">spp_ai.c</a>
@@ -146,8 +160,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 , <a class="el" href="group__stream.html#ga8749989cee2ac05a7de058faac280c02">spp_ai.h</a>
 </li>
 <li>AI_setup()
-: <a class="el" href="group__spp__ai.html#ga1b9ebb5c719c7d9426ddfc1f3da36570">sf_preproc_info.h</a>
-, <a class="el" href="group__spp__ai.html#ga1b9ebb5c719c7d9426ddfc1f3da36570">spp_ai.c</a>
+: <a class="el" href="group__spp__ai.html#ga1b9ebb5c719c7d9426ddfc1f3da36570">spp_ai.c</a>
+, <a class="el" href="group__spp__ai.html#ga1b9ebb5c719c7d9426ddfc1f3da36570">sf_preproc_info.h</a>
 </li>
 </ul>
 
@@ -173,7 +187,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Sun Sep 5 2010 23:53:47 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Sep 10 2010 02:56:16 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

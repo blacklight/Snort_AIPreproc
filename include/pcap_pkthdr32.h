@@ -57,5 +57,5 @@ struct pcap_pkthdr32
 };
 
 
-#endif // __PCAP_PKTHDR32_H__
+#endif /*  __PCAP_PKTHDR32_H__ */
 

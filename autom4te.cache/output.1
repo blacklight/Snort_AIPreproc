@@ -743,6 +743,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
+ac_default_prefix=/usr
 ac_header_list=
 ac_func_list=
 ac_subst_vars='am__EXEEXT_FALSE
@@ -750,6 +751,8 @@ am__EXEEXT_TRUE
 LTLIBOBJS
 LIB@&t@OBJS
 ALLOCA
+LIBXML2_INCLUDES
+CORR_RULES_PREFIX
 MYSQL
 extra_incl
 CPP
@@ -7291,10 +7294,6 @@ _lt_linker_boilerplate=`cat conftest.err`
 $RM -r conftest*
 
 
-## CAVEAT EMPTOR:
-## There is no encapsulation within the following macros, do not change
-## the running order or otherwise move them around unless you know exactly
-## what you are doing...
 if test -n "$compiler"; then
   
 lt_prog_compiler_no_builtin_flag=
@@ -10527,6 +10526,9 @@ CC="$lt_save_CC"
 
 
 
+
+test "$prefix" = "NONE" && prefix=/usr
+
 case "$host" in
   *-openbsd2.6|*-openbsd2.5|*-openbsd2.4|*-openbsd2.3*)
     
@@ -11426,7 +11428,51 @@ fi
 
 fi
 
-#AC_CHECK_LIB([mysqlclient], [mysql_query])
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for xmlReaderForFile in -lxml2" >&5
+$as_echo_n "checking for xmlReaderForFile in -lxml2... " >&6; }
+if test "${ac_cv_lib_xml2_xmlReaderForFile+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lxml2  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char xmlReaderForFile ();
+int
+main ()
+{
+return xmlReaderForFile ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_xml2_xmlReaderForFile=yes
+else
+  ac_cv_lib_xml2_xmlReaderForFile=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_xml2_xmlReaderForFile" >&5
+$as_echo "$ac_cv_lib_xml2_xmlReaderForFile" >&6; }
+if test "x$ac_cv_lib_xml2_xmlReaderForFile" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+@%:@define HAVE_LIBXML2 1
+_ACEOF
+
+  LIBS="-lxml2 $LIBS"
+
+fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_create in -lpthread" >&5
 $as_echo_n "checking for pthread_create in -lpthread... " >&6; }
 if test "${ac_cv_lib_pthread_pthread_create+set}" = set; then :
@@ -11473,7 +11519,26 @@ _ACEOF
 fi
 
 
+if test "x$prefix" == x/usr; then :
+  CORR_RULES_PREFIX="/etc/snort/corr_rules"
+
+else
+  CORR_RULES_PREFIX="${prefix}/etc/corr_rules"
+
+fi
+
 # Checks for header files.
+
+if test ! -z "`pkg-config --cflags libxml-2.0 2> /dev/null`"; then :
+  LIBXML2_INCLUDES="$(pkg-config --cflags libxml-2.0 2> /dev/null)"
+
+else
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "libxml2 not found, okr pkg-config not working
+See \`config.log' for more details" "$LINENO" 5 ; }
+fi
+
 # The Ultrix 4.2 mips builtin alloca declared by alloca.h only works
 # for constant arguments.  Useless!
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for working alloca.h" >&5
@@ -11672,6 +11737,8 @@ if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
 @%:@define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
  
+else
+  as_fn_error $? "At least one of the required headers was not found" "$LINENO" 5 
 fi
 
 done
@@ -12404,6 +12471,8 @@ if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
 @%:@define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
 _ACEOF
  
+else
+  as_fn_error $? "At least one of the required functions was not found" "$LINENO" 5 
 fi
 done
 
@@ -12424,7 +12493,7 @@ $as_echo "@%:@define PACKAGE_NAME \"sf_ai_preprocessor\"" >>confdefs.h
 $as_echo "@%:@define PACKAGE_STRING \"Snort AI preprocessor\"" >>confdefs.h
 
 
-$as_echo "@%:@define PACKAGE_TARNAME \"sf_ai_preprocessor\"" >>confdefs.h
+$as_echo "@%:@define PACKAGE_TARNAME \"snort_ai_preproc\"" >>confdefs.h
 
 
 $as_echo "@%:@define PACKAGE_VERSION \"0.1.0\"" >>confdefs.h
@@ -12435,6 +12504,11 @@ $as_echo "@%:@define SUP_IP6 /**/" >>confdefs.h
 
 
 $as_echo "@%:@define HAVE_VISIBILITY 1" >>confdefs.h
+
+
+cat >>confdefs.h <<_ACEOF
+@%:@define PREFIX "${prefix}"
+_ACEOF
 
 
 ac_config_files="$ac_config_files Makefile"

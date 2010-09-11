@@ -1,0 +1,120 @@
+\hypertarget{group__correlation}{
+\section{Module for the correlation of hyperalerts}
+\label{group__correlation}\index{Module for the correlation of hyperalerts@{Module for the correlation of hyperalerts}}
+}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structhyperalert__key}{hyperalert\_\-key}
+\item 
+struct \hyperlink{structhyperalert}{hyperalert}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \{ \par
+\hyperlink{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba0b3b5f651ab0c6355666ff7b1c778af8}{inHyperAlert}, 
+\hyperlink{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba52d913c46f650f89a5da3ff4bfb7a45d}{inSnortIdTag}, 
+\hyperlink{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba828f2ec4acb20bae9b9c9fb0c5e0881f}{inPreTag}, 
+\hyperlink{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55baf6430d8e5b9791cca74ec3b325a8339f}{inPostTag}, 
+\par
+\hyperlink{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba551d1861515058fbfe34955d4170ae67}{TAG\_\-NUM}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+PRIVATE \hyperlink{structhyperalert}{hyperalert} $\ast$ \hyperlink{group__correlation_gacb46174cec5a2cce0a9bb1ca2b0f6850}{\_\-AI\_\-hyperalert\_\-from\_\-XML} (\hyperlink{structhyperalert__key}{hyperalert\_\-key} key)
+\begin{DoxyCompactList}\small\item\em Parse info about a hyperalert from a correlation XML file, if it exists. \item\end{DoxyCompactList}\item 
+void $\ast$ \hyperlink{group__correlation_ga939353a4e15de7a8f4145ab986f584be}{AI\_\-alert\_\-correlation\_\-thread} (void $\ast$arg)
+\begin{DoxyCompactList}\small\item\em Thread for correlating clustered alerts. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+PRIVATE \hyperlink{structhyperalert}{hyperalert} $\ast$ \hyperlink{group__correlation_ga343192ed5e938536f3dc150e51f8acf6}{hyperalerts} = NULL
+\item 
+PRIVATE \hyperlink{structAI__config}{AI\_\-config} $\ast$ \hyperlink{group__correlation_gaad7a982b6016390e7cd1164bd7db8bca}{conf} = NULL
+\end{DoxyCompactItemize}
+
+
+\subsection{Enumeration Type Documentation}
+\hypertarget{group__correlation_ga06fc87d81c62e9abb8790b6e5713c55b}{
+\subsubsection[{"@0}]{\setlength{\rightskip}{0pt plus 5cm}anonymous enum}}
+\label{group__correlation_ga06fc87d81c62e9abb8790b6e5713c55b}
+Enumeration for the types of XML tags \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{inHyperAlert@{inHyperAlert}!correlation@{correlation}}\index{correlation@{correlation}!inHyperAlert@{inHyperAlert}}\item[{\em 
+\hypertarget{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba0b3b5f651ab0c6355666ff7b1c778af8}{
+inHyperAlert}
+\label{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba0b3b5f651ab0c6355666ff7b1c778af8}
+}]\index{inSnortIdTag@{inSnortIdTag}!correlation@{correlation}}\index{correlation@{correlation}!inSnortIdTag@{inSnortIdTag}}\item[{\em 
+\hypertarget{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba52d913c46f650f89a5da3ff4bfb7a45d}{
+inSnortIdTag}
+\label{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba52d913c46f650f89a5da3ff4bfb7a45d}
+}]\index{inPreTag@{inPreTag}!correlation@{correlation}}\index{correlation@{correlation}!inPreTag@{inPreTag}}\item[{\em 
+\hypertarget{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba828f2ec4acb20bae9b9c9fb0c5e0881f}{
+inPreTag}
+\label{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba828f2ec4acb20bae9b9c9fb0c5e0881f}
+}]\index{inPostTag@{inPostTag}!correlation@{correlation}}\index{correlation@{correlation}!inPostTag@{inPostTag}}\item[{\em 
+\hypertarget{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55baf6430d8e5b9791cca74ec3b325a8339f}{
+inPostTag}
+\label{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55baf6430d8e5b9791cca74ec3b325a8339f}
+}]\index{TAG\_\-NUM@{TAG\_\-NUM}!correlation@{correlation}}\index{correlation@{correlation}!TAG\_\-NUM@{TAG\_\-NUM}}\item[{\em 
+\hypertarget{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba551d1861515058fbfe34955d4170ae67}{
+TAG\_\-NUM}
+\label{group__correlation_gga06fc87d81c62e9abb8790b6e5713c55ba551d1861515058fbfe34955d4170ae67}
+}]\end{description}
+\end{Desc}
+
+
+
+\subsection{Function Documentation}
+\hypertarget{group__correlation_gacb46174cec5a2cce0a9bb1ca2b0f6850}{
+\index{correlation@{correlation}!\_\-AI\_\-hyperalert\_\-from\_\-XML@{\_\-AI\_\-hyperalert\_\-from\_\-XML}}
+\index{\_\-AI\_\-hyperalert\_\-from\_\-XML@{\_\-AI\_\-hyperalert\_\-from\_\-XML}!correlation@{correlation}}
+\subsubsection[{\_\-AI\_\-hyperalert\_\-from\_\-XML}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf hyperalert}$\ast$ \_\-AI\_\-hyperalert\_\-from\_\-XML (
+\begin{DoxyParamCaption}
+\item[{{\bf hyperalert\_\-key}}]{ key}
+\end{DoxyParamCaption}
+)}}
+\label{group__correlation_gacb46174cec5a2cce0a9bb1ca2b0f6850}
+
+
+Parse info about a hyperalert from a correlation XML file, if it exists. 
+
+FUNCTION: \_\-AI\_\-hyperalert\_\-from\_\-XML 
+\begin{DoxyParams}{Parameters}
+\item[{\em key}]Key (gid, sid, rev) identifying the alert \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A hyperalert structure containing the info about the current alert, if the XML file was found 
+\end{DoxyReturn}
+\hypertarget{group__correlation_ga939353a4e15de7a8f4145ab986f584be}{
+\index{correlation@{correlation}!AI\_\-alert\_\-correlation\_\-thread@{AI\_\-alert\_\-correlation\_\-thread}}
+\index{AI\_\-alert\_\-correlation\_\-thread@{AI\_\-alert\_\-correlation\_\-thread}!correlation@{correlation}}
+\subsubsection[{AI\_\-alert\_\-correlation\_\-thread}]{\setlength{\rightskip}{0pt plus 5cm}void$\ast$ AI\_\-alert\_\-correlation\_\-thread (
+\begin{DoxyParamCaption}
+\item[{void $\ast$}]{ arg}
+\end{DoxyParamCaption}
+)}}
+\label{group__correlation_ga939353a4e15de7a8f4145ab986f584be}
+
+
+Thread for correlating clustered alerts. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em arg}]Void pointer to module's configuration \end{DoxyParams}
+
+
+\subsection{Variable Documentation}
+\hypertarget{group__correlation_gaad7a982b6016390e7cd1164bd7db8bca}{
+\index{correlation@{correlation}!conf@{conf}}
+\index{conf@{conf}!correlation@{correlation}}
+\subsubsection[{conf}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf AI\_\-config}$\ast$ {\bf conf} = NULL}}
+\label{group__correlation_gaad7a982b6016390e7cd1164bd7db8bca}
+\hypertarget{group__correlation_ga343192ed5e938536f3dc150e51f8acf6}{
+\index{correlation@{correlation}!hyperalerts@{hyperalerts}}
+\index{hyperalerts@{hyperalerts}!correlation@{correlation}}
+\subsubsection[{hyperalerts}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf hyperalert}$\ast$ {\bf hyperalerts} = NULL}}
+\label{group__correlation_ga343192ed5e938536f3dc150e51f8acf6}

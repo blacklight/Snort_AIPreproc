@@ -1,7 +1,6 @@
 #ifndef 	SF_PREPROC_INFO_H_
 #define 	SF_PREPROC_INFO_H_
 
-// #define 	VERSION 				"0.1.0"
 #define 	MAJOR_VERSION 			0
 #define 	MINOR_VERSION 			1
 #define 	BUILD_VERSION 			0

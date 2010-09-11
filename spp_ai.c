@@ -72,7 +72,8 @@ static void AI_init(char *args)
 	AI_config *config;
 
 	pthread_t  cleanup_thread,
-			 logparse_thread;
+			 logparse_thread,
+			 correlation_thread;
 
 	tSfPolicyId policy_id = _dpd.getParserPolicy();
 
@@ -89,13 +90,23 @@ static void AI_init(char *args)
 	sfPolicyUserPolicySet(ex_config, policy_id);
 	sfPolicyUserDataSetCurrent(ex_config, config);
 
-	/* If the hash_cleanup_interval of stream_expire_interval options are set to zero,
+	/* If the hash_cleanup_interval or stream_expire_interval options are set to zero,
 	 * no cleanup will be made on the streams */
 	if ( config->hashCleanupInterval != 0 && config->streamExpireInterval != 0 )
 	{
 		if ( pthread_create ( &cleanup_thread, NULL, AI_hashcleanup_thread, config ) != 0 )
 		{
 			_dpd.fatalMsg ( "Failed to create the hash cleanup thread\n" );
+		}
+	}
+
+	/* If the correlation_graph_interval option is set to zero, no correlation
+	 * algorithm will be run over the alerts */
+	if ( config->correlationGraphInterval != 0 )
+	{
+		if ( pthread_create ( &correlation_thread, NULL, AI_alert_correlation_thread, config ) != 0 )
+		{
+			_dpd.fatalMsg ( "Failed to create the alert correlation thread\n" );
 		}
 	}
 
@@ -122,8 +133,9 @@ static AI_config * AI_parse(char *args)
 {
 	char *arg;
 	char *match;
-	char alertfile[1024]   = { 0 };
-	char clusterfile[1024] = { 0 };
+	char alertfile[1024]      = { 0 };
+	char clusterfile[1024]    = { 0 };
+	char corr_rules_dir[1024] = { 0 };
 
 	char **matches       = NULL;
 	int  nmatches        = 0;
@@ -141,18 +153,22 @@ static AI_config * AI_parse(char *args)
 	hierarchy_node **hierarchy_nodes = NULL;
 	int            n_hierarchy_nodes = 0;
 
-	unsigned long cleanup_interval          = 0,
-			    stream_expire_interval    = 0,
-			    alertfile_len             = 0,
-			    clusterfile_len           = 0,
-			    alert_clustering_interval = 0,
-			    database_parsing_interval = 0;
+	unsigned long cleanup_interval           = 0,
+			    stream_expire_interval     = 0,
+			    alertfile_len              = 0,
+			    clusterfile_len            = 0,
+			    corr_rules_dir_len         = 0,
+			    alert_clustering_interval  = 0,
+			    database_parsing_interval  = 0,
+			    correlation_graph_interval = 0;
 
 	BOOL has_cleanup_interval       = false,
 		has_stream_expire_interval = false,
+		has_correlation_interval   = false,
 		has_database_interval      = false,
 		has_alertfile              = false,
 		has_clusterfile            = false,
+		has_corr_rules_dir         = false,
 		has_clustering             = false,
 		has_database_log           = false;
 
@@ -240,6 +256,26 @@ static AI_config * AI_parse(char *args)
 		_dpd.logMsg("    Database parsing interval: %d\n", config->databaseParsingInterval);
 	}
 
+	/* Parsing the correlation_graph_interval option */
+	if (( arg = (char*) strcasestr( args, "correlation_graph_interval" ) ))
+	{
+		has_correlation_interval = true;
+
+		for ( arg += strlen("correlation_graph_interval");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			_dpd.fatalMsg("AIPreproc: correlation_graph_interval option used but "
+				"no value specified\n");
+		}
+
+		correlation_graph_interval = strtoul(arg, NULL, 10);
+		config->correlationGraphInterval = correlation_graph_interval;
+		_dpd.logMsg("    Correlation graph thread interval: %d\n", config->correlationGraphInterval);
+	}
+
 	/* Parsing the alertfile option */
 	if (( arg = (char*) strcasestr( args, "alertfile" ) ))
 	{
@@ -301,6 +337,38 @@ static AI_config * AI_parse(char *args)
 				clusterfile[ clusterfile_len-1 ] = 0;
 				strncpy ( config->clusterfile, clusterfile, clusterfile_len );
 				_dpd.logMsg("    clusterfile path: %s\n", config->clusterfile);
+			}
+		}
+	}
+
+	/* Parsing the correlation_rules_dir option */
+	if (( arg = (char*) strcasestr( args, "correlation_rules_dir" ) ))
+	{
+		for ( arg += strlen("correlation_rules_dir");
+				*arg && *arg != '"';
+				arg++ );
+
+		if ( !(*(arg++)) )
+		{
+			_dpd.fatalMsg("AIPreproc: correlation_rules_dir option used but no filename specified\n");
+		}
+
+		for ( corr_rules_dir[ (++corr_rules_dir_len)-1 ] = *arg;
+				*arg && *arg != '"' && corr_rules_dir_len < 1024;
+				arg++, corr_rules_dir[ (++corr_rules_dir_len)-1 ] = *arg );
+
+		if ( corr_rules_dir[0] == 0 || corr_rules_dir_len <= 1 )  {
+			has_corr_rules_dir = false;
+		} else {
+			if ( corr_rules_dir_len >= 1024 )  {
+				_dpd.fatalMsg("AIPreproc: corr_rules_dir path too long ( >= 1024 )\n");
+			} else if ( strlen( corr_rules_dir ) == 0 ) {
+				has_corr_rules_dir = false;
+			} else {
+				has_corr_rules_dir = true;
+				corr_rules_dir[ corr_rules_dir_len-1 ] = 0;
+				strncpy ( config->corr_rules_dir, corr_rules_dir, corr_rules_dir_len );
+				_dpd.logMsg("    corr_rules_dir path: %s\n", config->corr_rules_dir);
 			}
 		}
 	}
@@ -613,6 +681,11 @@ static AI_config * AI_parse(char *args)
 		config->streamExpireInterval = DEFAULT_STREAM_EXPIRE_INTERVAL;
 	}
 
+	if ( ! has_correlation_interval )
+	{
+		config->correlationGraphInterval = DEFAULT_ALERT_CORRELATION_INTERVAL;
+	}
+
 	if ( !has_database_interval && has_database_log )
 	{
 		config->databaseParsingInterval = DEFAULT_DATABASE_INTERVAL;
@@ -628,6 +701,9 @@ static AI_config * AI_parse(char *args)
 
 		#ifdef 	ENABLE_DB
 		alertparser_thread = AI_db_alertparser_thread;
+		#else
+		_dpd.fatalMsg ( "AIPreproc: database logging enabled in config file, but the module was not compiled "
+				"with database support (recompile, i.e., with ./configure --with-mysql)\n" );
 		#endif
 	} else if ( has_alertfile ) {
 		alertparser_thread = AI_file_alertparser_thread;
@@ -653,10 +729,28 @@ static AI_config * AI_parse(char *args)
 		AI_hierarchies_build ( config, hierarchy_nodes, n_hierarchy_nodes );
 	}
 
+	if ( ! has_corr_rules_dir )
+	{
+		#ifndef HAVE_CONFIG_H
+			_dpd.fatalMsg ( "AIPreproc: unable to read PREFIX from config.h\n" );
+		#endif
+
+		if ( !strcmp ( PREFIX, "/usr" ) || !strcmp ( PREFIX, "/usr/" ))
+		{
+			strncpy ( config->corr_rules_dir, DEFAULT_CORR_RULES_DIR, sizeof ( DEFAULT_CORR_RULES_DIR ));
+		} else {
+			snprintf ( config->corr_rules_dir, sizeof ( config->corr_rules_dir ), "%s/etc/corr_rules", PREFIX );
+		}
+	}
+
+	_dpd.logMsg ( "Using correlation rules from directory %s\n", config->corr_rules_dir );
+
 	if ( has_database_log )
 	{
 		#ifdef 	ENABLE_DB
-		get_alerts = AI_db_get_alerts;
+			get_alerts = AI_db_get_alerts;
+		#else
+			_dpd.fatalMsg ( "AIPreproc: Using database alert log, but the module was not compiled with database support\n" );
 		#endif
 	} else {
 		get_alerts = AI_get_alerts;

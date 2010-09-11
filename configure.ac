@@ -9,6 +9,9 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 LT_INIT
 
+AC_PREFIX_DEFAULT(/usr)
+test "$prefix" = "NONE" && prefix=/usr
+
 case "$host" in
   *-openbsd2.6|*-openbsd2.5|*-openbsd2.4|*-openbsd2.3*)
     AC_DEFINE([OPENBSD],[1],[Define if OpenBSD])
@@ -114,12 +117,21 @@ AS_IF([test "x$with_mysql" != xno],
 	fi],
 	-lmysqlclient)])
 
-#AC_CHECK_LIB([mysqlclient], [mysql_query])
+AC_CHECK_LIB([xml2], [xmlReaderForFile])
 AC_CHECK_LIB([pthread], [pthread_create])
 
+AS_IF([test "x$prefix" == x/usr],
+	[AC_SUBST([CORR_RULES_PREFIX], ["/etc/snort/corr_rules"])],
+	[AC_SUBST([CORR_RULES_PREFIX], ["${prefix}/etc/corr_rules"])])
+
 # Checks for header files.
+
+AS_IF([test ! -z "`pkg-config --cflags libxml-2.0 2> /dev/null`"],
+	[AC_SUBST([LIBXML2_INCLUDES], ["$(pkg-config --cflags libxml-2.0 2> /dev/null)"])],
+	[AC_MSG_FAILURE([libxml2 not found, okr pkg-config not working])])
+
 AC_FUNC_ALLOCA
-AC_CHECK_HEADERS([inttypes.h limits.h stddef.h stdlib.h string.h unistd.h wchar.h])
+AC_CHECK_HEADERS([inttypes.h limits.h stddef.h stdlib.h string.h unistd.h wchar.h],,AC_MSG_ERROR(At least one of the required headers was not found))
 
 # Check for int types
 AC_CHECK_TYPES([u_int8_t,u_int16_t,u_int32_t,u_int64_t,uint8_t,uint16_t,uint32_t,uint64_t])
@@ -137,18 +149,19 @@ AC_CHECK_TYPES([ptrdiff_t])
 AC_FUNC_MALLOC
 AC_FUNC_MKTIME
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([memmove memset regcomp strcasecmp strdup strstr strtol strtoul])
+AC_CHECK_FUNCS([memmove memset regcomp strcasecmp strdup strstr strtol strtoul],,AC_MSG_ERROR(At least one of the required functions was not found))
 
 AC_DEFINE([VERSION], ["0.1.0"], [Module version])
 AC_DEFINE([PACKAGE], ["sf_ai_preprocessor"], [Package name])
 AC_DEFINE([PACKAGE_BUGREPORT], ["blacklight@autistici.org"], [Bug report address])
 AC_DEFINE([PACKAGE_NAME], ["sf_ai_preprocessor"], [Package full name])
 AC_DEFINE([PACKAGE_STRING], ["Snort AI preprocessor"], [Package string])
-AC_DEFINE([PACKAGE_TARNAME], ["sf_ai_preprocessor"], [Package tarname])
+AC_DEFINE([PACKAGE_TARNAME], ["snort_ai_preproc"], [Package tarname])
 AC_DEFINE([PACKAGE_VERSION], ["0.1.0"], [Package version])
 AC_DEFINE([SUP_IP6], [], [Use SUP_IP6])
 
 AC_DEFINE([HAVE_VISIBILITY], [1], [Check if the compiler supports visibility])
+AC_DEFINE_UNQUOTED([PREFIX], "${prefix}", [Installation prefix])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

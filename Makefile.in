@@ -15,6 +15,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -40,10 +41,7 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
 	TODO config.guess config.sub install-sh ltmain.sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
-	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -73,11 +71,12 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(libdir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(corr_rulesdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libsf_ai_preproc_la_LIBADD =
 am_libsf_ai_preproc_la_OBJECTS = libsf_ai_preproc_la-alert_parser.lo \
-	libsf_ai_preproc_la-cluster.lo libsf_ai_preproc_la-db.lo \
+	libsf_ai_preproc_la-cluster.lo \
+	libsf_ai_preproc_la-correlation.lo libsf_ai_preproc_la-db.lo \
 	libsf_ai_preproc_la-mysql.lo libsf_ai_preproc_la-regex.lo \
 	libsf_ai_preproc_la-spp_ai.lo libsf_ai_preproc_la-stream.lo
 nodist_libsf_ai_preproc_la_OBJECTS =  \
@@ -104,6 +103,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(libsf_ai_preproc_la_SOURCES) \
 	$(nodist_libsf_ai_preproc_la_SOURCES)
 DIST_SOURCES = $(libsf_ai_preproc_la_SOURCES)
+DATA = $(corr_rules_DATA)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -128,6 +128,7 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CORR_RULES_PREFIX = @CORR_RULES_PREFIX@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -152,6 +153,7 @@ LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
+LIBXML2_INCLUDES = @LIBXML2_INCLUDES@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
@@ -233,7 +235,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign no-dependencies
 lib_LTLIBRARIES = libsf_ai_preproc.la
-libsf_ai_preproc_la_CFLAGS = -I./uthash -I./include -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -fstack-protector
+libsf_ai_preproc_la_CFLAGS = -I./uthash -I./include ${LIBXML2_INCLUDES} -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -pedantic -pedantic-errors -fstack-protector
 libsf_ai_preproc_la_LDFLAGS = -module -export-dynamic
 BUILT_SOURCES = \
 include/sf_dynamic_preproc_lib.c \
@@ -246,6 +248,7 @@ include/sfPolicyUserData.c
 libsf_ai_preproc_la_SOURCES = \
 alert_parser.c \
 cluster.c \
+correlation.c \
 db.c \
 mysql.c \
 regex.c \
@@ -253,6 +256,9 @@ spp_ai.c \
 stream.c
 
 ACLOCAL_AMFLAGS = -I m4
+EXTRA_DIST = README INSTALL ChangeLog AUTHORS COPYING Doxyfile NEWS TODO doc etc include uthash etc/corr_rules *.h
+corr_rulesdir = ${CORR_RULES_PREFIX}
+corr_rules_DATA = corr_rules/*
 all: $(BUILT_SOURCES) config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -364,6 +370,9 @@ libsf_ai_preproc_la-alert_parser.lo: alert_parser.c
 libsf_ai_preproc_la-cluster.lo: cluster.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-cluster.lo `test -f 'cluster.c' || echo '$(srcdir)/'`cluster.c
 
+libsf_ai_preproc_la-correlation.lo: correlation.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-correlation.lo `test -f 'correlation.c' || echo '$(srcdir)/'`correlation.c
+
 libsf_ai_preproc_la-db.lo: db.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-db.lo `test -f 'db.c' || echo '$(srcdir)/'`db.c
 
@@ -393,6 +402,26 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool config.lt
+install-corr_rulesDATA: $(corr_rules_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(corr_rulesdir)" || $(MKDIR_P) "$(DESTDIR)$(corr_rulesdir)"
+	@list='$(corr_rules_DATA)'; test -n "$(corr_rulesdir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(corr_rulesdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(corr_rulesdir)" || exit $$?; \
+	done
+
+uninstall-corr_rulesDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(corr_rules_DATA)'; test -n "$(corr_rulesdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(corr_rulesdir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(corr_rulesdir)" && rm -f $$files
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -596,9 +625,9 @@ distcleancheck: distclean
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(LTLIBRARIES) config.h
+all-am: Makefile $(LTLIBRARIES) $(DATA) config.h
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(corr_rulesdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -651,7 +680,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-corr_rulesDATA
 
 install-dvi: install-dvi-am
 
@@ -698,7 +727,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES
+uninstall-am: uninstall-corr_rulesDATA uninstall-libLTLIBRARIES
 
 .MAKE: all check install install-am install-strip
 
@@ -709,15 +738,16 @@ uninstall-am: uninstall-libLTLIBRARIES
 	distclean-generic distclean-hdr distclean-libtool \
 	distclean-tags distcleancheck distdir distuninstallcheck dvi \
 	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-libLTLIBRARIES \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
-	uninstall-am uninstall-libLTLIBRARIES
+	install-corr_rulesDATA install-data install-data-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags uninstall uninstall-am uninstall-corr_rulesDATA \
+	uninstall-libLTLIBRARIES
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

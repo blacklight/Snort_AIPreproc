@@ -99,5 +99,69 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
 	return 1;
 }		/* -----  end of function preg_match  ----- */
 
+/**
+ * \brief  Replace the content of 'orig' in 'str' with 'rep'
+ * \param  str 	String to work on
+ * \param  orig 	String to be replaced
+ * \param  rep 	Replacement for 'orig'
+ * \return The string with the replacement
+ */
+char*
+str_replace ( char *str, char *orig, char *rep )
+{
+	char         *new_s  = NULL;
+	unsigned int new_len = 0;
+	unsigned int pos     = 0;
+
+	if ( !( pos = (int) strstr ( str, orig )))
+		return str;
+
+	new_len = strlen(str) - strlen(orig) + strlen(rep) + 1;
+
+	if ( !( new_s = (char*) malloc ( new_len )))
+		return NULL;
+
+	memset ( new_s, 0, new_len );
+	strncpy ( new_s, str, pos - (unsigned int) str );
+	new_s[ pos - (unsigned int) str] = 0;
+
+	if ( rep )
+	{
+		if ( strlen ( rep ) != 0 )
+			sprintf ( new_s + pos - (unsigned int) str, "%s%s", rep, (char*) pos + strlen ( orig ));
+		else
+			sprintf ( new_s + pos - (unsigned int) str, "%s", (char*) pos + strlen ( orig ));
+	} else {
+		sprintf ( new_s + pos - (unsigned int) str, "%s", (char*) pos + strlen ( orig ));
+	}
+
+	return new_s;
+}		/* -----  end of function str_replace  ----- */
+
+/**
+ * \brief  Replace all of the occurrences of 'orig' in 'str' with 'rep'
+ * \param  str 	String to work on
+ * \param  orig 	String to be replaced
+ * \param  rep 	Replacement for 'orig'
+ * \return The string with the replacement
+ */
+char*
+str_replace_all ( char *str, char *orig, char *rep )
+{
+	char *buf = strdup ( str );
+	char *tmp = NULL;
+
+	while ( strstr ( buf, orig ))
+	{
+		if ( tmp )
+			free ( tmp );
+
+		tmp = buf;
+		buf = str_replace ( str, orig, rep );
+	}
+
+	return buf;
+}		/* -----  end of function str_replace_all  ----- */
+
 /** @} */
 

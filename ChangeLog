@@ -1,3 +1,10 @@
+2010-11-09  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
+	* correlation.c: Most of the correlation thread is ready
+	* regex.c: Added method 'str_replace' and 'str_replace_all'
+
+2010-09-09  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
+	* Makefile.am: Complete support for make dist
+
 2010-09-05  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
 	* all: Using autotools now
 

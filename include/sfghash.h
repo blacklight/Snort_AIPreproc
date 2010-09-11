@@ -80,8 +80,8 @@ typedef struct _sfghash
 
   void         (*userfree)( void * );  
 
-  int            crow;    // findfirst/next row in table
-  SFGHASH_NODE * cnode; // findfirst/next node ptr
+  int            crow;    /*  findfirst/next row in table */
+  SFGHASH_NODE * cnode; /*  findfirst/next node ptr */
 
   int splay;
 

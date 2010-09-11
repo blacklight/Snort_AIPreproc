@@ -55,13 +55,13 @@
 #define PP_DCE2                   16
 #define PP_SDF                    17
 
-// used externally
+/*  used externally */
 #define PP_ISAKMP                 18
 #define PP_SKYPE                  19
 
-// currently 32 bits (preprocessors)
-// are available.  most of these can
-// be deleted:
+/*  currently 32 bits (preprocessors) */
+/*  are available.  most of these can */
+/*  be deleted: */
 #if 0
 #define PP_ASN1DECODE             17
 #define PP_CONVERSATION           18

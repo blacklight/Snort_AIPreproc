@@ -90,7 +90,7 @@ int sfPolicyUserDataSet (
 
     if (policyId >= pContext->numAllocatedPolicies)
     {
-        //expand the array
+        /*expand the array*/
         ppTmp = (void **)calloc(policyId+POLICY_ALLOCATION_CHUNK, sizeof(void *));
         if (!(ppTmp))
         {
@@ -109,7 +109,7 @@ int sfPolicyUserDataSet (
 
     if (pContext->userConfig[policyId])
     {
-        //dont overwrite existing configuration
+        /*dont overwrite existing configuration*/
         return -1;
     }  
 
@@ -146,7 +146,7 @@ int sfPolicyUserDataIterate (
     tSfPolicyId policyId;
     int ret = 0;
 
-    //must not use numActivePolicies because the callback may delete a policy
+    /*must not use numActivePolicies because the callback may delete a policy*/
     for (policyId = 0; policyId < pContext->numAllocatedPolicies; policyId++)
     {
         if (pContext->userConfig[policyId])
@@ -161,5 +161,5 @@ int sfPolicyUserDataIterate (
 }
 
 
-/** @} */ //
+/** @} */
 

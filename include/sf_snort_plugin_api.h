@@ -80,7 +80,7 @@
 #define CURSOR_OUT_OF_BOUNDS   0
 
 /* Defined in sf_dynamic_define.h */
-//#define SNORT_PCRE_OVERRIDE_MATCH_LIMIT 0x80000000
+/* #define SNORT_PCRE_OVERRIDE_MATCH_LIMIT 0x80000000 */
 
 #define CONTENT_NOCASE          0x01
 #define CONTENT_RELATIVE        0x02

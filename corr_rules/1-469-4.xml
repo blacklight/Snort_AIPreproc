@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hyperalert PUBLIC "-//blacklighth//DTD HYPERALERT SNORT MODEL//EN" "http://devio.us/~blacklight/hyperalert.dtd">
+
+<hyperalert>
+	<snort-id>1.469.4</snort-id>
+	<post>HostExists(+DST_ADDR+)</post>
+</hyperalert>
+

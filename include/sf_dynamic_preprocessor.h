@@ -133,7 +133,7 @@ typedef int (*IsPreprocEnabledFunc)(u_int32_t);
 typedef char * (*PortArrayFunc)(char *, void *, int *);
 
 typedef int (*AlertQueueLog)(void *);
-typedef void (*AlertQueueControl)(void);  // reset, push, and pop
+typedef void (*AlertQueueControl)(void);  /*  reset, push, and pop */
 typedef tSfPolicyId (*GetPolicyFunc)(void);
 typedef void (*SetPolicyFunc)(tSfPolicyId);
 typedef int (*GetInlineMode)(void);

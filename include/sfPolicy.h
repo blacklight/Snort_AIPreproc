@@ -33,7 +33,7 @@
 #define SF_VLAN_UNBOUND 0xffffffff
 
 
-//vlan id or address range is reduced to policy id. and subsequent processing is done using policy id only.
+/* vlan id or address range is reduced to policy id. and subsequent processing is done using policy id only. */
 
 typedef struct
 {
@@ -155,7 +155,7 @@ static INLINE tSfPolicyId sfPolicyNumAllocated(
     return config->numAllocatedPolicies;
 }
 
-//dynamic array functions
+/* dynamic array functions */
 int sfDynArrayCheckBounds (
         void ** dynArray, 
         unsigned int index, 

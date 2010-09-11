@@ -71,167 +71,179 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <a name="l00020"></a>00020 <span class="preprocessor">#ifndef _SPP_AI_H</span>
 <a name="l00021"></a>00021 <span class="preprocessor"></span><span class="preprocessor">#define _SPP_AI_H</span>
 <a name="l00022"></a>00022 <span class="preprocessor"></span>
-<a name="l00023"></a>00023 <span class="preprocessor">#include        &quot;sf_snort_packet.h&quot;</span>
-<a name="l00024"></a>00024 <span class="preprocessor">#include        &quot;sf_dynamic_preprocessor.h&quot;</span>
-<a name="l00025"></a>00025 <span class="preprocessor">#include        &quot;uthash.h&quot;</span>
-<a name="l00026"></a>00026 
-<a name="l00027"></a><a class="code" href="spp__ai_8h.html#a5e151c615eda34903514212f05a5ccf8">00027</a> <span class="preprocessor">#define         PRIVATE                 static</span>
-<a name="l00028"></a>00028 <span class="preprocessor"></span>
-<a name="l00030"></a><a class="code" href="spp__ai_8h.html#a5f555c0ebd29ce2771a3e2dd4f526746">00030</a> <span class="preprocessor">#define         DEFAULT_HASH_CLEANUP_INTERVAL           300</span>
-<a name="l00031"></a>00031 <span class="preprocessor"></span>
-<a name="l00033"></a><a class="code" href="spp__ai_8h.html#a0f6a189af15ef783fb46ed37c144e031">00033</a> <span class="preprocessor">#define         DEFAULT_STREAM_EXPIRE_INTERVAL          300</span>
-<a name="l00034"></a>00034 <span class="preprocessor"></span>
-<a name="l00036"></a><a class="code" href="spp__ai_8h.html#a3c4984a0ee515fbc091ac6e33b05e310">00036</a> <span class="preprocessor">#define         DEFAULT_DATABASE_INTERVAL                       30</span>
-<a name="l00037"></a>00037 <span class="preprocessor"></span>
-<a name="l00039"></a><a class="code" href="spp__ai_8h.html#a0c4b6fce670e46083e33b9f53b78f39e">00039</a> <span class="preprocessor">#define         DEFAULT_ALERT_CLUSTERING_INTERVAL               3600</span>
-<a name="l00040"></a>00040 <span class="preprocessor"></span>
-<a name="l00042"></a><a class="code" href="spp__ai_8h.html#a6d9bf552c32371e0144dc6a6209c7e4a">00042</a> <span class="preprocessor">#define         DEFAULT_ALERT_LOG_FILE                          &quot;/var/log/snort/alert&quot;</span>
-<a name="l00043"></a>00043 <span class="preprocessor"></span>
-<a name="l00045"></a><a class="code" href="spp__ai_8h.html#a803dc913297ccdace9e604dbfecda97d">00045</a> <span class="preprocessor">#define         DEFAULT_CLUSTER_LOG_FILE                        &quot;/var/log/snort/cluster_alert&quot;</span>
-<a name="l00046"></a>00046 <span class="preprocessor"></span>
-<a name="l00047"></a>00047 <span class="keyword">extern</span> DynamicPreprocessorData <a class="code" href="spp__ai_8h.html#ab46420126c43c1aac5eabc5db266a71c">_dpd</a>;
-<a name="l00048"></a><a class="code" href="spp__ai_8h.html#aba7bc1797add20fe3efdf37ced1182c5">00048</a> <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>   uint8_t;
-<a name="l00049"></a><a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">00049</a> <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span>  uint16_t;
-<a name="l00050"></a><a class="code" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">00050</a> <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>    uint32_t;
-<a name="l00051"></a>00051 
-<a name="l00052"></a><a class="code" href="spp__ai_8h.html#a3e5b8192e7d9ffaf3542f1210aec18dda08f175a5505a10b9ed657defeb050e4b">00052</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> { <span class="keyword">false</span>, <span class="keyword">true</span> } BOOL;
-<a name="l00053"></a>00053 
-<a name="l00055"></a><a class="code" href="spp__ai_8h.html#ae2ff3c6586aa2ab211a102abfde86640">00055</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> {
-<a name="l00056"></a><a class="code" href="spp__ai_8h.html#ae2ff3c6586aa2ab211a102abfde86640ac1335c508143eb06843af2ce5ff3027b">00056</a>         none, src_addr, dst_addr, src_port, dst_port, <a class="code" href="spp__ai_8h.html#ae2ff3c6586aa2ab211a102abfde86640ab16bb5c4b330d5db02e2d852cd2ba451">CLUSTER_TYPES</a>
-<a name="l00057"></a>00057 } cluster_type;
-<a name="l00058"></a>00058 
-<a name="l00060"></a><a class="code" href="structpkt__key.html">00060</a> <span class="keyword">struct </span><a class="code" href="structpkt__key.html">pkt_key</a>
-<a name="l00061"></a>00061 {
-<a name="l00062"></a><a class="code" href="structpkt__key.html#a3a091c20dafb8b3f689db00c5b2f8ddb">00062</a>         <a class="code" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a> <a class="code" href="structpkt__key.html#a3a091c20dafb8b3f689db00c5b2f8ddb">src_ip</a>;
-<a name="l00063"></a><a class="code" href="structpkt__key.html#af77f5eb1f4cd88b43fe99fd73553351d">00063</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> <a class="code" href="structpkt__key.html#af77f5eb1f4cd88b43fe99fd73553351d">dst_port</a>;
-<a name="l00064"></a>00064 };
-<a name="l00065"></a>00065 
-<a name="l00067"></a><a class="code" href="structpkt__info.html">00067</a> <span class="keyword">struct </span><a class="code" href="structpkt__info.html">pkt_info</a>
-<a name="l00068"></a>00068 {
-<a name="l00070"></a><a class="code" href="structpkt__info.html#a231d4734d3c62292b06eb9ea4b49c339">00070</a>         <span class="keyword">struct </span><a class="code" href="structpkt__key.html">pkt_key</a>    <a class="code" href="structpkt__info.html#a231d4734d3c62292b06eb9ea4b49c339">key</a>;
-<a name="l00071"></a>00071 
-<a name="l00073"></a><a class="code" href="structpkt__info.html#a7f5090443f21e6290f0439f1bb872e92">00073</a>         time_t            <a class="code" href="structpkt__info.html#a7f5090443f21e6290f0439f1bb872e92">timestamp</a>;
-<a name="l00074"></a>00074 
-<a name="l00076"></a><a class="code" href="structpkt__info.html#a8d5ebd04a32067b05387e5c5056fe168">00076</a>         SFSnortPacket*    <a class="code" href="structpkt__info.html#a8d5ebd04a32067b05387e5c5056fe168">pkt</a>;
-<a name="l00077"></a>00077 
-<a name="l00079"></a><a class="code" href="structpkt__info.html#a5ee3c51f2ca5768b94819182641ef168">00079</a>         <span class="keyword">struct </span><a class="code" href="structpkt__info.html">pkt_info</a>*  <a class="code" href="structpkt__info.html#a5ee3c51f2ca5768b94819182641ef168">next</a>;
-<a name="l00080"></a>00080 
-<a name="l00082"></a><a class="code" href="structpkt__info.html#ac7ff78ea5faf333fc91f92e3085ea7c9">00082</a>         <a class="code" href="spp__ai_8h.html#a3e5b8192e7d9ffaf3542f1210aec18dd">BOOL</a>              <a class="code" href="structpkt__info.html#ac7ff78ea5faf333fc91f92e3085ea7c9">observed</a>;
-<a name="l00083"></a>00083 
-<a name="l00085"></a><a class="code" href="structpkt__info.html#a264e90d4b5d490de040f38c1072e142f">00085</a>         UT_hash_handle    <a class="code" href="structpkt__info.html#a264e90d4b5d490de040f38c1072e142f">hh</a>;
-<a name="l00086"></a>00086 };
+<a name="l00023"></a>00023 <span class="preprocessor">#ifdef  HAVE_CONFIG_H</span>
+<a name="l00024"></a>00024 <span class="preprocessor"></span><span class="preprocessor">#include        &quot;config.h&quot;</span>
+<a name="l00025"></a>00025 <span class="preprocessor">#endif</span>
+<a name="l00026"></a>00026 <span class="preprocessor"></span>
+<a name="l00027"></a>00027 <span class="preprocessor">#include        &quot;sf_snort_packet.h&quot;</span>
+<a name="l00028"></a>00028 <span class="preprocessor">#include        &quot;sf_dynamic_preprocessor.h&quot;</span>
+<a name="l00029"></a>00029 <span class="preprocessor">#include        &quot;uthash.h&quot;</span>
+<a name="l00030"></a>00030 
+<a name="l00031"></a><a class="code" href="spp__ai_8h.html#a5e151c615eda34903514212f05a5ccf8">00031</a> <span class="preprocessor">#define         PRIVATE                 static</span>
+<a name="l00032"></a>00032 <span class="preprocessor"></span>
+<a name="l00034"></a><a class="code" href="spp__ai_8h.html#a5f555c0ebd29ce2771a3e2dd4f526746">00034</a> <span class="preprocessor">#define         DEFAULT_HASH_CLEANUP_INTERVAL           300</span>
+<a name="l00035"></a>00035 <span class="preprocessor"></span>
+<a name="l00037"></a><a class="code" href="spp__ai_8h.html#a0f6a189af15ef783fb46ed37c144e031">00037</a> <span class="preprocessor">#define         DEFAULT_STREAM_EXPIRE_INTERVAL          300</span>
+<a name="l00038"></a>00038 <span class="preprocessor"></span>
+<a name="l00040"></a><a class="code" href="spp__ai_8h.html#a3c4984a0ee515fbc091ac6e33b05e310">00040</a> <span class="preprocessor">#define         DEFAULT_DATABASE_INTERVAL                       30</span>
+<a name="l00041"></a>00041 <span class="preprocessor"></span>
+<a name="l00043"></a><a class="code" href="spp__ai_8h.html#a0c4b6fce670e46083e33b9f53b78f39e">00043</a> <span class="preprocessor">#define         DEFAULT_ALERT_CLUSTERING_INTERVAL               3600</span>
+<a name="l00044"></a>00044 <span class="preprocessor"></span>
+<a name="l00046"></a><a class="code" href="spp__ai_8h.html#af0edda6cc018d9674b6822f6df4abe74">00046</a> <span class="preprocessor">#define         DEFAULT_ALERT_CORRELATION_INTERVAL      300</span>
+<a name="l00047"></a>00047 <span class="preprocessor"></span>
+<a name="l00049"></a><a class="code" href="spp__ai_8h.html#a6d9bf552c32371e0144dc6a6209c7e4a">00049</a> <span class="preprocessor">#define         DEFAULT_ALERT_LOG_FILE                          &quot;/var/log/snort/alert&quot;</span>
+<a name="l00050"></a>00050 <span class="preprocessor"></span>
+<a name="l00052"></a><a class="code" href="spp__ai_8h.html#a803dc913297ccdace9e604dbfecda97d">00052</a> <span class="preprocessor">#define         DEFAULT_CLUSTER_LOG_FILE                        &quot;/var/log/snort/cluster_alert&quot;</span>
+<a name="l00053"></a>00053 <span class="preprocessor"></span>
+<a name="l00055"></a><a class="code" href="spp__ai_8h.html#a89448386cad5d5533992ae7ee84f4f1d">00055</a> <span class="preprocessor">#define         DEFAULT_CORR_RULES_DIR                          &quot;/etc/snort/corr_rules&quot;</span>
+<a name="l00056"></a>00056 <span class="preprocessor"></span>
+<a name="l00057"></a>00057 <span class="keyword">extern</span> DynamicPreprocessorData <a class="code" href="spp__ai_8h.html#ab46420126c43c1aac5eabc5db266a71c">_dpd</a>;
+<a name="l00058"></a><a class="code" href="spp__ai_8h.html#aba7bc1797add20fe3efdf37ced1182c5">00058</a> <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">char</span>   uint8_t;
+<a name="l00059"></a><a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">00059</a> <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span>  uint16_t;
+<a name="l00060"></a><a class="code" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">00060</a> <span class="keyword">typedef</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>    uint32_t;
+<a name="l00061"></a>00061 
+<a name="l00062"></a><a class="code" href="spp__ai_8h.html#a3e5b8192e7d9ffaf3542f1210aec18dda08f175a5505a10b9ed657defeb050e4b">00062</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> { <span class="keyword">false</span>, <span class="keyword">true</span> } BOOL;
+<a name="l00063"></a>00063 
+<a name="l00065"></a><a class="code" href="spp__ai_8h.html#ae2ff3c6586aa2ab211a102abfde86640">00065</a> <span class="keyword">typedef</span> <span class="keyword">enum</span> {
+<a name="l00066"></a><a class="code" href="spp__ai_8h.html#ae2ff3c6586aa2ab211a102abfde86640ac1335c508143eb06843af2ce5ff3027b">00066</a>         none, src_addr, dst_addr, src_port, dst_port, <a class="code" href="spp__ai_8h.html#ae2ff3c6586aa2ab211a102abfde86640ab16bb5c4b330d5db02e2d852cd2ba451">CLUSTER_TYPES</a>
+<a name="l00067"></a>00067 } cluster_type;
+<a name="l00068"></a>00068 
+<a name="l00070"></a><a class="code" href="structpkt__key.html">00070</a> <span class="keyword">struct </span><a class="code" href="structpkt__key.html">pkt_key</a>
+<a name="l00071"></a>00071 {
+<a name="l00072"></a><a class="code" href="structpkt__key.html#a3a091c20dafb8b3f689db00c5b2f8ddb">00072</a>         <a class="code" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a> <a class="code" href="structpkt__key.html#a3a091c20dafb8b3f689db00c5b2f8ddb">src_ip</a>;
+<a name="l00073"></a><a class="code" href="structpkt__key.html#af77f5eb1f4cd88b43fe99fd73553351d">00073</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> <a class="code" href="structpkt__key.html#af77f5eb1f4cd88b43fe99fd73553351d">dst_port</a>;
+<a name="l00074"></a>00074 };
+<a name="l00075"></a>00075 
+<a name="l00077"></a><a class="code" href="structpkt__info.html">00077</a> <span class="keyword">struct </span><a class="code" href="structpkt__info.html">pkt_info</a>
+<a name="l00078"></a>00078 {
+<a name="l00080"></a><a class="code" href="structpkt__info.html#a231d4734d3c62292b06eb9ea4b49c339">00080</a>         <span class="keyword">struct </span><a class="code" href="structpkt__key.html">pkt_key</a>    <a class="code" href="structpkt__info.html#a231d4734d3c62292b06eb9ea4b49c339">key</a>;
+<a name="l00081"></a>00081 
+<a name="l00083"></a><a class="code" href="structpkt__info.html#a7f5090443f21e6290f0439f1bb872e92">00083</a>         time_t            <a class="code" href="structpkt__info.html#a7f5090443f21e6290f0439f1bb872e92">timestamp</a>;
+<a name="l00084"></a>00084 
+<a name="l00086"></a><a class="code" href="structpkt__info.html#a8d5ebd04a32067b05387e5c5056fe168">00086</a>         SFSnortPacket*    <a class="code" href="structpkt__info.html#a8d5ebd04a32067b05387e5c5056fe168">pkt</a>;
 <a name="l00087"></a>00087 
-<a name="l00088"></a>00088 <span class="comment">/* Data type containing the configuration of the module */</span>
-<a name="l00089"></a><a class="code" href="structAI__config.html">00089</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
-<a name="l00090"></a>00090 {
-<a name="l00092"></a><a class="code" href="structAI__config.html#a9f7680615027d4fb74b4aa144a7028a4">00092</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> hashCleanupInterval;
+<a name="l00089"></a><a class="code" href="structpkt__info.html#a5ee3c51f2ca5768b94819182641ef168">00089</a>         <span class="keyword">struct </span><a class="code" href="structpkt__info.html">pkt_info</a>*  <a class="code" href="structpkt__info.html#a5ee3c51f2ca5768b94819182641ef168">next</a>;
+<a name="l00090"></a>00090 
+<a name="l00092"></a><a class="code" href="structpkt__info.html#ac7ff78ea5faf333fc91f92e3085ea7c9">00092</a>         <a class="code" href="spp__ai_8h.html#a3e5b8192e7d9ffaf3542f1210aec18dd">BOOL</a>              <a class="code" href="structpkt__info.html#ac7ff78ea5faf333fc91f92e3085ea7c9">observed</a>;
 <a name="l00093"></a>00093 
-<a name="l00095"></a><a class="code" href="structAI__config.html#abbe77d5f94b8c5164bea47acba09c98b">00095</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> streamExpireInterval;
-<a name="l00096"></a>00096 
-<a name="l00098"></a><a class="code" href="structAI__config.html#a7d0d098b8263aa3d8415b11d1ec7f93d">00098</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> alertClusteringInterval;
-<a name="l00099"></a>00099 
-<a name="l00101"></a><a class="code" href="structAI__config.html#ae6ca715cab1d90b70c3aad443133c263">00101</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> databaseParsingInterval;
-<a name="l00102"></a>00102 
-<a name="l00104"></a><a class="code" href="structAI__config.html#a2efa9590d7eea6dce8b5dd9aa76ed8ca">00104</a>         <span class="keywordtype">char</span>          alertfile[1024];
-<a name="l00105"></a>00105 
-<a name="l00107"></a><a class="code" href="structAI__config.html#a6da02a3f7116fd3810a41b738e8883a3">00107</a>         <span class="keywordtype">char</span>          clusterfile[1024];
-<a name="l00108"></a>00108 
-<a name="l00110"></a><a class="code" href="structAI__config.html#ac8a93607f12106e2f5c9b43af27107da">00110</a>         <span class="keywordtype">char</span>          dbname[256];
-<a name="l00111"></a>00111 
-<a name="l00113"></a><a class="code" href="structAI__config.html#aa004adebfdafb6d14092aecd7f4912b0">00113</a>         <span class="keywordtype">char</span>          dbuser[256];
-<a name="l00114"></a>00114 
-<a name="l00116"></a><a class="code" href="structAI__config.html#aa1cda349763faf60b2ebdbf2d187ae7d">00116</a>         <span class="keywordtype">char</span>          dbpass[256];
-<a name="l00117"></a>00117 
-<a name="l00119"></a><a class="code" href="structAI__config.html#a8e56f1a1b2095d3d329c8068ea0f3aab">00119</a>         <span class="keywordtype">char</span>          dbhost[256];
-<a name="l00120"></a>00120 } <a class="code" href="structAI__config.html">AI_config</a>;
+<a name="l00095"></a><a class="code" href="structpkt__info.html#a264e90d4b5d490de040f38c1072e142f">00095</a>         UT_hash_handle    <a class="code" href="structpkt__info.html#a264e90d4b5d490de040f38c1072e142f">hh</a>;
+<a name="l00096"></a>00096 };
+<a name="l00097"></a>00097 
+<a name="l00098"></a>00098 <span class="comment">/* Data type containing the configuration of the module */</span>
+<a name="l00099"></a><a class="code" href="structAI__config.html">00099</a> <span class="keyword">typedef</span> <span class="keyword">struct</span>
+<a name="l00100"></a>00100 {
+<a name="l00102"></a><a class="code" href="structAI__config.html#a9f7680615027d4fb74b4aa144a7028a4">00102</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> hashCleanupInterval;
+<a name="l00103"></a>00103 
+<a name="l00105"></a><a class="code" href="structAI__config.html#abbe77d5f94b8c5164bea47acba09c98b">00105</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> streamExpireInterval;
+<a name="l00106"></a>00106 
+<a name="l00108"></a><a class="code" href="structAI__config.html#a7d0d098b8263aa3d8415b11d1ec7f93d">00108</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> alertClusteringInterval;
+<a name="l00109"></a>00109 
+<a name="l00111"></a><a class="code" href="structAI__config.html#ae6ca715cab1d90b70c3aad443133c263">00111</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> databaseParsingInterval;
+<a name="l00112"></a>00112 
+<a name="l00114"></a><a class="code" href="structAI__config.html#aa736375e57a59936e2e782b7cd200e41">00114</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> correlationGraphInterval;
+<a name="l00115"></a>00115 
+<a name="l00117"></a><a class="code" href="structAI__config.html#a2efa9590d7eea6dce8b5dd9aa76ed8ca">00117</a>         <span class="keywordtype">char</span>          alertfile[1024];
+<a name="l00118"></a>00118 
+<a name="l00120"></a><a class="code" href="structAI__config.html#a6da02a3f7116fd3810a41b738e8883a3">00120</a>         <span class="keywordtype">char</span>          clusterfile[1024];
 <a name="l00121"></a>00121 
-<a name="l00122"></a>00122 <span class="comment">/* Data type for hierarchies used for clustering */</span>
-<a name="l00123"></a><a class="code" href="struct__hierarchy__node.html">00123</a> <span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="struct__hierarchy__node.html">_hierarchy_node</a>
-<a name="l00124"></a>00124 {
-<a name="l00125"></a><a class="code" href="struct__hierarchy__node.html#a3b18e3ddfa2212c5e4ff9c0b4bde4296">00125</a>         <a class="code" href="spp__ai_8h.html#ae2ff3c6586aa2ab211a102abfde86640">cluster_type</a>            <a class="code" href="struct__hierarchy__node.html#a3b18e3ddfa2212c5e4ff9c0b4bde4296">type</a>;
-<a name="l00126"></a><a class="code" href="struct__hierarchy__node.html#ae498f6fd14ca058a3ae0a95d5425451a">00126</a>         <span class="keywordtype">char</span>                    <a class="code" href="struct__hierarchy__node.html#ae498f6fd14ca058a3ae0a95d5425451a">label</a>[256];
-<a name="l00127"></a><a class="code" href="struct__hierarchy__node.html#a13ceebd7b435b9ef347fb90d9e6bbfe4">00127</a>         <span class="keywordtype">int</span>                     <a class="code" href="struct__hierarchy__node.html#a13ceebd7b435b9ef347fb90d9e6bbfe4">min_val</a>;
-<a name="l00128"></a><a class="code" href="struct__hierarchy__node.html#a79ea88029938dc30ab8f159405d12c87">00128</a>         <span class="keywordtype">int</span>                     <a class="code" href="struct__hierarchy__node.html#a79ea88029938dc30ab8f159405d12c87">max_val</a>;
-<a name="l00129"></a><a class="code" href="struct__hierarchy__node.html#a849256ce1039e2cefaaf64d91171be0a">00129</a>         <span class="keywordtype">int</span>                     <a class="code" href="struct__hierarchy__node.html#a849256ce1039e2cefaaf64d91171be0a">nchildren</a>;
-<a name="l00130"></a><a class="code" href="struct__hierarchy__node.html#a5c94c89d7e2aea393f1c550afb766bbe">00130</a>         <span class="keyword">struct </span><a class="code" href="struct__hierarchy__node.html">_hierarchy_node</a>  *<a class="code" href="struct__hierarchy__node.html#a5c94c89d7e2aea393f1c550afb766bbe">parent</a>;
-<a name="l00131"></a><a class="code" href="struct__hierarchy__node.html#afc23d4fe6426873164cdaab2f3d4f0cd">00131</a>         <span class="keyword">struct </span><a class="code" href="struct__hierarchy__node.html">_hierarchy_node</a>  **<a class="code" href="struct__hierarchy__node.html#afc23d4fe6426873164cdaab2f3d4f0cd">children</a>;
-<a name="l00132"></a>00132 } <a class="code" href="struct__hierarchy__node.html">hierarchy_node</a>;
+<a name="l00123"></a><a class="code" href="structAI__config.html#ab7ea93bbe72b85c4019b4f5656ad62fc">00123</a>         <span class="keywordtype">char</span>          corr_rules_dir[1024];
+<a name="l00124"></a>00124 
+<a name="l00126"></a><a class="code" href="structAI__config.html#ac8a93607f12106e2f5c9b43af27107da">00126</a>         <span class="keywordtype">char</span>          dbname[256];
+<a name="l00127"></a>00127 
+<a name="l00129"></a><a class="code" href="structAI__config.html#aa004adebfdafb6d14092aecd7f4912b0">00129</a>         <span class="keywordtype">char</span>          dbuser[256];
+<a name="l00130"></a>00130 
+<a name="l00132"></a><a class="code" href="structAI__config.html#aa1cda349763faf60b2ebdbf2d187ae7d">00132</a>         <span class="keywordtype">char</span>          dbpass[256];
 <a name="l00133"></a>00133 
-<a name="l00135"></a><a class="code" href="struct__AI__snort__alert.html">00135</a> <span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="struct__AI__snort__alert.html">_AI_snort_alert</a>  {
-<a name="l00136"></a>00136         <span class="comment">/* Identifiers of the alert */</span>
-<a name="l00137"></a><a class="code" href="struct__AI__snort__alert.html#af8408be5da59cda853442dd13465c0f6">00137</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>    <a class="code" href="struct__AI__snort__alert.html#af8408be5da59cda853442dd13465c0f6">gid</a>;
-<a name="l00138"></a><a class="code" href="struct__AI__snort__alert.html#a3349aa68d2234f8ffd897367c3a8a137">00138</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>    <a class="code" href="struct__AI__snort__alert.html#a3349aa68d2234f8ffd897367c3a8a137">sid</a>;
-<a name="l00139"></a><a class="code" href="struct__AI__snort__alert.html#a864d3baa48586d6a31639f4cd27d9d37">00139</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>    <a class="code" href="struct__AI__snort__alert.html#a864d3baa48586d6a31639f4cd27d9d37">rev</a>;
-<a name="l00140"></a>00140 
-<a name="l00141"></a>00141         <span class="comment">/* Snort priority, description,</span>
-<a name="l00142"></a>00142 <span class="comment">         * classification and timestamp</span>
-<a name="l00143"></a>00143 <span class="comment">         * of the alert */</span>
-<a name="l00144"></a><a class="code" href="struct__AI__snort__alert.html#a25661fa4e212c5e30af5e6a892985ec9">00144</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span>  <a class="code" href="struct__AI__snort__alert.html#a25661fa4e212c5e30af5e6a892985ec9">priority</a>;
-<a name="l00145"></a><a class="code" href="struct__AI__snort__alert.html#ac0902d7c756ec675fb06347ce4706135">00145</a>         <span class="keywordtype">char</span>            *<a class="code" href="struct__AI__snort__alert.html#ac0902d7c756ec675fb06347ce4706135">desc</a>;
-<a name="l00146"></a><a class="code" href="struct__AI__snort__alert.html#aa89585e14acb2c4e684a1552d322632f">00146</a>         <span class="keywordtype">char</span>            *<a class="code" href="struct__AI__snort__alert.html#aa89585e14acb2c4e684a1552d322632f">classification</a>;
-<a name="l00147"></a><a class="code" href="struct__AI__snort__alert.html#a10a67f60ca3da339a2104849a0b2ac19">00147</a>         time_t          <a class="code" href="struct__AI__snort__alert.html#a10a67f60ca3da339a2104849a0b2ac19">timestamp</a>;
-<a name="l00148"></a>00148 
-<a name="l00149"></a>00149         <span class="comment">/* IP header information */</span>
-<a name="l00150"></a><a class="code" href="struct__AI__snort__alert.html#a3f3c47f9baf3229d067504a85873b416">00150</a>         <a class="code" href="spp__ai_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>         <a class="code" href="struct__AI__snort__alert.html#a3f3c47f9baf3229d067504a85873b416">ip_tos</a>;
-<a name="l00151"></a><a class="code" href="struct__AI__snort__alert.html#ad3ffe99036513d5f33b94d22fb84f8f1">00151</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>        <a class="code" href="struct__AI__snort__alert.html#ad3ffe99036513d5f33b94d22fb84f8f1">ip_len</a>;
-<a name="l00152"></a><a class="code" href="struct__AI__snort__alert.html#a2fc673dec85a7b49dd16ac7c0bb1bb78">00152</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>        <a class="code" href="struct__AI__snort__alert.html#a2fc673dec85a7b49dd16ac7c0bb1bb78">ip_id</a>;
-<a name="l00153"></a><a class="code" href="struct__AI__snort__alert.html#a3c9bbe84ec696cd58668a45799a66600">00153</a>         <a class="code" href="spp__ai_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>         <a class="code" href="struct__AI__snort__alert.html#a3c9bbe84ec696cd58668a45799a66600">ip_ttl</a>;
-<a name="l00154"></a><a class="code" href="struct__AI__snort__alert.html#a5ea7b250ac1c472f3ab57565b6df2536">00154</a>         <a class="code" href="spp__ai_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>         <a class="code" href="struct__AI__snort__alert.html#a5ea7b250ac1c472f3ab57565b6df2536">ip_proto</a>;
-<a name="l00155"></a><a class="code" href="struct__AI__snort__alert.html#a194117c57a52933d16a97838562bb611">00155</a>         <a class="code" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a>        <a class="code" href="struct__AI__snort__alert.html#a194117c57a52933d16a97838562bb611">ip_src_addr</a>;
-<a name="l00156"></a><a class="code" href="struct__AI__snort__alert.html#a754ca683593c838e4032fa8c13b1512b">00156</a>         <a class="code" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a>        <a class="code" href="struct__AI__snort__alert.html#a754ca683593c838e4032fa8c13b1512b">ip_dst_addr</a>;
-<a name="l00157"></a>00157 
-<a name="l00158"></a>00158         <span class="comment">/* TCP header information */</span>
-<a name="l00159"></a><a class="code" href="struct__AI__snort__alert.html#a4d4cbdbd9675f4c43545547f55174cb7">00159</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>        <a class="code" href="struct__AI__snort__alert.html#a4d4cbdbd9675f4c43545547f55174cb7">tcp_src_port</a>;
-<a name="l00160"></a><a class="code" href="struct__AI__snort__alert.html#aaca31cb67d48ffc3bfd1227686d5f5a4">00160</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>        <a class="code" href="struct__AI__snort__alert.html#aaca31cb67d48ffc3bfd1227686d5f5a4">tcp_dst_port</a>;
-<a name="l00161"></a><a class="code" href="struct__AI__snort__alert.html#ad6edf59fccea55bf5f940bf36117020b">00161</a>         <a class="code" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a>        <a class="code" href="struct__AI__snort__alert.html#ad6edf59fccea55bf5f940bf36117020b">tcp_seq</a>;
-<a name="l00162"></a><a class="code" href="struct__AI__snort__alert.html#a8aac577224a4325ec50511c6d79b4b79">00162</a>         <a class="code" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a>        <a class="code" href="struct__AI__snort__alert.html#a8aac577224a4325ec50511c6d79b4b79">tcp_ack</a>;
-<a name="l00163"></a><a class="code" href="struct__AI__snort__alert.html#aa643f11db93b70242b57f0a04775e507">00163</a>         <a class="code" href="spp__ai_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>         <a class="code" href="struct__AI__snort__alert.html#aa643f11db93b70242b57f0a04775e507">tcp_flags</a>;
-<a name="l00164"></a><a class="code" href="struct__AI__snort__alert.html#a1687fccc26bb211591db8b36ffec5348">00164</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>        <a class="code" href="struct__AI__snort__alert.html#a1687fccc26bb211591db8b36ffec5348">tcp_window</a>;
-<a name="l00165"></a><a class="code" href="struct__AI__snort__alert.html#ab7e0507050b8e475fea7a4b26c768857">00165</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>        <a class="code" href="struct__AI__snort__alert.html#ab7e0507050b8e475fea7a4b26c768857">tcp_len</a>;
-<a name="l00166"></a>00166 
-<a name="l00167"></a>00167         <span class="comment">/* Reference to the TCP stream</span>
-<a name="l00168"></a>00168 <span class="comment">         * associated to the alert, if any */</span>
-<a name="l00169"></a><a class="code" href="struct__AI__snort__alert.html#a09dfe0a841fd3912ec78060d4547cb31">00169</a>         <span class="keyword">struct </span><a class="code" href="structpkt__info.html">pkt_info</a> *<a class="code" href="struct__AI__snort__alert.html#a09dfe0a841fd3912ec78060d4547cb31">stream</a>;
-<a name="l00170"></a>00170 
-<a name="l00171"></a>00171         <span class="comment">/* Pointer to the next alert in</span>
-<a name="l00172"></a>00172 <span class="comment">         * the log, if any*/</span>
-<a name="l00173"></a><a class="code" href="struct__AI__snort__alert.html#aa8336d4b3359015ed8ea312ca1fd1173">00173</a>         <span class="keyword">struct </span><a class="code" href="struct__AI__snort__alert.html">_AI_snort_alert</a> *<a class="code" href="struct__AI__snort__alert.html#aa8336d4b3359015ed8ea312ca1fd1173">next</a>;
-<a name="l00174"></a>00174 
-<a name="l00175"></a>00175         <span class="comment">/* Hierarchies for addresses and ports,</span>
-<a name="l00176"></a>00176 <span class="comment">         * if the clustering algorithm is used */</span>
-<a name="l00177"></a><a class="code" href="struct__AI__snort__alert.html#ac53765584296ead1328eabfaba8a3aed">00177</a>         <a class="code" href="struct__hierarchy__node.html">hierarchy_node</a>  *<a class="code" href="struct__AI__snort__alert.html#ac53765584296ead1328eabfaba8a3aed">h_node</a>[CLUSTER_TYPES];
-<a name="l00178"></a>00178 
-<a name="l00179"></a>00179         <span class="comment">/* If the clustering algorithm is used,</span>
-<a name="l00180"></a>00180 <span class="comment">         * we also count how many alerts this</span>
-<a name="l00181"></a>00181 <span class="comment">         * single alert groups */</span>
-<a name="l00182"></a><a class="code" href="struct__AI__snort__alert.html#a285aff12d6bac03c316ccc5305d28e53">00182</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>    <a class="code" href="struct__AI__snort__alert.html#a285aff12d6bac03c316ccc5305d28e53">grouped_alarms_count</a>;
-<a name="l00183"></a>00183 } <a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a>;
-<a name="l00184"></a>00184 
-<a name="l00185"></a>00185 <span class="keywordtype">int</span>                <a class="code" href="group__regex.html#ga35f57c052a7de1ded54b67a1f7819791" title="Check if a string matches a regular expression.">preg_match</a> ( <span class="keyword">const</span> <span class="keywordtype">char</span>*, <span class="keywordtype">char</span>*, <span class="keywordtype">char</span>***, <span class="keywordtype">int</span>* );
+<a name="l00135"></a><a class="code" href="structAI__config.html#a8e56f1a1b2095d3d329c8068ea0f3aab">00135</a>         <span class="keywordtype">char</span>          dbhost[256];
+<a name="l00136"></a>00136 } <a class="code" href="structAI__config.html">AI_config</a>;
+<a name="l00137"></a>00137 
+<a name="l00138"></a>00138 <span class="comment">/* Data type for hierarchies used for clustering */</span>
+<a name="l00139"></a><a class="code" href="struct__hierarchy__node.html">00139</a> <span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="struct__hierarchy__node.html">_hierarchy_node</a>
+<a name="l00140"></a>00140 {
+<a name="l00141"></a><a class="code" href="struct__hierarchy__node.html#a3b18e3ddfa2212c5e4ff9c0b4bde4296">00141</a>         <a class="code" href="spp__ai_8h.html#ae2ff3c6586aa2ab211a102abfde86640">cluster_type</a>            <a class="code" href="struct__hierarchy__node.html#a3b18e3ddfa2212c5e4ff9c0b4bde4296">type</a>;
+<a name="l00142"></a><a class="code" href="struct__hierarchy__node.html#ae498f6fd14ca058a3ae0a95d5425451a">00142</a>         <span class="keywordtype">char</span>                    <a class="code" href="struct__hierarchy__node.html#ae498f6fd14ca058a3ae0a95d5425451a">label</a>[256];
+<a name="l00143"></a><a class="code" href="struct__hierarchy__node.html#a13ceebd7b435b9ef347fb90d9e6bbfe4">00143</a>         <span class="keywordtype">int</span>                     <a class="code" href="struct__hierarchy__node.html#a13ceebd7b435b9ef347fb90d9e6bbfe4">min_val</a>;
+<a name="l00144"></a><a class="code" href="struct__hierarchy__node.html#a79ea88029938dc30ab8f159405d12c87">00144</a>         <span class="keywordtype">int</span>                     <a class="code" href="struct__hierarchy__node.html#a79ea88029938dc30ab8f159405d12c87">max_val</a>;
+<a name="l00145"></a><a class="code" href="struct__hierarchy__node.html#a849256ce1039e2cefaaf64d91171be0a">00145</a>         <span class="keywordtype">int</span>                     <a class="code" href="struct__hierarchy__node.html#a849256ce1039e2cefaaf64d91171be0a">nchildren</a>;
+<a name="l00146"></a><a class="code" href="struct__hierarchy__node.html#a5c94c89d7e2aea393f1c550afb766bbe">00146</a>         <span class="keyword">struct </span><a class="code" href="struct__hierarchy__node.html">_hierarchy_node</a>  *<a class="code" href="struct__hierarchy__node.html#a5c94c89d7e2aea393f1c550afb766bbe">parent</a>;
+<a name="l00147"></a><a class="code" href="struct__hierarchy__node.html#afc23d4fe6426873164cdaab2f3d4f0cd">00147</a>         <span class="keyword">struct </span><a class="code" href="struct__hierarchy__node.html">_hierarchy_node</a>  **<a class="code" href="struct__hierarchy__node.html#afc23d4fe6426873164cdaab2f3d4f0cd">children</a>;
+<a name="l00148"></a>00148 } <a class="code" href="struct__hierarchy__node.html">hierarchy_node</a>;
+<a name="l00149"></a>00149 
+<a name="l00151"></a><a class="code" href="struct__AI__snort__alert.html">00151</a> <span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="struct__AI__snort__alert.html">_AI_snort_alert</a>  {
+<a name="l00152"></a>00152         <span class="comment">/* Identifiers of the alert */</span>
+<a name="l00153"></a><a class="code" href="struct__AI__snort__alert.html#af8408be5da59cda853442dd13465c0f6">00153</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>    <a class="code" href="struct__AI__snort__alert.html#af8408be5da59cda853442dd13465c0f6">gid</a>;
+<a name="l00154"></a><a class="code" href="struct__AI__snort__alert.html#a3349aa68d2234f8ffd897367c3a8a137">00154</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>    <a class="code" href="struct__AI__snort__alert.html#a3349aa68d2234f8ffd897367c3a8a137">sid</a>;
+<a name="l00155"></a><a class="code" href="struct__AI__snort__alert.html#a864d3baa48586d6a31639f4cd27d9d37">00155</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>    <a class="code" href="struct__AI__snort__alert.html#a864d3baa48586d6a31639f4cd27d9d37">rev</a>;
+<a name="l00156"></a>00156 
+<a name="l00157"></a>00157         <span class="comment">/* Snort priority, description,</span>
+<a name="l00158"></a>00158 <span class="comment">         * classification and timestamp</span>
+<a name="l00159"></a>00159 <span class="comment">         * of the alert */</span>
+<a name="l00160"></a><a class="code" href="struct__AI__snort__alert.html#a25661fa4e212c5e30af5e6a892985ec9">00160</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span>  <a class="code" href="struct__AI__snort__alert.html#a25661fa4e212c5e30af5e6a892985ec9">priority</a>;
+<a name="l00161"></a><a class="code" href="struct__AI__snort__alert.html#ac0902d7c756ec675fb06347ce4706135">00161</a>         <span class="keywordtype">char</span>            *<a class="code" href="struct__AI__snort__alert.html#ac0902d7c756ec675fb06347ce4706135">desc</a>;
+<a name="l00162"></a><a class="code" href="struct__AI__snort__alert.html#aa89585e14acb2c4e684a1552d322632f">00162</a>         <span class="keywordtype">char</span>            *<a class="code" href="struct__AI__snort__alert.html#aa89585e14acb2c4e684a1552d322632f">classification</a>;
+<a name="l00163"></a><a class="code" href="struct__AI__snort__alert.html#a10a67f60ca3da339a2104849a0b2ac19">00163</a>         time_t          <a class="code" href="struct__AI__snort__alert.html#a10a67f60ca3da339a2104849a0b2ac19">timestamp</a>;
+<a name="l00164"></a>00164 
+<a name="l00165"></a>00165         <span class="comment">/* IP header information */</span>
+<a name="l00166"></a><a class="code" href="struct__AI__snort__alert.html#a3f3c47f9baf3229d067504a85873b416">00166</a>         <a class="code" href="spp__ai_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>         <a class="code" href="struct__AI__snort__alert.html#a3f3c47f9baf3229d067504a85873b416">ip_tos</a>;
+<a name="l00167"></a><a class="code" href="struct__AI__snort__alert.html#ad3ffe99036513d5f33b94d22fb84f8f1">00167</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>        <a class="code" href="struct__AI__snort__alert.html#ad3ffe99036513d5f33b94d22fb84f8f1">ip_len</a>;
+<a name="l00168"></a><a class="code" href="struct__AI__snort__alert.html#a2fc673dec85a7b49dd16ac7c0bb1bb78">00168</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>        <a class="code" href="struct__AI__snort__alert.html#a2fc673dec85a7b49dd16ac7c0bb1bb78">ip_id</a>;
+<a name="l00169"></a><a class="code" href="struct__AI__snort__alert.html#a3c9bbe84ec696cd58668a45799a66600">00169</a>         <a class="code" href="spp__ai_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>         <a class="code" href="struct__AI__snort__alert.html#a3c9bbe84ec696cd58668a45799a66600">ip_ttl</a>;
+<a name="l00170"></a><a class="code" href="struct__AI__snort__alert.html#a5ea7b250ac1c472f3ab57565b6df2536">00170</a>         <a class="code" href="spp__ai_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>         <a class="code" href="struct__AI__snort__alert.html#a5ea7b250ac1c472f3ab57565b6df2536">ip_proto</a>;
+<a name="l00171"></a><a class="code" href="struct__AI__snort__alert.html#a194117c57a52933d16a97838562bb611">00171</a>         <a class="code" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a>        <a class="code" href="struct__AI__snort__alert.html#a194117c57a52933d16a97838562bb611">ip_src_addr</a>;
+<a name="l00172"></a><a class="code" href="struct__AI__snort__alert.html#a754ca683593c838e4032fa8c13b1512b">00172</a>         <a class="code" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a>        <a class="code" href="struct__AI__snort__alert.html#a754ca683593c838e4032fa8c13b1512b">ip_dst_addr</a>;
+<a name="l00173"></a>00173 
+<a name="l00174"></a>00174         <span class="comment">/* TCP header information */</span>
+<a name="l00175"></a><a class="code" href="struct__AI__snort__alert.html#a4d4cbdbd9675f4c43545547f55174cb7">00175</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>        <a class="code" href="struct__AI__snort__alert.html#a4d4cbdbd9675f4c43545547f55174cb7">tcp_src_port</a>;
+<a name="l00176"></a><a class="code" href="struct__AI__snort__alert.html#aaca31cb67d48ffc3bfd1227686d5f5a4">00176</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>        <a class="code" href="struct__AI__snort__alert.html#aaca31cb67d48ffc3bfd1227686d5f5a4">tcp_dst_port</a>;
+<a name="l00177"></a><a class="code" href="struct__AI__snort__alert.html#ad6edf59fccea55bf5f940bf36117020b">00177</a>         <a class="code" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a>        <a class="code" href="struct__AI__snort__alert.html#ad6edf59fccea55bf5f940bf36117020b">tcp_seq</a>;
+<a name="l00178"></a><a class="code" href="struct__AI__snort__alert.html#a8aac577224a4325ec50511c6d79b4b79">00178</a>         <a class="code" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a>        <a class="code" href="struct__AI__snort__alert.html#a8aac577224a4325ec50511c6d79b4b79">tcp_ack</a>;
+<a name="l00179"></a><a class="code" href="struct__AI__snort__alert.html#aa643f11db93b70242b57f0a04775e507">00179</a>         <a class="code" href="spp__ai_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a>         <a class="code" href="struct__AI__snort__alert.html#aa643f11db93b70242b57f0a04775e507">tcp_flags</a>;
+<a name="l00180"></a><a class="code" href="struct__AI__snort__alert.html#a1687fccc26bb211591db8b36ffec5348">00180</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>        <a class="code" href="struct__AI__snort__alert.html#a1687fccc26bb211591db8b36ffec5348">tcp_window</a>;
+<a name="l00181"></a><a class="code" href="struct__AI__snort__alert.html#ab7e0507050b8e475fea7a4b26c768857">00181</a>         <a class="code" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>        <a class="code" href="struct__AI__snort__alert.html#ab7e0507050b8e475fea7a4b26c768857">tcp_len</a>;
+<a name="l00182"></a>00182 
+<a name="l00183"></a>00183         <span class="comment">/* Reference to the TCP stream</span>
+<a name="l00184"></a>00184 <span class="comment">         * associated to the alert, if any */</span>
+<a name="l00185"></a><a class="code" href="struct__AI__snort__alert.html#a09dfe0a841fd3912ec78060d4547cb31">00185</a>         <span class="keyword">struct </span><a class="code" href="structpkt__info.html">pkt_info</a> *<a class="code" href="struct__AI__snort__alert.html#a09dfe0a841fd3912ec78060d4547cb31">stream</a>;
 <a name="l00186"></a>00186 
-<a name="l00187"></a>00187 <span class="keywordtype">void</span>*              <a class="code" href="group__stream.html#ga24b1131374e5059564b8a12380c4eb75" title="Thread called for cleaning up the hash table from the traffic streams older than a certain threshold...">AI_hashcleanup_thread</a> ( <span class="keywordtype">void</span>* );
-<a name="l00188"></a>00188 <span class="keywordtype">void</span>*              <a class="code" href="group__alert__parser.html#ga5aab8d9bdf0e92a51731442fd787f61f" title="Thread for parsing Snort&amp;#39;s alert file.">AI_file_alertparser_thread</a> ( <span class="keywordtype">void</span>* );
-<a name="l00189"></a>00189 
-<a name="l00190"></a>00190 <span class="preprocessor">#ifdef  ENABLE_DB</span>
-<a name="l00191"></a>00191 <span class="preprocessor"></span><span class="keywordtype">void</span>*              AI_db_alertparser_thread ( <span class="keywordtype">void</span>* );
-<a name="l00192"></a>00192 <a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a>*    AI_db_get_alerts ( <span class="keywordtype">void</span> );
-<a name="l00193"></a>00193 <span class="keywordtype">void</span>               AI_db_free_alerts ( <a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a> *node );
-<a name="l00194"></a>00194 <span class="preprocessor">#endif</span>
-<a name="l00195"></a>00195 <span class="preprocessor"></span>
-<a name="l00196"></a>00196 <span class="keywordtype">void</span>               <a class="code" href="group__stream.html#ga7d71c5645b9baff7b6c4b9a181bf80c5" title="Function called for appending a new packet to the hash table, creating a new stream or appending it t...">AI_pkt_enqueue</a> ( SFSnortPacket* );
-<a name="l00197"></a>00197 <span class="keywordtype">void</span>               <a class="code" href="group__stream.html#ga8749989cee2ac05a7de058faac280c02" title="Set the flag &amp;quot;observed&amp;quot; on a stream associated to a security alert, so that it won&amp;#39;t be...">AI_set_stream_observed</a> ( <span class="keyword">struct</span> <a class="code" href="structpkt__key.html">pkt_key</a> key );
-<a name="l00198"></a>00198 <span class="keywordtype">void</span>               <a class="code" href="group__cluster.html#ga1445818b37483f78cc3fb2890155842c" title="Build the clustering hierarchy trees.">AI_hierarchies_build</a> ( <a class="code" href="structAI__config.html">AI_config</a>*, <a class="code" href="struct__hierarchy__node.html">hierarchy_node</a>**, <span class="keywordtype">int</span> );
-<a name="l00199"></a>00199 
-<a name="l00200"></a>00200 <span class="keyword">struct </span><a class="code" href="structpkt__info.html">pkt_info</a>*   <a class="code" href="group__stream.html#ga2efedcabbfd12c5345f0c93a3dd4735c" title="Get a TCP stream by key.">AI_get_stream_by_key</a> ( <span class="keyword">struct</span> <a class="code" href="structpkt__key.html">pkt_key</a> );
-<a name="l00201"></a>00201 
-<a name="l00202"></a>00202 <a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a>*    <a class="code" href="group__alert__parser.html#ga99474495643197b3075ac22ec6f6c70f" title="Return the alerts parsed so far as a linked list.">AI_get_alerts</a> ( <span class="keywordtype">void</span> );
-<a name="l00203"></a>00203 
-<a name="l00204"></a>00204 <span class="keywordtype">void</span>               <a class="code" href="group__alert__parser.html#ga270e86669a0aa64a8da37bc16cda645b" title="Deallocate the memory of a log alert linked list.">AI_free_alerts</a> ( <a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a> *node );
-<a name="l00205"></a>00205 
-<a name="l00207"></a><a class="code" href="spp__ai_8h.html#ab184b676360ce03035801284a2bd1ea7">00207</a> <a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a>* (*get_alerts)(void);
-<a name="l00208"></a>00208 
-<a name="l00209"></a>00209 <span class="preprocessor">#endif  </span><span class="comment">/* _SPP_AI_H */</span>
-<a name="l00210"></a>00210 
+<a name="l00187"></a>00187         <span class="comment">/* Pointer to the next alert in</span>
+<a name="l00188"></a>00188 <span class="comment">         * the log, if any*/</span>
+<a name="l00189"></a><a class="code" href="struct__AI__snort__alert.html#aa8336d4b3359015ed8ea312ca1fd1173">00189</a>         <span class="keyword">struct </span><a class="code" href="struct__AI__snort__alert.html">_AI_snort_alert</a> *<a class="code" href="struct__AI__snort__alert.html#aa8336d4b3359015ed8ea312ca1fd1173">next</a>;
+<a name="l00190"></a>00190 
+<a name="l00191"></a>00191         <span class="comment">/* Hierarchies for addresses and ports,</span>
+<a name="l00192"></a>00192 <span class="comment">         * if the clustering algorithm is used */</span>
+<a name="l00193"></a><a class="code" href="struct__AI__snort__alert.html#ac53765584296ead1328eabfaba8a3aed">00193</a>         <a class="code" href="struct__hierarchy__node.html">hierarchy_node</a>  *<a class="code" href="struct__AI__snort__alert.html#ac53765584296ead1328eabfaba8a3aed">h_node</a>[CLUSTER_TYPES];
+<a name="l00194"></a>00194 
+<a name="l00195"></a>00195         <span class="comment">/* If the clustering algorithm is used,</span>
+<a name="l00196"></a>00196 <span class="comment">         * we also count how many alerts this</span>
+<a name="l00197"></a>00197 <span class="comment">         * single alert groups */</span>
+<a name="l00198"></a><a class="code" href="struct__AI__snort__alert.html#a285aff12d6bac03c316ccc5305d28e53">00198</a>         <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span>    <a class="code" href="struct__AI__snort__alert.html#a285aff12d6bac03c316ccc5305d28e53">grouped_alarms_count</a>;
+<a name="l00199"></a>00199 } <a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a>;
+<a name="l00200"></a>00200 
+<a name="l00201"></a>00201 <span class="keywordtype">int</span>                <a class="code" href="group__regex.html#ga35f57c052a7de1ded54b67a1f7819791" title="Check if a string matches a regular expression.">preg_match</a> ( <span class="keyword">const</span> <span class="keywordtype">char</span>*, <span class="keywordtype">char</span>*, <span class="keywordtype">char</span>***, <span class="keywordtype">int</span>* );
+<a name="l00202"></a>00202 
+<a name="l00203"></a>00203 <span class="keywordtype">void</span>*              <a class="code" href="group__stream.html#ga24b1131374e5059564b8a12380c4eb75" title="Thread called for cleaning up the hash table from the traffic streams older than a certain threshold...">AI_hashcleanup_thread</a> ( <span class="keywordtype">void</span>* );
+<a name="l00204"></a>00204 <span class="keywordtype">void</span>*              <a class="code" href="group__alert__parser.html#ga5aab8d9bdf0e92a51731442fd787f61f" title="Thread for parsing Snort&amp;#39;s alert file.">AI_file_alertparser_thread</a> ( <span class="keywordtype">void</span>* );
+<a name="l00205"></a>00205 <span class="keywordtype">void</span>*              <a class="code" href="group__correlation.html#ga939353a4e15de7a8f4145ab986f584be" title="Thread for correlating clustered alerts.">AI_alert_correlation_thread</a> ( <span class="keywordtype">void</span>* );
+<a name="l00206"></a>00206 
+<a name="l00207"></a>00207 <span class="preprocessor">#ifdef  ENABLE_DB</span>
+<a name="l00208"></a>00208 <span class="preprocessor"></span><a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a>*    AI_db_get_alerts ( <span class="keywordtype">void</span> );
+<a name="l00209"></a>00209 <span class="keywordtype">void</span>               AI_db_free_alerts ( <a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a> *node );
+<a name="l00210"></a>00210 <span class="keywordtype">void</span>*              AI_db_alertparser_thread ( <span class="keywordtype">void</span>* );
+<a name="l00211"></a>00211 <span class="preprocessor">#endif</span>
+<a name="l00212"></a>00212 <span class="preprocessor"></span>
+<a name="l00213"></a>00213 <span class="keywordtype">void</span>               <a class="code" href="group__stream.html#ga7d71c5645b9baff7b6c4b9a181bf80c5" title="Function called for appending a new packet to the hash table, creating a new stream or appending it t...">AI_pkt_enqueue</a> ( SFSnortPacket* );
+<a name="l00214"></a>00214 <span class="keywordtype">void</span>               <a class="code" href="group__stream.html#ga8749989cee2ac05a7de058faac280c02" title="Set the flag &amp;quot;observed&amp;quot; on a stream associated to a security alert, so that it won&amp;#39;t be...">AI_set_stream_observed</a> ( <span class="keyword">struct</span> <a class="code" href="structpkt__key.html">pkt_key</a> key );
+<a name="l00215"></a>00215 <span class="keywordtype">void</span>               <a class="code" href="group__cluster.html#ga1445818b37483f78cc3fb2890155842c" title="Build the clustering hierarchy trees.">AI_hierarchies_build</a> ( <a class="code" href="structAI__config.html">AI_config</a>*, <a class="code" href="struct__hierarchy__node.html">hierarchy_node</a>**, <span class="keywordtype">int</span> );
+<a name="l00216"></a>00216 <span class="keywordtype">void</span>               <a class="code" href="group__alert__parser.html#ga270e86669a0aa64a8da37bc16cda645b" title="Deallocate the memory of a log alert linked list.">AI_free_alerts</a> ( <a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a> *node );
+<a name="l00217"></a>00217 
+<a name="l00218"></a>00218 <span class="keyword">struct </span><a class="code" href="structpkt__info.html">pkt_info</a>*   <a class="code" href="group__stream.html#ga2efedcabbfd12c5345f0c93a3dd4735c" title="Get a TCP stream by key.">AI_get_stream_by_key</a> ( <span class="keyword">struct</span> <a class="code" href="structpkt__key.html">pkt_key</a> );
+<a name="l00219"></a>00219 <a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a>*    <a class="code" href="group__alert__parser.html#ga99474495643197b3075ac22ec6f6c70f" title="Return the alerts parsed so far as a linked list.">AI_get_alerts</a> ( <span class="keywordtype">void</span> );
+<a name="l00220"></a>00220 <a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a>*    <a class="code" href="group__cluster.html#ga2553c678eeb83282c230d649a0e8fcd4" title="Return the alerts parsed so far as a linked list.">AI_get_clustered_alerts</a> ( <span class="keywordtype">void</span> );
+<a name="l00221"></a>00221 
+<a name="l00223"></a><a class="code" href="spp__ai_8h.html#ab184b676360ce03035801284a2bd1ea7">00223</a> <a class="code" href="struct__AI__snort__alert.html">AI_snort_alert</a>* (*get_alerts)(void);
+<a name="l00224"></a>00224 
+<a name="l00225"></a>00225 <span class="preprocessor">#endif  </span><span class="comment">/* _SPP_AI_H */</span>
+<a name="l00226"></a>00226 
 </pre></div></div>
 </div>
 <!--- window showing the filter options -->
@@ -248,7 +260,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Sun Sep 5 2010 23:53:47 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Fri Sep 10 2010 02:56:16 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>
