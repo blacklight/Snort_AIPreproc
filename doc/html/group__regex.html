@@ -51,6 +51,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__regex.html#ga35f57c052a7de1ded54b67a1f7819791">preg_match</a> (const char *expr, char *str, char ***matches, int *nmatches)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Check if a string matches a regular expression.  <a href="#ga35f57c052a7de1ded54b67a1f7819791"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__regex.html#ga736ba1abdc4938cbb1bf5861e7dbfd50">str_replace</a> (char *str, char *orig, char *rep)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Replace the content of 'orig' in 'str' with 'rep'.  <a href="#ga736ba1abdc4938cbb1bf5861e7dbfd50"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__regex.html#gaff6c55cd04fc08dd582e244590dc25a4">str_replace_all</a> (char *str, char *orig, char *rep)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Replace all of the occurrences of 'orig' in 'str' with 'rep'.  <a href="#gaff6c55cd04fc08dd582e244590dc25a4"></a><br/></td></tr>
 </table>
 <hr/><h2>Function Documentation</h2>
 <a class="anchor" id="ga35f57c052a7de1ded54b67a1f7819791"></a><!-- doxytag: member="regex.c::preg_match" ref="ga35f57c052a7de1ded54b67a1f7819791" args="(const char *expr, char *str, char ***matches, int *nmatches)" -->
@@ -104,6 +108,94 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ga736ba1abdc4938cbb1bf5861e7dbfd50"></a><!-- doxytag: member="regex.c::str_replace" ref="ga736ba1abdc4938cbb1bf5861e7dbfd50" args="(char *str, char *orig, char *rep)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* str_replace </td>
+          <td>(</td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>orig</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>rep</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Replace the content of 'orig' in 'str' with 'rep'. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>str</em>&nbsp;</td><td>String to work on </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>orig</em>&nbsp;</td><td>String to be replaced </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>rep</em>&nbsp;</td><td>Replacement for 'orig' </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>The string with the replacement </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="gaff6c55cd04fc08dd582e244590dc25a4"></a><!-- doxytag: member="regex.c::str_replace_all" ref="gaff6c55cd04fc08dd582e244590dc25a4" args="(char *str, char *orig, char *rep)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* str_replace_all </td>
+          <td>(</td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>orig</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&nbsp;</td>
+          <td class="paramname"> <em>rep</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Replace all of the occurrences of 'orig' in 'str' with 'rep'. </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>str</em>&nbsp;</td><td>String to work on </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>orig</em>&nbsp;</td><td>String to be replaced </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>rep</em>&nbsp;</td><td>Replacement for 'orig' </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>The string with the replacement </dd></dl>
+
+</div>
+</div>
 </div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
@@ -119,7 +211,7 @@ Functions</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Fri Sep 10 2010 02:56:16 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Sat Sep 11 2010 12:45:18 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

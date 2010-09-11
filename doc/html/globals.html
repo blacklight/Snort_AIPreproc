@@ -67,6 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="#index_g"><span>g</span></a></li>
       <li><a href="#index_h"><span>h</span></a></li>
       <li><a href="#index_i"><span>i</span></a></li>
+      <li><a href="#index_l"><span>l</span></a></li>
       <li><a href="#index_m"><span>m</span></a></li>
       <li><a href="#index_n"><span>n</span></a></li>
       <li><a href="#index_p"><span>p</span></a></li>
@@ -92,6 +93,9 @@ Here is a list of all functions, variables, defines, enums, and typedefs with li
 <li>_AI_copy_clustered_alerts()
 : <a class="el" href="group__cluster.html#gab4c8ab92691e85a6f0ac4abb122712fd">cluster.c</a>
 </li>
+<li>_AI_correlation_coefficient()
+: <a class="el" href="group__correlation.html#ga130e82017fc0abcb76b1a7740ae2f4df">correlation.c</a>
+</li>
 <li>_AI_equal_alarms()
 : <a class="el" href="group__cluster.html#ga0f91c8bfc37a3975f5c26b19fd6c5cba">cluster.c</a>
 </li>
@@ -99,7 +103,10 @@ Here is a list of all functions, variables, defines, enums, and typedefs with li
 : <a class="el" href="group__cluster.html#ga6ddddcd505b1f763c339e81fc143e079">cluster.c</a>
 </li>
 <li>_AI_hyperalert_from_XML()
-: <a class="el" href="group__correlation.html#gacb46174cec5a2cce0a9bb1ca2b0f6850">correlation.c</a>
+: <a class="el" href="group__correlation.html#ga929e5c17fdb247a998d83ed6a4ae5a65">correlation.c</a>
+</li>
+<li>_AI_macro_subst()
+: <a class="el" href="group__correlation.html#ga0d094eae1d014d89a2de21263fa747da">correlation.c</a>
 </li>
 <li>_AI_merge_alerts()
 : <a class="el" href="group__cluster.html#ga8ce8e5a5d8954672297fa2dedb380dcd">cluster.c</a>
@@ -179,8 +186,8 @@ Here is a list of all functions, variables, defines, enums, and typedefs with li
 , <a class="el" href="group__stream.html#ga8749989cee2ac05a7de058faac280c02">stream.c</a>
 </li>
 <li>AI_setup()
-: <a class="el" href="group__spp__ai.html#ga1b9ebb5c719c7d9426ddfc1f3da36570">spp_ai.c</a>
-, <a class="el" href="group__spp__ai.html#ga1b9ebb5c719c7d9426ddfc1f3da36570">sf_preproc_info.h</a>
+: <a class="el" href="group__spp__ai.html#ga1b9ebb5c719c7d9426ddfc1f3da36570">sf_preproc_info.h</a>
+, <a class="el" href="group__spp__ai.html#ga1b9ebb5c719c7d9426ddfc1f3da36570">spp_ai.c</a>
 </li>
 <li>AI_snort_alert
 : <a class="el" href="spp__ai_8h.html#a982be90e72362e88d09f28336c9a1897">spp_ai.h</a>
@@ -196,6 +203,7 @@ Here is a list of all functions, variables, defines, enums, and typedefs with li
 </li>
 <li>alerts
 : <a class="el" href="alert__parser_8c.html#ae837fc04e61c0eb052f997c54b4fd9fe">alert_parser.c</a>
+, <a class="el" href="group__correlation.html#gae837fc04e61c0eb052f997c54b4fd9fe">correlation.c</a>
 </li>
 </ul>
 
@@ -219,6 +227,9 @@ Here is a list of all functions, variables, defines, enums, and typedefs with li
 </li>
 <li>conf
 : <a class="el" href="group__correlation.html#gaad7a982b6016390e7cd1164bd7db8bca">correlation.c</a>
+</li>
+<li>correlation_table
+: <a class="el" href="group__correlation.html#ga701934a296c51f2397d24e8bf4a9f021">correlation.c</a>
 </li>
 </ul>
 
@@ -295,7 +306,7 @@ Here is a list of all functions, variables, defines, enums, and typedefs with li
 : <a class="el" href="spp__ai_8h.html#a466391129919ef12366d311d501552fa">spp_ai.h</a>
 </li>
 <li>hyperalerts
-: <a class="el" href="group__correlation.html#ga343192ed5e938536f3dc150e51f8acf6">correlation.c</a>
+: <a class="el" href="group__correlation.html#gae56c79aa018caaeebeeb709a9e51c9c2">correlation.c</a>
 </li>
 </ul>
 
@@ -312,6 +323,15 @@ Here is a list of all functions, variables, defines, enums, and typedefs with li
 </li>
 <li>inSnortIdTag
 : <a class="el" href="group__correlation.html#gga06fc87d81c62e9abb8790b6e5713c55ba52d913c46f650f89a5da3ff4bfb7a45d">correlation.c</a>
+</li>
+</ul>
+
+
+<h3><a class="anchor" id="index_l"></a>- l -</h3><ul>
+<li>lock_flag
+: <a class="el" href="alert__parser_8c.html#afebc81c042a632dc987e113b7f390274">alert_parser.c</a>
+, <a class="el" href="group__correlation.html#gafebc81c042a632dc987e113b7f390274">correlation.c</a>
+, <a class="el" href="group__cluster.html#gafebc81c042a632dc987e113b7f390274">cluster.c</a>
 </li>
 </ul>
 
@@ -357,6 +377,14 @@ Here is a list of all functions, variables, defines, enums, and typedefs with li
 <li>start_time
 : <a class="el" href="stream_8c.html#a0597864b078ff448f28432db86950309">stream.c</a>
 </li>
+<li>str_replace()
+: <a class="el" href="group__regex.html#ga736ba1abdc4938cbb1bf5861e7dbfd50">spp_ai.h</a>
+, <a class="el" href="group__regex.html#ga736ba1abdc4938cbb1bf5861e7dbfd50">regex.c</a>
+</li>
+<li>str_replace_all()
+: <a class="el" href="group__regex.html#gaff6c55cd04fc08dd582e244590dc25a4">regex.c</a>
+, <a class="el" href="group__regex.html#gaff6c55cd04fc08dd582e244590dc25a4">spp_ai.h</a>
+</li>
 </ul>
 
 
@@ -396,7 +424,7 @@ Here is a list of all functions, variables, defines, enums, and typedefs with li
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Fri Sep 10 2010 02:56:16 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Sat Sep 11 2010 12:45:18 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

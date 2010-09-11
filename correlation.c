@@ -34,9 +34,62 @@
 /** Enumeration for the types of XML tags */
 enum  { inHyperAlert, inSnortIdTag, inPreTag, inPostTag, TAG_NUM };
 
-PRIVATE AI_hyperalert_info  *hyperalerts = NULL;
-PRIVATE AI_config           *conf        = NULL;
-PRIVATE AI_snort_alert      *alerts      = NULL;
+/** Struct representing the correlation between all the couples of alerts */
+typedef struct  {
+	/** First alert */
+	AI_snort_alert *a;
+
+	/** Second alert */
+	AI_snort_alert *b;
+
+	/** Correlation coefficient */
+	double         correlation;
+
+	/** Make the struct 'hashable' */
+	UT_hash_handle hh;
+} AI_alert_correlation;
+
+PRIVATE AI_hyperalert_info   *hyperalerts       = NULL;
+PRIVATE AI_config            *conf              = NULL;
+PRIVATE AI_snort_alert       *alerts            = NULL;
+PRIVATE AI_alert_correlation *correlation_table = NULL;
+PRIVATE BOOL                 lock_flag          = false;
+
+/**
+ * \brief  Compute the correlation coefficient between two alerts, as #INTERSECTION(pre(B), post(A) / #UNION(pre(B), post(A))
+ * \param  a 	Alert a
+ * \param  b   Alert b
+ * \return The correlation coefficient between A and B as coefficient in [0,1]
+ */
+
+double
+_AI_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
+{
+	unsigned int i, j,
+			   n_intersection = 0,
+			   n_union = 0;
+
+	if ( !a->hyperalert || !b->hyperalert )
+		return 0.0;
+
+	if ( a->hyperalert->n_postconds == 0 || b->hyperalert->n_preconds == 0 )
+		return 0.0;
+
+	n_union = a->hyperalert->n_postconds + b->hyperalert->n_preconds;
+
+	for ( i=0; i < a->hyperalert->n_postconds; i++ )
+	{
+		for ( j=0; j < b->hyperalert->n_preconds; j++ )
+		{
+			if ( !strcasecmp ( a->hyperalert->postconds[i], b->hyperalert->preconds[j] ))
+			{
+				n_intersection += 2;
+			}
+		}
+	}
+
+	return (double) ((double) n_intersection / (double) n_union );
+}		/* -----  end of function _AI_correlation_coefficient  ----- */
 
 /**
  * \brief  Substitute the macros in hyperalert pre-conditions and post-conditions with their associated values
@@ -300,9 +353,13 @@ AI_alert_correlation_thread ( void *arg )
 	int                    i;
 	struct stat            st;
 	AI_hyperalert_key      key;
-	AI_hyperalert_info     *hyp   = NULL;
-	AI_snort_alert         *tmp   = NULL;
-	FILE *fp;
+	AI_hyperalert_info     *hyp             = NULL;
+	AI_snort_alert         *alert_iterator  = NULL,
+					   *alert_iterator2 = NULL;
+
+	FILE *fp = fopen ( "/home/blacklight/LOG", "w" );
+	fclose ( fp );
+
 	conf = (AI_config*) arg;
 
 	while ( 1 )
@@ -317,15 +374,27 @@ AI_alert_correlation_thread ( void *arg )
 			return ( void* ) 0;
 		}
 
-		if ( !( alerts = AI_get_clustered_alerts() ))
-			continue;
+		/* Set the lock flag to true, and keep it this way until I've done with generating the new hyperalerts */
+		lock_flag = true;
 
-		for ( tmp = alerts; tmp; tmp = tmp->next )
+		if ( alerts )
+		{
+			AI_free_alerts ( alerts );
+			alerts = NULL;
+		}
+
+		if ( !( alerts = AI_get_clustered_alerts() ))
+		{
+			lock_flag = false;
+			continue;
+		}
+
+		for ( alert_iterator = alerts; alert_iterator; alert_iterator = alert_iterator->next )
 		{
 			/* Check if my hash table of hyperalerts already contains info about this alert */
-			key.gid = tmp->gid;
-			key.sid = tmp->sid;
-			key.rev = tmp->rev;
+			key.gid = alert_iterator->gid;
+			key.sid = alert_iterator->sid;
+			key.rev = alert_iterator->rev;
 			HASH_FIND ( hh, hyperalerts, &key, sizeof ( AI_hyperalert_key ), hyp );
 
 			/* If not, try to read info from the XML file, if it exists */
@@ -340,34 +409,43 @@ AI_alert_correlation_thread ( void *arg )
 			}
 
 			/* Fill the hyper alert info for the current alert */
-			if ( !( tmp->hyperalert = ( AI_hyperalert_info* ) malloc ( sizeof ( AI_hyperalert_info ))))
+			if ( !( alert_iterator->hyperalert = ( AI_hyperalert_info* ) malloc ( sizeof ( AI_hyperalert_info ))))
 				_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
 			
-			tmp->hyperalert->key         = hyp->key;
-			tmp->hyperalert->n_preconds  = hyp->n_preconds;
-			tmp->hyperalert->n_postconds = hyp->n_postconds;
+			alert_iterator->hyperalert->key         = hyp->key;
+			alert_iterator->hyperalert->n_preconds  = hyp->n_preconds;
+			alert_iterator->hyperalert->n_postconds = hyp->n_postconds;
 			
-			if ( !( tmp->hyperalert->preconds = ( char** ) malloc ( tmp->hyperalert->n_preconds * sizeof ( char* ))))
+			if ( !( alert_iterator->hyperalert->preconds = ( char** ) malloc ( alert_iterator->hyperalert->n_preconds * sizeof ( char* ))))
 				_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
 			
-			for ( i=0; i < tmp->hyperalert->n_preconds; i++ )
-				tmp->hyperalert->preconds[i] = strdup ( hyp->preconds[i] );
+			for ( i=0; i < alert_iterator->hyperalert->n_preconds; i++ )
+				alert_iterator->hyperalert->preconds[i] = strdup ( hyp->preconds[i] );
 
-			if ( !( tmp->hyperalert->postconds = ( char** ) malloc ( tmp->hyperalert->n_postconds * sizeof ( char* ))))
+			if ( !( alert_iterator->hyperalert->postconds = ( char** ) malloc ( alert_iterator->hyperalert->n_postconds * sizeof ( char* ))))
 				_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
 			
-			for ( i=0; i < tmp->hyperalert->n_postconds; i++ )
-				tmp->hyperalert->postconds[i] = strdup ( hyp->postconds[i] );
+			for ( i=0; i < alert_iterator->hyperalert->n_postconds; i++ )
+				alert_iterator->hyperalert->postconds[i] = strdup ( hyp->postconds[i] );
 
-			_AI_macro_subst ( &tmp );
-
-			fp = fopen ( "/home/blacklight/LOG", "a" );
-			fprintf ( fp, "pre: %s\n", (tmp->hyperalert->n_preconds > 0) ? tmp->hyperalert->preconds[0] : "()" );
-			fprintf ( fp, "post: %s\n", (tmp->hyperalert->n_postconds > 0) ? tmp->hyperalert->postconds[0] : "()" );
-			fclose ( fp );
+			_AI_macro_subst ( &alert_iterator );
 		}
 
-		AI_free_alerts ( alerts );
+		for ( alert_iterator = alerts; alert_iterator; alert_iterator = alert_iterator->next )
+		{
+			for ( alert_iterator2 = alerts; alert_iterator2; alert_iterator2 = alert_iterator2->next )
+			{
+				if ( alert_iterator != alert_iterator2 )
+				{
+					fp = fopen ( "/home/blacklight/LOG", "a" );
+					fprintf ( fp, "alert1: (%s), alert2: (%s)\n", alert_iterator->desc, alert_iterator2->desc );
+					fprintf ( fp, "correlation (alert1, alert2): %f\n\n", _AI_correlation_coefficient ( alert_iterator, alert_iterator2 ));
+					fclose ( fp );
+				}
+			}
+		}
+
+		lock_flag = false;
 	}
 
 	pthread_exit (( void* ) 0 );

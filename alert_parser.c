@@ -29,6 +29,7 @@
 
 PRIVATE AI_snort_alert *alerts   = NULL;
 PRIVATE FILE           *alert_fp = NULL;
+PRIVATE BOOL           lock_flag = false;
 
 /** \defgroup alert_parser Parse the alert log into binary structures
  * @{ */
@@ -104,6 +105,9 @@ AI_file_alertparser_thread ( void* arg )
 		read ( ifd, line, sizeof(line) );
 		inotify_rm_watch ( ifd, wd );
 		close ( ifd );
+
+		/* Set the lock flag to true until it's done with alert parsing */
+		lock_flag = true;
 
 		while ( !feof ( alert_fp ))
 		{
@@ -300,6 +304,8 @@ AI_file_alertparser_thread ( void* arg )
 				matches = NULL;
 			}
 		}
+
+		lock_flag = false;
 	}
 
 	pthread_exit ((void*) 0 );
@@ -345,6 +351,7 @@ _AI_copy_alerts ( AI_snort_alert *node )
 AI_snort_alert*
 AI_get_alerts ()
 {
+	while ( lock_flag );
 	return _AI_copy_alerts ( alerts );
 }		/* -----  end of function AI_get_alerts  ----- */
 

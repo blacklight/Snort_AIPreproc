@@ -58,6 +58,8 @@ struct \hyperlink{struct__AI__snort__alert}{\_\-AI\_\-snort\_\-alert} $\ast$ \hy
 \hyperlink{struct__hierarchy__node}{hierarchy\_\-node} $\ast$ \hyperlink{struct__AI__snort__alert_ac53765584296ead1328eabfaba8a3aed}{h\_\-node} \mbox{[}CLUSTER\_\-TYPES\mbox{]}
 \item 
 unsigned int \hyperlink{struct__AI__snort__alert_a285aff12d6bac03c316ccc5305d28e53}{grouped\_\-alarms\_\-count}
+\item 
+\hyperlink{structAI__hyperalert__info}{AI\_\-hyperalert\_\-info} $\ast$ \hyperlink{struct__AI__snort__alert_ac101de15b4f9451f235b82122f77b62a}{hyperalert}
 \end{DoxyCompactItemize}
 
 
@@ -85,12 +87,17 @@ Data type for Snort alerts
 \index{grouped\_\-alarms\_\-count@{grouped\_\-alarms\_\-count}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
 \subsubsection[{grouped\_\-alarms\_\-count}]{\setlength{\rightskip}{0pt plus 5cm}unsigned int {\bf \_\-AI\_\-snort\_\-alert::grouped\_\-alarms\_\-count}}}
 \label{struct__AI__snort__alert_a285aff12d6bac03c316ccc5305d28e53}
-\hypertarget{struct__AI__snort__alert_ac53765584296ead1328eabfaba8a3aed}{
+If the clustering algorithm is used, we also count how many alerts this single alert groups \hypertarget{struct__AI__snort__alert_ac53765584296ead1328eabfaba8a3aed}{
 \index{\_\-AI\_\-snort\_\-alert@{\_\-AI\_\-snort\_\-alert}!h\_\-node@{h\_\-node}}
 \index{h\_\-node@{h\_\-node}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
 \subsubsection[{h\_\-node}]{\setlength{\rightskip}{0pt plus 5cm}{\bf hierarchy\_\-node}$\ast$ {\bf \_\-AI\_\-snort\_\-alert::h\_\-node}\mbox{[}CLUSTER\_\-TYPES\mbox{]}}}
 \label{struct__AI__snort__alert_ac53765584296ead1328eabfaba8a3aed}
-\hypertarget{struct__AI__snort__alert_a754ca683593c838e4032fa8c13b1512b}{
+Hierarchies for addresses and ports, if the clustering algorithm is used \hypertarget{struct__AI__snort__alert_ac101de15b4f9451f235b82122f77b62a}{
+\index{\_\-AI\_\-snort\_\-alert@{\_\-AI\_\-snort\_\-alert}!hyperalert@{hyperalert}}
+\index{hyperalert@{hyperalert}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
+\subsubsection[{hyperalert}]{\setlength{\rightskip}{0pt plus 5cm}{\bf AI\_\-hyperalert\_\-info}$\ast$ {\bf \_\-AI\_\-snort\_\-alert::hyperalert}}}
+\label{struct__AI__snort__alert_ac101de15b4f9451f235b82122f77b62a}
+Hyperalert information, pre-\/conditions and post-\/conditions \hypertarget{struct__AI__snort__alert_a754ca683593c838e4032fa8c13b1512b}{
 \index{\_\-AI\_\-snort\_\-alert@{\_\-AI\_\-snort\_\-alert}!ip\_\-dst\_\-addr@{ip\_\-dst\_\-addr}}
 \index{ip\_\-dst\_\-addr@{ip\_\-dst\_\-addr}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
 \subsubsection[{ip\_\-dst\_\-addr}]{\setlength{\rightskip}{0pt plus 5cm}{\bf uint32\_\-t} {\bf \_\-AI\_\-snort\_\-alert::ip\_\-dst\_\-addr}}}
@@ -130,7 +137,7 @@ Data type for Snort alerts
 \index{next@{next}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
 \subsubsection[{next}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf \_\-AI\_\-snort\_\-alert}$\ast$ {\bf \_\-AI\_\-snort\_\-alert::next}}}
 \label{struct__AI__snort__alert_aa8336d4b3359015ed8ea312ca1fd1173}
-\hypertarget{struct__AI__snort__alert_a25661fa4e212c5e30af5e6a892985ec9}{
+Pointer to the next alert in the log, if any \hypertarget{struct__AI__snort__alert_a25661fa4e212c5e30af5e6a892985ec9}{
 \index{\_\-AI\_\-snort\_\-alert@{\_\-AI\_\-snort\_\-alert}!priority@{priority}}
 \index{priority@{priority}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
 \subsubsection[{priority}]{\setlength{\rightskip}{0pt plus 5cm}unsigned short {\bf \_\-AI\_\-snort\_\-alert::priority}}}
@@ -150,7 +157,7 @@ Data type for Snort alerts
 \index{stream@{stream}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
 \subsubsection[{stream}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf pkt\_\-info}$\ast$ {\bf \_\-AI\_\-snort\_\-alert::stream}}}
 \label{struct__AI__snort__alert_a09dfe0a841fd3912ec78060d4547cb31}
-\hypertarget{struct__AI__snort__alert_a8aac577224a4325ec50511c6d79b4b79}{
+Reference to the TCP stream associated to the alert, if any \hypertarget{struct__AI__snort__alert_a8aac577224a4325ec50511c6d79b4b79}{
 \index{\_\-AI\_\-snort\_\-alert@{\_\-AI\_\-snort\_\-alert}!tcp\_\-ack@{tcp\_\-ack}}
 \index{tcp\_\-ack@{tcp\_\-ack}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
 \subsubsection[{tcp\_\-ack}]{\setlength{\rightskip}{0pt plus 5cm}{\bf uint32\_\-t} {\bf \_\-AI\_\-snort\_\-alert::tcp\_\-ack}}}

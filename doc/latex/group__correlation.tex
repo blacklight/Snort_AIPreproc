@@ -5,9 +5,7 @@
 \subsection*{Data Structures}
 \begin{DoxyCompactItemize}
 \item 
-struct \hyperlink{structhyperalert__key}{hyperalert\_\-key}
-\item 
-struct \hyperlink{structhyperalert}{hyperalert}
+struct \hyperlink{structAI__alert__correlation}{AI\_\-alert\_\-correlation}
 \end{DoxyCompactItemize}
 \subsection*{Enumerations}
 \begin{DoxyCompactItemize}
@@ -24,16 +22,26 @@ enum \{ \par
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-PRIVATE \hyperlink{structhyperalert}{hyperalert} $\ast$ \hyperlink{group__correlation_gacb46174cec5a2cce0a9bb1ca2b0f6850}{\_\-AI\_\-hyperalert\_\-from\_\-XML} (\hyperlink{structhyperalert__key}{hyperalert\_\-key} key)
+double \hyperlink{group__correlation_ga130e82017fc0abcb76b1a7740ae2f4df}{\_\-AI\_\-correlation\_\-coefficient} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$a, \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$b)
+\begin{DoxyCompactList}\small\item\em Compute the correlation coefficient between two alerts, as INTERSECTION(pre(B), post(A) / UNION(pre(B), post(A)). \item\end{DoxyCompactList}\item 
+void \hyperlink{group__correlation_ga0d094eae1d014d89a2de21263fa747da}{\_\-AI\_\-macro\_\-subst} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$$\ast$alert)
+\begin{DoxyCompactList}\small\item\em Substitute the macros in hyperalert pre-\/conditions and post-\/conditions with their associated values. \item\end{DoxyCompactList}\item 
+PRIVATE \hyperlink{structAI__hyperalert__info}{AI\_\-hyperalert\_\-info} $\ast$ \hyperlink{group__correlation_ga929e5c17fdb247a998d83ed6a4ae5a65}{\_\-AI\_\-hyperalert\_\-from\_\-XML} (\hyperlink{structAI__hyperalert__key}{AI\_\-hyperalert\_\-key} key)
 \begin{DoxyCompactList}\small\item\em Parse info about a hyperalert from a correlation XML file, if it exists. \item\end{DoxyCompactList}\item 
 void $\ast$ \hyperlink{group__correlation_ga939353a4e15de7a8f4145ab986f584be}{AI\_\-alert\_\-correlation\_\-thread} (void $\ast$arg)
 \begin{DoxyCompactList}\small\item\em Thread for correlating clustered alerts. \item\end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Variables}
 \begin{DoxyCompactItemize}
 \item 
-PRIVATE \hyperlink{structhyperalert}{hyperalert} $\ast$ \hyperlink{group__correlation_ga343192ed5e938536f3dc150e51f8acf6}{hyperalerts} = NULL
+PRIVATE \hyperlink{structAI__hyperalert__info}{AI\_\-hyperalert\_\-info} $\ast$ \hyperlink{group__correlation_gae56c79aa018caaeebeeb709a9e51c9c2}{hyperalerts} = NULL
 \item 
 PRIVATE \hyperlink{structAI__config}{AI\_\-config} $\ast$ \hyperlink{group__correlation_gaad7a982b6016390e7cd1164bd7db8bca}{conf} = NULL
+\item 
+PRIVATE \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$ \hyperlink{group__correlation_gae837fc04e61c0eb052f997c54b4fd9fe}{alerts} = NULL
+\item 
+PRIVATE \hyperlink{structAI__alert__correlation}{AI\_\-alert\_\-correlation} $\ast$ \hyperlink{group__correlation_ga701934a296c51f2397d24e8bf4a9f021}{correlation\_\-table} = NULL
+\item 
+PRIVATE \hyperlink{spp__ai_8h_a3e5b8192e7d9ffaf3542f1210aec18dd}{BOOL} \hyperlink{group__correlation_gafebc81c042a632dc987e113b7f390274}{lock\_\-flag} = false
 \end{DoxyCompactItemize}
 
 
@@ -70,25 +78,61 @@ TAG\_\-NUM}
 
 
 \subsection{Function Documentation}
-\hypertarget{group__correlation_gacb46174cec5a2cce0a9bb1ca2b0f6850}{
-\index{correlation@{correlation}!\_\-AI\_\-hyperalert\_\-from\_\-XML@{\_\-AI\_\-hyperalert\_\-from\_\-XML}}
-\index{\_\-AI\_\-hyperalert\_\-from\_\-XML@{\_\-AI\_\-hyperalert\_\-from\_\-XML}!correlation@{correlation}}
-\subsubsection[{\_\-AI\_\-hyperalert\_\-from\_\-XML}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf hyperalert}$\ast$ \_\-AI\_\-hyperalert\_\-from\_\-XML (
+\hypertarget{group__correlation_ga130e82017fc0abcb76b1a7740ae2f4df}{
+\index{correlation@{correlation}!\_\-AI\_\-correlation\_\-coefficient@{\_\-AI\_\-correlation\_\-coefficient}}
+\index{\_\-AI\_\-correlation\_\-coefficient@{\_\-AI\_\-correlation\_\-coefficient}!correlation@{correlation}}
+\subsubsection[{\_\-AI\_\-correlation\_\-coefficient}]{\setlength{\rightskip}{0pt plus 5cm}double \_\-AI\_\-correlation\_\-coefficient (
 \begin{DoxyParamCaption}
-\item[{{\bf hyperalert\_\-key}}]{ key}
+\item[{{\bf AI\_\-snort\_\-alert} $\ast$}]{ a, }
+\item[{{\bf AI\_\-snort\_\-alert} $\ast$}]{ b}
 \end{DoxyParamCaption}
 )}}
-\label{group__correlation_gacb46174cec5a2cce0a9bb1ca2b0f6850}
+\label{group__correlation_ga130e82017fc0abcb76b1a7740ae2f4df}
+
+
+Compute the correlation coefficient between two alerts, as INTERSECTION(pre(B), post(A) / UNION(pre(B), post(A)). 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em a}]Alert a \item[{\em b}]Alert b \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The correlation coefficient between A and B as coefficient in \mbox{[}0,1\mbox{]} 
+\end{DoxyReturn}
+\hypertarget{group__correlation_ga929e5c17fdb247a998d83ed6a4ae5a65}{
+\index{correlation@{correlation}!\_\-AI\_\-hyperalert\_\-from\_\-XML@{\_\-AI\_\-hyperalert\_\-from\_\-XML}}
+\index{\_\-AI\_\-hyperalert\_\-from\_\-XML@{\_\-AI\_\-hyperalert\_\-from\_\-XML}!correlation@{correlation}}
+\subsubsection[{\_\-AI\_\-hyperalert\_\-from\_\-XML}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf AI\_\-hyperalert\_\-info}$\ast$ \_\-AI\_\-hyperalert\_\-from\_\-XML (
+\begin{DoxyParamCaption}
+\item[{{\bf AI\_\-hyperalert\_\-key}}]{ key}
+\end{DoxyParamCaption}
+)}}
+\label{group__correlation_ga929e5c17fdb247a998d83ed6a4ae5a65}
 
 
 Parse info about a hyperalert from a correlation XML file, if it exists. 
 
-FUNCTION: \_\-AI\_\-hyperalert\_\-from\_\-XML 
+
 \begin{DoxyParams}{Parameters}
 \item[{\em key}]Key (gid, sid, rev) identifying the alert \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
 A hyperalert structure containing the info about the current alert, if the XML file was found 
 \end{DoxyReturn}
+\hypertarget{group__correlation_ga0d094eae1d014d89a2de21263fa747da}{
+\index{correlation@{correlation}!\_\-AI\_\-macro\_\-subst@{\_\-AI\_\-macro\_\-subst}}
+\index{\_\-AI\_\-macro\_\-subst@{\_\-AI\_\-macro\_\-subst}!correlation@{correlation}}
+\subsubsection[{\_\-AI\_\-macro\_\-subst}]{\setlength{\rightskip}{0pt plus 5cm}void \_\-AI\_\-macro\_\-subst (
+\begin{DoxyParamCaption}
+\item[{{\bf AI\_\-snort\_\-alert} $\ast$$\ast$}]{ alert}
+\end{DoxyParamCaption}
+)}}
+\label{group__correlation_ga0d094eae1d014d89a2de21263fa747da}
+
+
+Substitute the macros in hyperalert pre-\/conditions and post-\/conditions with their associated values. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em alert}]Reference to the hyperalert to work on \end{DoxyParams}
 \hypertarget{group__correlation_ga939353a4e15de7a8f4145ab986f584be}{
 \index{correlation@{correlation}!AI\_\-alert\_\-correlation\_\-thread@{AI\_\-alert\_\-correlation\_\-thread}}
 \index{AI\_\-alert\_\-correlation\_\-thread@{AI\_\-alert\_\-correlation\_\-thread}!correlation@{correlation}}
@@ -108,13 +152,28 @@ Thread for correlating clustered alerts.
 
 
 \subsection{Variable Documentation}
+\hypertarget{group__correlation_gae837fc04e61c0eb052f997c54b4fd9fe}{
+\index{correlation@{correlation}!alerts@{alerts}}
+\index{alerts@{alerts}!correlation@{correlation}}
+\subsubsection[{alerts}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf AI\_\-snort\_\-alert}$\ast$ {\bf alerts} = NULL}}
+\label{group__correlation_gae837fc04e61c0eb052f997c54b4fd9fe}
 \hypertarget{group__correlation_gaad7a982b6016390e7cd1164bd7db8bca}{
 \index{correlation@{correlation}!conf@{conf}}
 \index{conf@{conf}!correlation@{correlation}}
 \subsubsection[{conf}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf AI\_\-config}$\ast$ {\bf conf} = NULL}}
 \label{group__correlation_gaad7a982b6016390e7cd1164bd7db8bca}
-\hypertarget{group__correlation_ga343192ed5e938536f3dc150e51f8acf6}{
+\hypertarget{group__correlation_ga701934a296c51f2397d24e8bf4a9f021}{
+\index{correlation@{correlation}!correlation\_\-table@{correlation\_\-table}}
+\index{correlation\_\-table@{correlation\_\-table}!correlation@{correlation}}
+\subsubsection[{correlation\_\-table}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf AI\_\-alert\_\-correlation}$\ast$ {\bf correlation\_\-table} = NULL}}
+\label{group__correlation_ga701934a296c51f2397d24e8bf4a9f021}
+\hypertarget{group__correlation_gae56c79aa018caaeebeeb709a9e51c9c2}{
 \index{correlation@{correlation}!hyperalerts@{hyperalerts}}
 \index{hyperalerts@{hyperalerts}!correlation@{correlation}}
-\subsubsection[{hyperalerts}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf hyperalert}$\ast$ {\bf hyperalerts} = NULL}}
-\label{group__correlation_ga343192ed5e938536f3dc150e51f8acf6}
+\subsubsection[{hyperalerts}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf AI\_\-hyperalert\_\-info}$\ast$ {\bf hyperalerts} = NULL}}
+\label{group__correlation_gae56c79aa018caaeebeeb709a9e51c9c2}
+\hypertarget{group__correlation_gafebc81c042a632dc987e113b7f390274}{
+\index{correlation@{correlation}!lock\_\-flag@{lock\_\-flag}}
+\index{lock\_\-flag@{lock\_\-flag}!correlation@{correlation}}
+\subsubsection[{lock\_\-flag}]{\setlength{\rightskip}{0pt plus 5cm}PRIVATE {\bf BOOL} {\bf lock\_\-flag} = false}}
+\label{group__correlation_gafebc81c042a632dc987e113b7f390274}

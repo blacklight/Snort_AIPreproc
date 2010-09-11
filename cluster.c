@@ -45,6 +45,7 @@ typedef struct  {
 PRIVATE hierarchy_node *h_root[CLUSTER_TYPES] = { NULL };
 PRIVATE AI_config      *_config               = NULL;
 PRIVATE AI_snort_alert *alert_log             = NULL;
+PRIVATE BOOL           lock_flag              = false;
 
 
 /**
@@ -373,11 +374,19 @@ _AI_cluster_thread ( void* arg )
 		/* Between an execution of the thread and the next one, sleep for alert_clustering_interval seconds */
 		sleep ( _config->alertClusteringInterval );
 
+		/* Set the lock over the alert log until it's done with the clustering operation */
+		lock_flag = true;
+
 		/* Free the current alert log and get the latest one */
-		AI_free_alerts ( alert_log );
+		if ( alert_log )
+		{
+			AI_free_alerts ( alert_log );
+			alert_log = NULL;
+		}
 		
 		if ( !( alert_log = get_alerts() ))
 		{
+			lock_flag = false;
 			continue;
 		}
 
@@ -480,6 +489,8 @@ _AI_cluster_thread ( void* arg )
 			/* if ( old_alert_count == alert_count ) */
 			/* 	break; */
 		} while ( old_alert_count != alert_count );
+
+		lock_flag = false;
 
 		if ( !( cluster_fp = fopen ( _config->clusterfile, "w" )) )
 		{
@@ -650,6 +661,7 @@ _AI_copy_clustered_alerts ( AI_snort_alert *node )
 AI_snort_alert*
 AI_get_clustered_alerts ()
 {
+	while ( lock_flag );
 	return _AI_copy_clustered_alerts ( alert_log );
 }		/* -----  end of function AI_get_clustered_alerts  ----- */
 

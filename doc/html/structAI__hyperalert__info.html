@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>Snort AI preprocessor module: pkt_key Struct Reference</title>
+<title>Snort AI preprocessor module: AI_hyperalert_info Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -50,43 +50,105 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div class="summary">
 <a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
-<h1>pkt_key Struct Reference</h1>  </div>
+<h1>AI_hyperalert_info Struct Reference</h1>  </div>
 </div>
 <div class="contents">
-<!-- doxytag: class="pkt_key" -->
+<!-- doxytag: class="AI_hyperalert_info" -->
 <p><code>#include &lt;<a class="el" href="spp__ai_8h_source.html">spp_ai.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpkt__key.html#a3a091c20dafb8b3f689db00c5b2f8ddb">src_ip</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpkt__key.html#af77f5eb1f4cd88b43fe99fd73553351d">dst_port</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="structAI__hyperalert__key.html">AI_hyperalert_key</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__hyperalert__info.html#a9d461da8f00415ef03b24edb3bbd6cf8">key</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">char **&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__hyperalert__info.html#a8ac4e028c47a98a8be5afd4363164031">preconds</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">unsigned int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__hyperalert__info.html#a616c16f364dbb2d726e88df6b364ea40">n_preconds</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">char **&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__hyperalert__info.html#a6a63385397bf814153d7bb20b52840d9">postconds</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">unsigned int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__hyperalert__info.html#a73322b6cad3e883abed03b62c6c21719">n_postconds</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">UT_hash_handle&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__hyperalert__info.html#a6915bec67d383f374e758b44f50b48ff">hh</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<p>Each stream in the hash table is identified by the couple (src_ip, dst_port) </p>
+<p>Hyperalert hash table </p>
 <hr/><h2>Field Documentation</h2>
-<a class="anchor" id="af77f5eb1f4cd88b43fe99fd73553351d"></a><!-- doxytag: member="pkt_key::dst_port" ref="af77f5eb1f4cd88b43fe99fd73553351d" args="" -->
+<a class="anchor" id="a6915bec67d383f374e758b44f50b48ff"></a><!-- doxytag: member="AI_hyperalert_info::hh" ref="a6915bec67d383f374e758b44f50b48ff" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="spp__ai_8h.html#a273cf69d639a59973b6019625df33e30">uint16_t</a> <a class="el" href="structpkt__key.html#af77f5eb1f4cd88b43fe99fd73553351d">pkt_key::dst_port</a></td>
+          <td class="memname">UT_hash_handle <a class="el" href="structAI__hyperalert__info.html#a6915bec67d383f374e758b44f50b48ff">AI_hyperalert_info::hh</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
+<p>Make the struct 'hashable' </p>
 
 </div>
 </div>
-<a class="anchor" id="a3a091c20dafb8b3f689db00c5b2f8ddb"></a><!-- doxytag: member="pkt_key::src_ip" ref="a3a091c20dafb8b3f689db00c5b2f8ddb" args="" -->
+<a class="anchor" id="a9d461da8f00415ef03b24edb3bbd6cf8"></a><!-- doxytag: member="AI_hyperalert_info::key" ref="a9d461da8f00415ef03b24edb3bbd6cf8" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="spp__ai_8h.html#a435d1572bf3f880d55459d9805097f62">uint32_t</a> <a class="el" href="structpkt__key.html#a3a091c20dafb8b3f689db00c5b2f8ddb">pkt_key::src_ip</a></td>
+          <td class="memname"><a class="el" href="structAI__hyperalert__key.html">AI_hyperalert_key</a> <a class="el" href="structAI__hyperalert__info.html#a9d461da8f00415ef03b24edb3bbd6cf8">AI_hyperalert_info::key</a></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
+<p>Hyperalert key </p>
+
+</div>
+</div>
+<a class="anchor" id="a73322b6cad3e883abed03b62c6c21719"></a><!-- doxytag: member="AI_hyperalert_info::n_postconds" ref="a73322b6cad3e883abed03b62c6c21719" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned int <a class="el" href="structAI__hyperalert__info.html#a73322b6cad3e883abed03b62c6c21719">AI_hyperalert_info::n_postconds</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Number of post-conditions </p>
+
+</div>
+</div>
+<a class="anchor" id="a616c16f364dbb2d726e88df6b364ea40"></a><!-- doxytag: member="AI_hyperalert_info::n_preconds" ref="a616c16f364dbb2d726e88df6b364ea40" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned int <a class="el" href="structAI__hyperalert__info.html#a616c16f364dbb2d726e88df6b364ea40">AI_hyperalert_info::n_preconds</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Number of pre-conditions </p>
+
+</div>
+</div>
+<a class="anchor" id="a6a63385397bf814153d7bb20b52840d9"></a><!-- doxytag: member="AI_hyperalert_info::postconds" ref="a6a63385397bf814153d7bb20b52840d9" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char** <a class="el" href="structAI__hyperalert__info.html#a6a63385397bf814153d7bb20b52840d9">AI_hyperalert_info::postconds</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Post-conditions, as array of strings </p>
+
+</div>
+</div>
+<a class="anchor" id="a8ac4e028c47a98a8be5afd4363164031"></a><!-- doxytag: member="AI_hyperalert_info::preconds" ref="a8ac4e028c47a98a8be5afd4363164031" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char** <a class="el" href="structAI__hyperalert__info.html#a8ac4e028c47a98a8be5afd4363164031">AI_hyperalert_info::preconds</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Pre-conditions, as array of strings </p>
 
 </div>
 </div>

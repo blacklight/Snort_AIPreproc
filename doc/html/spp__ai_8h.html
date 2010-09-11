@@ -69,6 +69,8 @@ Data Structures</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpkt__info.html">pkt_info</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html">AI_config</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__hierarchy__node.html">_hierarchy_node</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__hyperalert__key.html">AI_hyperalert_key</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__hyperalert__info.html">AI_hyperalert_info</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__AI__snort__alert.html">_AI_snort_alert</a></td></tr>
 <tr><td colspan="2"><h2><a name="define-members"></a>
 Defines</h2></td></tr>
@@ -107,6 +109,10 @@ Enumerations</h2></td></tr>
 Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__regex.html#ga35f57c052a7de1ded54b67a1f7819791">preg_match</a> (const char *, char *, char ***, int *)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Check if a string matches a regular expression.  <a href="group__regex.html#ga35f57c052a7de1ded54b67a1f7819791"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__regex.html#ga736ba1abdc4938cbb1bf5861e7dbfd50">str_replace</a> (char *str, char *orig, char *rep)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Replace the content of 'orig' in 'str' with 'rep'.  <a href="group__regex.html#ga736ba1abdc4938cbb1bf5861e7dbfd50"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__regex.html#gaff6c55cd04fc08dd582e244590dc25a4">str_replace_all</a> (char *str, char *orig, char *rep)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Replace all of the occurrences of 'orig' in 'str' with 'rep'.  <a href="group__regex.html#gaff6c55cd04fc08dd582e244590dc25a4"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__stream.html#ga24b1131374e5059564b8a12380c4eb75">AI_hashcleanup_thread</a> (void *)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Thread called for cleaning up the hash table from the traffic streams older than a certain threshold.  <a href="group__stream.html#ga24b1131374e5059564b8a12380c4eb75"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__alert__parser.html#ga5aab8d9bdf0e92a51731442fd787f61f">AI_file_alertparser_thread</a> (void *)</td></tr>
@@ -283,6 +289,7 @@ Variables</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
+<p>Data type for hierarchies used for clustering </p>
 
 </div>
 </div>
@@ -420,7 +427,7 @@ Variables</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Fri Sep 10 2010 02:56:16 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Sat Sep 11 2010 12:45:18 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -16,6 +16,10 @@ struct \hyperlink{structAI__config}{AI\_\-config}
 \item 
 struct \hyperlink{struct__hierarchy__node}{\_\-hierarchy\_\-node}
 \item 
+struct \hyperlink{structAI__hyperalert__key}{AI\_\-hyperalert\_\-key}
+\item 
+struct \hyperlink{structAI__hyperalert__info}{AI\_\-hyperalert\_\-info}
+\item 
 struct \hyperlink{struct__AI__snort__alert}{\_\-AI\_\-snort\_\-alert}
 \end{DoxyCompactItemize}
 \subsection*{Defines}
@@ -74,6 +78,10 @@ enum \hyperlink{spp__ai_8h_ae2ff3c6586aa2ab211a102abfde86640}{cluster\_\-type} \
 \item 
 int \hyperlink{group__regex_ga35f57c052a7de1ded54b67a1f7819791}{preg\_\-match} (const char $\ast$, char $\ast$, char $\ast$$\ast$$\ast$, int $\ast$)
 \begin{DoxyCompactList}\small\item\em Check if a string matches a regular expression. \item\end{DoxyCompactList}\item 
+char $\ast$ \hyperlink{group__regex_ga736ba1abdc4938cbb1bf5861e7dbfd50}{str\_\-replace} (char $\ast$str, char $\ast$orig, char $\ast$rep)
+\begin{DoxyCompactList}\small\item\em Replace the content of 'orig' in 'str' with 'rep'. \item\end{DoxyCompactList}\item 
+char $\ast$ \hyperlink{group__regex_gaff6c55cd04fc08dd582e244590dc25a4}{str\_\-replace\_\-all} (char $\ast$str, char $\ast$orig, char $\ast$rep)
+\begin{DoxyCompactList}\small\item\em Replace all of the occurrences of 'orig' in 'str' with 'rep'. \item\end{DoxyCompactList}\item 
 void $\ast$ \hyperlink{group__stream_ga24b1131374e5059564b8a12380c4eb75}{AI\_\-hashcleanup\_\-thread} (void $\ast$)
 \begin{DoxyCompactList}\small\item\em Thread called for cleaning up the hash table from the traffic streams older than a certain threshold. \item\end{DoxyCompactList}\item 
 void $\ast$ \hyperlink{group__alert__parser_ga5aab8d9bdf0e92a51731442fd787f61f}{AI\_\-file\_\-alertparser\_\-thread} (void $\ast$)
@@ -162,7 +170,7 @@ Data type for Snort alerts \hypertarget{spp__ai_8h_a466391129919ef12366d311d5015
 \index{hierarchy\_\-node@{hierarchy\_\-node}!spp_ai.h@{spp\_\-ai.h}}
 \subsubsection[{hierarchy\_\-node}]{\setlength{\rightskip}{0pt plus 5cm}typedef struct {\bf \_\-hierarchy\_\-node}  {\bf hierarchy\_\-node}}}
 \label{spp__ai_8h_a466391129919ef12366d311d501552fa}
-\hypertarget{spp__ai_8h_a273cf69d639a59973b6019625df33e30}{
+Data type for hierarchies used for clustering \hypertarget{spp__ai_8h_a273cf69d639a59973b6019625df33e30}{
 \index{spp\_\-ai.h@{spp\_\-ai.h}!uint16\_\-t@{uint16\_\-t}}
 \index{uint16\_\-t@{uint16\_\-t}!spp_ai.h@{spp\_\-ai.h}}
 \subsubsection[{uint16\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef unsigned short {\bf uint16\_\-t}}}

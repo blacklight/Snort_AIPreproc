@@ -1,4 +1,6 @@
+- Correlation macros valid also for hierarchies flags
+- Bayesian learning among alerts in alert log
+
 - Managing clusters for addresses, timestamps (and more?)
 - Dynamic cluster_min_size algorithm
-- Alerts for port scan, grouped alerts, UDP and ICMP too
 
