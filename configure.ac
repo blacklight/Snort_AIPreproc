@@ -105,20 +105,24 @@ AC_ARG_WITH(mysql,
 	[with_mysql=yes],
 	[with_mysql=no])
 
+AC_ARG_WITH(graphviz,
+	AS_HELP_STRING([--without-graphviz],
+		[Disable Graphviz support for rendering correlated alerts as a PNG graph @<:@default=yes@:>@]),
+	[],
+	[with_graphviz=yes])
+
 # Checks for libraries.
 AS_IF([test "x$with_mysql" != xno],
-	[AC_CHECK_LIB([mysqlclient], [mysql_query],
-		[AC_SUBST([MYSQL], ["-lmysqlclient"])
-		AC_DEFINE(ENABLE_MYSQL, 1, [Define if you want to use MySQL])
-		AC_DEFINE(ENABLE_DB, 1, [Define if you want to enable database support])
-	],
-	[if test "x$with_mysql" != xno; then
-		AC_MSG_FAILURE([--with-mysql option used, but libmysqlclient was not found])
-	fi],
-	-lmysqlclient)])
+	[AC_CHECK_LIB([mysqlclient], [mysql_query],,
+		[AC_MSG_FAILURE([--with-mysql option used, but libmysqlclient was not found - do not use --with-mysql, or, on a Debian-based system, install libmysqlclient-dev])])])
 
-AC_CHECK_LIB([xml2], [xmlReaderForFile])
-AC_CHECK_LIB([pthread], [pthread_create])
+AS_IF([test "x$with_graphviz" != xno],
+	[AC_CHECK_LIB([gvc], [agread],,
+	[AC_MSG_FAILURE([libgraphviz support required but the library was not found - use --without-graphviz if you do not want to enable the support for it, or, on a Debian-based system, install libgraphviz-dev])])])
+
+AC_CHECK_LIB([xml2], [xmlReaderForFile],, AC_MSG_FAILURE(libxml2 not found on the system))
+AC_CHECK_LIB([pthread], [pthread_create],, AC_MSG_FAILURE(libpthread not found on the system))
+AC_CHECK_LIB([m], [sqrt],, AC_MSG_FAILURE(libm not found on the system))
 
 AS_IF([test "x$prefix" == x/usr],
 	[AC_SUBST([CORR_RULES_PREFIX], ["/etc/snort/corr_rules"])],
@@ -130,12 +134,20 @@ AS_IF([test ! -z "`pkg-config --cflags libxml-2.0 2> /dev/null`"],
 	[AC_SUBST([LIBXML2_INCLUDES], ["$(pkg-config --cflags libxml-2.0 2> /dev/null)"])],
 	[AC_MSG_FAILURE([libxml2 not found, okr pkg-config not working])])
 
+AS_IF([test "x$with_graphviz" != xno],
+	[AS_IF([test ! -z "`pkg-config --cflags libgraph 2> /dev/null`"],
+		[AC_SUBST([LIBGRAPH_INCLUDES], ["$(pkg-config --cflags libgraph 2> /dev/null)"])],
+		[AC_MSG_FAILURE([libgraphviz support enabled, but the library was not found or pkg-config is not working])])])
+
+AS_IF([test "x$with_graphviz" != xno],
+	[AC_DEFINE([HAVE_BOOLEAN], [1], [Check if the boolean type is defined])])
+
 AC_FUNC_ALLOCA
-AC_CHECK_HEADERS([inttypes.h limits.h stddef.h stdlib.h string.h unistd.h wchar.h],,AC_MSG_ERROR(At least one of the required headers was not found))
+AC_CHECK_HEADERS([inttypes.h limits.h stddef.h stdlib.h string.h unistd.h wchar.h math.h],,AC_MSG_ERROR(At least one of the required headers was not found))
 
 # Check for int types
 AC_CHECK_TYPES([u_int8_t,u_int16_t,u_int32_t,u_int64_t,uint8_t,uint16_t,uint32_t,uint64_t])
-AC_CHECK_TYPES([int8_t,int16_t,int32_t,int64_t])
+AC_CHECK_TYPES([int8_t,int16_t,int32_t,int64_t,boolean])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL

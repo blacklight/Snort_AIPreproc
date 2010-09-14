@@ -385,6 +385,9 @@ AI_free_alerts ( AI_snort_alert *node )
 		node->hyperalert = NULL;
 	}
 
+	if ( node->derived_alerts )
+		free ( node->derived_alerts );
+
 	free ( node );
 	node = NULL;
 }		/* -----  end of function AI_free_alerts  ----- */

@@ -83,6 +83,8 @@ Defines</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8h.html#a6d9bf552c32371e0144dc6a6209c7e4a">DEFAULT_ALERT_LOG_FILE</a>&nbsp;&nbsp;&nbsp;&quot;/var/log/snort/alert&quot;</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8h.html#a803dc913297ccdace9e604dbfecda97d">DEFAULT_CLUSTER_LOG_FILE</a>&nbsp;&nbsp;&nbsp;&quot;/var/log/snort/cluster_alert&quot;</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8h.html#a89448386cad5d5533992ae7ee84f4f1d">DEFAULT_CORR_RULES_DIR</a>&nbsp;&nbsp;&nbsp;&quot;/etc/snort/corr_rules&quot;</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8h.html#a7bbeccba60012abcc98db33d39294829">DEFAULT_CORR_ALERTS_DIR</a>&nbsp;&nbsp;&nbsp;&quot;/var/log/snort/correlated_alerts&quot;</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8h.html#aaedb0b7dc2bdf8d44d3fee2189a55a19">DEFAULT_CORR_THRESHOLD</a>&nbsp;&nbsp;&nbsp;0.5</td></tr>
 <tr><td colspan="2"><h2><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef unsigned char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="spp__ai_8h.html#aba7bc1797add20fe3efdf37ced1182c5">uint8_t</a></td></tr>
@@ -195,6 +197,20 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a7bbeccba60012abcc98db33d39294829"></a><!-- doxytag: member="spp_ai.h::DEFAULT_CORR_ALERTS_DIR" ref="a7bbeccba60012abcc98db33d39294829" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define DEFAULT_CORR_ALERTS_DIR&nbsp;&nbsp;&nbsp;&quot;/var/log/snort/correlated_alerts&quot;</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Default directory for placing correlated alerts information (.dot and possibly .png files) </p>
+
+</div>
+</div>
 <a class="anchor" id="a89448386cad5d5533992ae7ee84f4f1d"></a><!-- doxytag: member="spp_ai.h::DEFAULT_CORR_RULES_DIR" ref="a89448386cad5d5533992ae7ee84f4f1d" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -206,6 +222,20 @@ Variables</h2></td></tr>
 </div>
 <div class="memdoc">
 <p>Default path to alert correlation rules directory </p>
+
+</div>
+</div>
+<a class="anchor" id="aaedb0b7dc2bdf8d44d3fee2189a55a19"></a><!-- doxytag: member="spp_ai.h::DEFAULT_CORR_THRESHOLD" ref="aaedb0b7dc2bdf8d44d3fee2189a55a19" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define DEFAULT_CORR_THRESHOLD&nbsp;&nbsp;&nbsp;0.5</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Default correlation threshold coefficient for correlating two hyperalerts </p>
 
 </div>
 </div>
@@ -427,7 +457,7 @@ Variables</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Sat Sep 11 2010 12:45:18 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Sep 14 2010 19:23:42 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

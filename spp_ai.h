@@ -54,6 +54,12 @@
 /** Default path to alert correlation rules directory */
 #define 	DEFAULT_CORR_RULES_DIR 				"/etc/snort/corr_rules"
 
+/** Default directory for placing correlated alerts information (.dot and possibly .png files) */
+#define 	DEFAULT_CORR_ALERTS_DIR 				"/var/log/snort/correlated_alerts"
+
+/** Default correlation threshold coefficient for correlating two hyperalerts */
+#define 	DEFAULT_CORR_THRESHOLD 				0.5
+
 extern DynamicPreprocessorData _dpd;
 typedef unsigned char   uint8_t;
 typedef unsigned short  uint16_t;
@@ -114,6 +120,16 @@ typedef struct
 	/** Interval in seconds for running the thread for building alert correlation graphs */
 	unsigned long correlationGraphInterval;
 
+	/** Correlation threshold coefficient for correlating two hyperalerts. Two hyperalerts
+	 * are 'correlated' to each other in a multi-step attack graph if and only if their
+	 * correlation value is >= m + ks, where m is the average correlation coefficient,
+	 * s is the standard deviation over this coefficient, and k is this threshold
+	 * coefficient. Its value can be >= 0. A value in [0,1] is strongly suggested,
+	 * but this value mostly depends on how accurate the correlation rules where
+	 * defined. Be careful, defining a correlation coefficient > or >> 1 no correlation
+	 * may occur at all! */
+	double        correlationThresholdCoefficient;
+
 	/** Alert file */
 	char          alertfile[1024];
 
@@ -122,6 +138,9 @@ typedef struct
 
 	/** Correlation rules path */
 	char          corr_rules_dir[1024];
+
+	/** Directory where the correlated alerts' information will be placed */
+	char          corr_alerts_dir[1024];
 
 	/** Database name, if database logging is used */
 	char          dbname[256];
@@ -231,6 +250,17 @@ typedef struct _AI_snort_alert  {
 	/** Hyperalert information, pre-conditions
 	 * and post-conditions*/
 	AI_hyperalert_info  *hyperalert;
+
+	/* 'Parent' correlated alert in the chain,
+	 * if any*/
+	struct _AI_snort_alert  *previous_correlated;
+
+	/** Array of directly correlated 'derived'
+	 * alerts from the current one, if any */
+	struct _AI_snort_alert  **derived_alerts;
+
+	/** Number of derived alerts */
+	unsigned int        n_derived_alerts;
 } AI_snort_alert;
 /*****************************************************************/
 
@@ -242,7 +272,7 @@ void*              AI_hashcleanup_thread ( void* );
 void*              AI_file_alertparser_thread ( void* );
 void*              AI_alert_correlation_thread ( void* );
 
-#ifdef 	ENABLE_DB
+#ifdef 	HAVE_LIBMYSQLCLIENT
 AI_snort_alert*    AI_db_get_alerts ( void );
 void               AI_db_free_alerts ( AI_snort_alert *node );
 void*              AI_db_alertparser_thread ( void* );

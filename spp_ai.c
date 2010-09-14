@@ -133,22 +133,24 @@ static AI_config * AI_parse(char *args)
 {
 	char *arg;
 	char *match;
-	char alertfile[1024]      = { 0 };
-	char clusterfile[1024]    = { 0 };
-	char corr_rules_dir[1024] = { 0 };
+	char alertfile[1024]       = { 0 };
+	char clusterfile[1024]     = { 0 };
+	char corr_rules_dir[1024]  = { 0 };
+	char corr_alerts_dir[1024] = { 0 };
 
 	char **matches       = NULL;
 	int  nmatches        = 0;
 
-	int  i;
-	int  offset;
-	int  len;
+	int      i;
+	int      offset;
+	int      len;
+	double   corr_threshold_coefficient = DEFAULT_CORR_THRESHOLD;
 	uint32_t netmask;
 
-	int  min_val;
-	int  max_val;
-	char label[256];
-	cluster_type   type;
+	int           min_val;
+	int           max_val;
+	char          label[256];
+	cluster_type  type;
 
 	hierarchy_node **hierarchy_nodes = NULL;
 	int            n_hierarchy_nodes = 0;
@@ -158,21 +160,23 @@ static AI_config * AI_parse(char *args)
 			    alertfile_len              = 0,
 			    clusterfile_len            = 0,
 			    corr_rules_dir_len         = 0,
+			    corr_alerts_dir_len        = 0,
 			    alert_clustering_interval  = 0,
 			    database_parsing_interval  = 0,
 			    correlation_graph_interval = 0;
 
-	BOOL has_cleanup_interval       = false,
-		has_stream_expire_interval = false,
-		has_correlation_interval   = false,
-		has_database_interval      = false,
-		has_alertfile              = false,
-		has_clusterfile            = false,
-		has_corr_rules_dir         = false,
-		has_clustering             = false,
-		has_database_log           = false;
+	BOOL has_cleanup_interval        = false,
+		has_stream_expire_interval  = false,
+		has_correlation_interval    = false,
+		has_corr_alerts_dir         = false,
+		has_database_interval       = false,
+		has_alertfile               = false,
+		has_clusterfile             = false,
+		has_corr_rules_dir          = false,
+		has_clustering              = false,
+		has_database_log            = false;
 
-	AI_config *config               = NULL;
+	AI_config *config                = NULL;
 
 	if ( !( config = ( AI_config* ) malloc ( sizeof( AI_config )) ))
 		_dpd.fatalMsg("Could not allocate configuration struct.\n");
@@ -276,6 +280,27 @@ static AI_config * AI_parse(char *args)
 		_dpd.logMsg("    Correlation graph thread interval: %d\n", config->correlationGraphInterval);
 	}
 
+	/* Parsing the correlation_threshold_coefficient option */
+	if (( arg = (char*) strcasestr( args, "correlation_threshold_coefficient" ) ))
+	{
+		/* has_stream_expire_interval = true; */
+
+		for ( arg += strlen("correlation_threshold_coefficient");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			_dpd.fatalMsg("AIPreproc: correlation_threshold_coefficient option used but "
+				"no value specified\n");
+		}
+
+		corr_threshold_coefficient = strtod ( arg, NULL );
+		_dpd.logMsg( "    Correlation threshold coefficient: %d\n", corr_threshold_coefficient );
+	}
+
+	config->correlationThresholdCoefficient = corr_threshold_coefficient;
+
 	/* Parsing the alertfile option */
 	if (( arg = (char*) strcasestr( args, "alertfile" ) ))
 	{
@@ -369,6 +394,38 @@ static AI_config * AI_parse(char *args)
 				corr_rules_dir[ corr_rules_dir_len-1 ] = 0;
 				strncpy ( config->corr_rules_dir, corr_rules_dir, corr_rules_dir_len );
 				_dpd.logMsg("    corr_rules_dir path: %s\n", config->corr_rules_dir);
+			}
+		}
+	}
+
+	/* Parsing the correlated_alerts_dir option */
+	if (( arg = (char*) strcasestr( args, "correlated_alerts_dir" ) ))
+	{
+		for ( arg += strlen("correlated_alerts_dir");
+				*arg && *arg != '"';
+				arg++ );
+
+		if ( !(*(arg++)) )
+		{
+			_dpd.fatalMsg("AIPreproc: correlated_alerts_dir option used but no filename specified\n");
+		}
+
+		for ( corr_alerts_dir[ (++corr_alerts_dir_len)-1 ] = *arg;
+				*arg && *arg != '"' && corr_alerts_dir_len < 1024;
+				arg++, corr_alerts_dir[ (++corr_alerts_dir_len)-1 ] = *arg );
+
+		if ( corr_alerts_dir[0] == 0 || corr_alerts_dir_len <= 1 )  {
+			has_corr_alerts_dir = false;
+		} else {
+			if ( corr_alerts_dir_len >= 1024 )  {
+				_dpd.fatalMsg("AIPreproc: correlated_alerts_dir path too long ( >= 1024 )\n");
+			} else if ( strlen( corr_alerts_dir ) == 0 ) {
+				has_corr_alerts_dir = false;
+			} else {
+				has_corr_alerts_dir = true;
+				corr_alerts_dir[ corr_alerts_dir_len-1 ] = 0;
+				strncpy ( config->corr_alerts_dir, corr_alerts_dir, corr_alerts_dir_len );
+				_dpd.logMsg("    correlated_alerts_dir: %s\n", config->corr_alerts_dir);
 			}
 		}
 	}
@@ -699,8 +756,8 @@ static AI_config * AI_parse(char *args)
 	} else if ( has_database_log )  {
 		has_alertfile = false;
 
-		#ifdef 	ENABLE_DB
-		alertparser_thread = AI_db_alertparser_thread;
+		#ifdef 	HAVE_LIBMYSQLCLIENT
+			alertparser_thread = AI_db_alertparser_thread;
 		#else
 		_dpd.fatalMsg ( "AIPreproc: database logging enabled in config file, but the module was not compiled "
 				"with database support (recompile, i.e., with ./configure --with-mysql)\n" );
@@ -745,9 +802,16 @@ static AI_config * AI_parse(char *args)
 
 	_dpd.logMsg ( "Using correlation rules from directory %s\n", config->corr_rules_dir );
 
+	if ( ! has_corr_alerts_dir )
+	{
+		strncpy ( config->corr_alerts_dir, DEFAULT_CORR_ALERTS_DIR, sizeof ( DEFAULT_CORR_ALERTS_DIR ));
+	}
+
+	_dpd.logMsg ( "Saving correlated alerts information in %s\n", config->corr_alerts_dir );
+
 	if ( has_database_log )
 	{
-		#ifdef 	ENABLE_DB
+		#ifdef 	HAVE_LIBMYSQLCLIENT
 			get_alerts = AI_db_get_alerts;
 		#else
 			_dpd.fatalMsg ( "AIPreproc: Using database alert log, but the module was not compiled with database support\n" );

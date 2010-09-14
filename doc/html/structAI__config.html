@@ -63,9 +63,11 @@ Data Fields</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#a7d0d098b8263aa3d8415b11d1ec7f93d">alertClusteringInterval</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#ae6ca715cab1d90b70c3aad443133c263">databaseParsingInterval</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">unsigned long&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#aa736375e57a59936e2e782b7cd200e41">correlationGraphInterval</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#adf6ef0faedfb4dea0a1353e781b14883">correlationThresholdCoefficient</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#a2efa9590d7eea6dce8b5dd9aa76ed8ca">alertfile</a> [1024]</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#a6da02a3f7116fd3810a41b738e8883a3">clusterfile</a> [1024]</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#ab7ea93bbe72b85c4019b4f5656ad62fc">corr_rules_dir</a> [1024]</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#ae68f5489e2ec9ea1408f98fe36d050c9">corr_alerts_dir</a> [1024]</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#ac8a93607f12106e2f5c9b43af27107da">dbname</a> [256]</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#aa004adebfdafb6d14092aecd7f4912b0">dbuser</a> [256]</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">char&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__config.html#aa1cda349763faf60b2ebdbf2d187ae7d">dbpass</a> [256]</td></tr>
@@ -114,6 +116,20 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ae68f5489e2ec9ea1408f98fe36d050c9"></a><!-- doxytag: member="AI_config::corr_alerts_dir" ref="ae68f5489e2ec9ea1408f98fe36d050c9" args="[1024]" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char <a class="el" href="structAI__config.html#ae68f5489e2ec9ea1408f98fe36d050c9">AI_config::corr_alerts_dir</a>[1024]</td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Directory where the correlated alerts' information will be placed </p>
+
+</div>
+</div>
 <a class="anchor" id="ab7ea93bbe72b85c4019b4f5656ad62fc"></a><!-- doxytag: member="AI_config::corr_rules_dir" ref="ab7ea93bbe72b85c4019b4f5656ad62fc" args="[1024]" -->
 <div class="memitem">
 <div class="memproto">
@@ -139,6 +155,20 @@ Data Fields</h2></td></tr>
 </div>
 <div class="memdoc">
 <p>Interval in seconds for running the thread for building alert correlation graphs </p>
+
+</div>
+</div>
+<a class="anchor" id="adf6ef0faedfb4dea0a1353e781b14883"></a><!-- doxytag: member="AI_config::correlationThresholdCoefficient" ref="adf6ef0faedfb4dea0a1353e781b14883" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double <a class="el" href="structAI__config.html#adf6ef0faedfb4dea0a1353e781b14883">AI_config::correlationThresholdCoefficient</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Correlation threshold coefficient for correlating two hyperalerts. Two hyperalerts are 'correlated' to each other in a multi-step attack graph if and only if their correlation value is &gt;= m + ks, where m is the average correlation coefficient, s is the standard deviation over this coefficient, and k is this threshold coefficient. Its value can be &gt;= 0. A value in [0,1] is strongly suggested, but this value mostly depends on how accurate the correlation rules where defined. Be careful, defining a correlation coefficient &gt; or &gt;&gt; 1 no correlation may occur at all! </p>
 
 </div>
 </div>
@@ -258,7 +288,7 @@ Data Fields</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Sat Sep 11 2010 12:45:18 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Sep 14 2010 19:23:42 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

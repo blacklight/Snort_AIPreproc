@@ -84,6 +84,9 @@ Data Fields</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="struct__hierarchy__node.html">hierarchy_node</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__AI__snort__alert.html#ac53765584296ead1328eabfaba8a3aed">h_node</a> [CLUSTER_TYPES]</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">unsigned int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__AI__snort__alert.html#a285aff12d6bac03c316ccc5305d28e53">grouped_alarms_count</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="structAI__hyperalert__info.html">AI_hyperalert_info</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__AI__snort__alert.html#ac101de15b4f9451f235b82122f77b62a">hyperalert</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="struct__AI__snort__alert.html">_AI_snort_alert</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__AI__snort__alert.html#a55a5488c7ee7706ded4c16b1235fd9c7">previous_correlated</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="struct__AI__snort__alert.html">_AI_snort_alert</a> **&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__AI__snort__alert.html#aac5e4078600ed17532db1f3d78165390">derived_alerts</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">unsigned int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__AI__snort__alert.html#a1f2d5e8cfd0e6321b977173d1e90cb68">n_derived_alerts</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>Data type for Snort alerts </p>
@@ -98,6 +101,20 @@ Data Fields</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="aac5e4078600ed17532db1f3d78165390"></a><!-- doxytag: member="_AI_snort_alert::derived_alerts" ref="aac5e4078600ed17532db1f3d78165390" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="struct__AI__snort__alert.html">_AI_snort_alert</a>** <a class="el" href="struct__AI__snort__alert.html#aac5e4078600ed17532db1f3d78165390">_AI_snort_alert::derived_alerts</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Array of directly correlated 'derived' alerts from the current one, if any </p>
 
 </div>
 </div>
@@ -260,6 +277,20 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a1f2d5e8cfd0e6321b977173d1e90cb68"></a><!-- doxytag: member="_AI_snort_alert::n_derived_alerts" ref="a1f2d5e8cfd0e6321b977173d1e90cb68" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned int <a class="el" href="struct__AI__snort__alert.html#a1f2d5e8cfd0e6321b977173d1e90cb68">_AI_snort_alert::n_derived_alerts</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Number of derived alerts </p>
+
+</div>
+</div>
 <a class="anchor" id="aa8336d4b3359015ed8ea312ca1fd1173"></a><!-- doxytag: member="_AI_snort_alert::next" ref="aa8336d4b3359015ed8ea312ca1fd1173" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -271,6 +302,19 @@ Data Fields</h2></td></tr>
 </div>
 <div class="memdoc">
 <p>Pointer to the next alert in the log, if any </p>
+
+</div>
+</div>
+<a class="anchor" id="a55a5488c7ee7706ded4c16b1235fd9c7"></a><!-- doxytag: member="_AI_snort_alert::previous_correlated" ref="a55a5488c7ee7706ded4c16b1235fd9c7" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="struct__AI__snort__alert.html">_AI_snort_alert</a>* <a class="el" href="struct__AI__snort__alert.html#a55a5488c7ee7706ded4c16b1235fd9c7">_AI_snort_alert::previous_correlated</a></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
 
 </div>
 </div>
@@ -449,7 +493,7 @@ Data Fields</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Sat Sep 11 2010 12:45:18 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Sep 14 2010 19:23:42 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

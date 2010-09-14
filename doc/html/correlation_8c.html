@@ -56,13 +56,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div>
 <div class="contents">
 <code>#include &quot;<a class="el" href="spp__ai_8h_source.html">spp_ai.h</a>&quot;</code><br/>
+<code>#include &lt;stdio.h&gt;</code><br/>
+<code>#include &lt;stdlib.h&gt;</code><br/>
+<code>#include &lt;string.h&gt;</code><br/>
 <code>#include &lt;unistd.h&gt;</code><br/>
+<code>#include &lt;time.h&gt;</code><br/>
+<code>#include &lt;math.h&gt;</code><br/>
+<code>#include &lt;alloca.h&gt;</code><br/>
 <code>#include &lt;sys/stat.h&gt;</code><br/>
 <code>#include &lt;pthread.h&gt;</code><br/>
 <code>#include &lt;libxml/xmlreader.h&gt;</code><br/>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
 Data Structures</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__alert__correlation__key.html">AI_alert_correlation_key</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAI__alert__correlation.html">AI_alert_correlation</a></td></tr>
 <tr><td colspan="2"><h2><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -77,10 +84,18 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__correlation.html#ga130e82017fc0abcb76b1a7740ae2f4df">_AI_correlation_coefficient</a> (<a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> *a, <a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> *b)</td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Compute the correlation coefficient between two alerts, as INTERSECTION(pre(B), post(A) / UNION(pre(B), post(A)).  <a href="group__correlation.html#ga130e82017fc0abcb76b1a7740ae2f4df"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__correlation.html#ga0d094eae1d014d89a2de21263fa747da">_AI_macro_subst</a> (<a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> **alert)</td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Substitute the macros in hyperalert pre-conditions and post-conditions with their associated values.  <a href="group__correlation.html#ga0d094eae1d014d89a2de21263fa747da"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">PRIVATE void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__correlation.html#ga9bcb94264ffe30f113f3fb7287b774e3">_AI_correlation_table_cleanup</a> ()</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Clean up the correlation hash table.  <a href="group__correlation.html#ga9bcb94264ffe30f113f3fb7287b774e3"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">PRIVATE void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__correlation.html#ga4267a39fa1a5ac035015823bca43288e">_AI_print_correlated_alerts</a> (<a class="el" href="structAI__alert__correlation.html">AI_alert_correlation</a> *corr, FILE *fp)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Recursively write a flow of correlated alerts to a .dot file, ready for being rendered as graph.  <a href="group__correlation.html#ga4267a39fa1a5ac035015823bca43288e"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">PRIVATE char *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__correlation.html#ga7a1b2d01f526f24ea91d7f08bdefd4fe">_AI_get_function_name</a> (const char *orig_stmt)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the name of the function called by a pre-condition or post-condition predicate.  <a href="group__correlation.html#ga7a1b2d01f526f24ea91d7f08bdefd4fe"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">PRIVATE char **&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__correlation.html#gab716702cd226ab2ad957234a92da6e4a">_AI_get_function_arguments</a> (char *orig_stmt, int *n_args)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Get the arguments passed to a function predicate in a pre-condition or post-condition (comma-separated values).  <a href="group__correlation.html#gab716702cd226ab2ad957234a92da6e4a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">PRIVATE double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__correlation.html#ga9cb283b28a66829574add58a251b93c6">_AI_correlation_coefficient</a> (<a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> *a, <a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> *b)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Compute the correlation coefficient between two alerts, as INTERSECTION(pre(B), post(A) / UNION(pre(B), post(A)).  <a href="group__correlation.html#ga9cb283b28a66829574add58a251b93c6"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">PRIVATE void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__correlation.html#ga70a4aaf8b689472dad62ba7a9bbde1a6">_AI_macro_subst</a> (<a class="el" href="struct__AI__snort__alert.html">AI_snort_alert</a> **alert)</td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Substitute the macros in hyperalert pre-conditions and post-conditions with their associated values.  <a href="group__correlation.html#ga70a4aaf8b689472dad62ba7a9bbde1a6"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">PRIVATE <a class="el" href="structAI__hyperalert__info.html">AI_hyperalert_info</a> *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__correlation.html#ga929e5c17fdb247a998d83ed6a4ae5a65">_AI_hyperalert_from_XML</a> (<a class="el" href="structAI__hyperalert__key.html">AI_hyperalert_key</a> key)</td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Parse info about a hyperalert from a correlation XML file, if it exists.  <a href="group__correlation.html#ga929e5c17fdb247a998d83ed6a4ae5a65"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__correlation.html#ga939353a4e15de7a8f4145ab986f584be">AI_alert_correlation_thread</a> (void *arg)</td></tr>
@@ -108,7 +123,7 @@ Variables</h2></td></tr>
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generated on Sat Sep 11 2010 12:45:18 for Snort AI preprocessor module by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Tue Sep 14 2010 19:23:42 for Snort AI preprocessor module by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

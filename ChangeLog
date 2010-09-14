@@ -5,10 +5,10 @@
 2010-09-09  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
 	* Makefile.am: Complete support for make dist
 
-2010-09-05  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
+2010-05-09  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
 	* all: Using autotools now
 
-2010-09-04  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
+2010-04-04  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
 	* mysql.c: This file now only contains the functions for managing MySQL
 	connections in the database wrapper
 	* db.c: Renamed from 'mysql.c' to 'db.c', now it should be abstract

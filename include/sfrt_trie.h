@@ -68,7 +68,7 @@ typedef unsigned long word;
 /* The trie is represented by an array and each node in
    the trie is compactly represented using only 32 bits:
    5 + 5 + 22 = branch + skip + adr */
-typedef word node_t;
+typedef word trie_node_t;
 
 #define NOPRE -1          /* an empty prefix pointer */
 
@@ -137,7 +137,7 @@ typedef struct { /* compact version of above */
 
 typedef struct routtablerec *routtable_t;
 struct routtablerec {
-   node_t *trie;         /* the main trie search structure */
+   trie_node_t *trie;         /* the main trie search structure */
    int triesize;
    comp_base_t *base;    /* the base vector */
    int basesize;

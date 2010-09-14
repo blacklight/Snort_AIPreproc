@@ -18,7 +18,7 @@
  */
 
 #include	"spp_ai.h"
-#ifdef 	ENABLE_MYSQL
+#ifdef 	HAVE_LIBMYSQLCLIENT
 
 #include	<mysql/mysql.h>
 

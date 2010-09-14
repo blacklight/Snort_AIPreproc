@@ -19,11 +19,15 @@ unsigned long \hyperlink{structAI__config_ae6ca715cab1d90b70c3aad443133c263}{dat
 \item 
 unsigned long \hyperlink{structAI__config_aa736375e57a59936e2e782b7cd200e41}{correlationGraphInterval}
 \item 
+double \hyperlink{structAI__config_adf6ef0faedfb4dea0a1353e781b14883}{correlationThresholdCoefficient}
+\item 
 char \hyperlink{structAI__config_a2efa9590d7eea6dce8b5dd9aa76ed8ca}{alertfile} \mbox{[}1024\mbox{]}
 \item 
 char \hyperlink{structAI__config_a6da02a3f7116fd3810a41b738e8883a3}{clusterfile} \mbox{[}1024\mbox{]}
 \item 
 char \hyperlink{structAI__config_ab7ea93bbe72b85c4019b4f5656ad62fc}{corr\_\-rules\_\-dir} \mbox{[}1024\mbox{]}
+\item 
+char \hyperlink{structAI__config_ae68f5489e2ec9ea1408f98fe36d050c9}{corr\_\-alerts\_\-dir} \mbox{[}1024\mbox{]}
 \item 
 char \hyperlink{structAI__config_ac8a93607f12106e2f5c9b43af27107da}{dbname} \mbox{[}256\mbox{]}
 \item 
@@ -51,7 +55,12 @@ Alert file \hypertarget{structAI__config_a6da02a3f7116fd3810a41b738e8883a3}{
 \index{clusterfile@{clusterfile}!AI_config@{AI\_\-config}}
 \subsubsection[{clusterfile}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf AI\_\-config::clusterfile}\mbox{[}1024\mbox{]}}}
 \label{structAI__config_a6da02a3f7116fd3810a41b738e8883a3}
-Clustered alerts file \hypertarget{structAI__config_ab7ea93bbe72b85c4019b4f5656ad62fc}{
+Clustered alerts file \hypertarget{structAI__config_ae68f5489e2ec9ea1408f98fe36d050c9}{
+\index{AI\_\-config@{AI\_\-config}!corr\_\-alerts\_\-dir@{corr\_\-alerts\_\-dir}}
+\index{corr\_\-alerts\_\-dir@{corr\_\-alerts\_\-dir}!AI_config@{AI\_\-config}}
+\subsubsection[{corr\_\-alerts\_\-dir}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf AI\_\-config::corr\_\-alerts\_\-dir}\mbox{[}1024\mbox{]}}}
+\label{structAI__config_ae68f5489e2ec9ea1408f98fe36d050c9}
+Directory where the correlated alerts' information will be placed \hypertarget{structAI__config_ab7ea93bbe72b85c4019b4f5656ad62fc}{
 \index{AI\_\-config@{AI\_\-config}!corr\_\-rules\_\-dir@{corr\_\-rules\_\-dir}}
 \index{corr\_\-rules\_\-dir@{corr\_\-rules\_\-dir}!AI_config@{AI\_\-config}}
 \subsubsection[{corr\_\-rules\_\-dir}]{\setlength{\rightskip}{0pt plus 5cm}char {\bf AI\_\-config::corr\_\-rules\_\-dir}\mbox{[}1024\mbox{]}}}
@@ -61,7 +70,12 @@ Correlation rules path \hypertarget{structAI__config_aa736375e57a59936e2e782b7cd
 \index{correlationGraphInterval@{correlationGraphInterval}!AI_config@{AI\_\-config}}
 \subsubsection[{correlationGraphInterval}]{\setlength{\rightskip}{0pt plus 5cm}unsigned long {\bf AI\_\-config::correlationGraphInterval}}}
 \label{structAI__config_aa736375e57a59936e2e782b7cd200e41}
-Interval in seconds for running the thread for building alert correlation graphs \hypertarget{structAI__config_ae6ca715cab1d90b70c3aad443133c263}{
+Interval in seconds for running the thread for building alert correlation graphs \hypertarget{structAI__config_adf6ef0faedfb4dea0a1353e781b14883}{
+\index{AI\_\-config@{AI\_\-config}!correlationThresholdCoefficient@{correlationThresholdCoefficient}}
+\index{correlationThresholdCoefficient@{correlationThresholdCoefficient}!AI_config@{AI\_\-config}}
+\subsubsection[{correlationThresholdCoefficient}]{\setlength{\rightskip}{0pt plus 5cm}double {\bf AI\_\-config::correlationThresholdCoefficient}}}
+\label{structAI__config_adf6ef0faedfb4dea0a1353e781b14883}
+Correlation threshold coefficient for correlating two hyperalerts. Two hyperalerts are 'correlated' to each other in a multi-\/step attack graph if and only if their correlation value is $>$= m + ks, where m is the average correlation coefficient, s is the standard deviation over this coefficient, and k is this threshold coefficient. Its value can be $>$= 0. A value in \mbox{[}0,1\mbox{]} is strongly suggested, but this value mostly depends on how accurate the correlation rules where defined. Be careful, defining a correlation coefficient $>$ or $>$$>$ 1 no correlation may occur at all! \hypertarget{structAI__config_ae6ca715cab1d90b70c3aad443133c263}{
 \index{AI\_\-config@{AI\_\-config}!databaseParsingInterval@{databaseParsingInterval}}
 \index{databaseParsingInterval@{databaseParsingInterval}!AI_config@{AI\_\-config}}
 \subsubsection[{databaseParsingInterval}]{\setlength{\rightskip}{0pt plus 5cm}unsigned long {\bf AI\_\-config::databaseParsingInterval}}}

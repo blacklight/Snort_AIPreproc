@@ -42,6 +42,10 @@ struct \hyperlink{struct__AI__snort__alert}{\_\-AI\_\-snort\_\-alert}
 \#define \hyperlink{spp__ai_8h_a803dc913297ccdace9e604dbfecda97d}{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE}~\char`\"{}/var/log/snort/cluster\_\-alert\char`\"{}
 \item 
 \#define \hyperlink{spp__ai_8h_a89448386cad5d5533992ae7ee84f4f1d}{DEFAULT\_\-CORR\_\-RULES\_\-DIR}~\char`\"{}/etc/snort/corr\_\-rules\char`\"{}
+\item 
+\#define \hyperlink{spp__ai_8h_a7bbeccba60012abcc98db33d39294829}{DEFAULT\_\-CORR\_\-ALERTS\_\-DIR}~\char`\"{}/var/log/snort/correlated\_\-alerts\char`\"{}
+\item 
+\#define \hyperlink{spp__ai_8h_aaedb0b7dc2bdf8d44d3fee2189a55a19}{DEFAULT\_\-CORR\_\-THRESHOLD}~0.5
 \end{DoxyCompactItemize}
 \subsection*{Typedefs}
 \begin{DoxyCompactItemize}
@@ -132,12 +136,22 @@ Default path to Snort's log file \hypertarget{spp__ai_8h_a803dc913297ccdace9e604
 \index{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE@{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE}!spp_ai.h@{spp\_\-ai.h}}
 \subsubsection[{DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-CLUSTER\_\-LOG\_\-FILE~\char`\"{}/var/log/snort/cluster\_\-alert\char`\"{}}}
 \label{spp__ai_8h_a803dc913297ccdace9e604dbfecda97d}
-Default path to Snort's clustered alerts file \hypertarget{spp__ai_8h_a89448386cad5d5533992ae7ee84f4f1d}{
+Default path to Snort's clustered alerts file \hypertarget{spp__ai_8h_a7bbeccba60012abcc98db33d39294829}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-CORR\_\-ALERTS\_\-DIR@{DEFAULT\_\-CORR\_\-ALERTS\_\-DIR}}
+\index{DEFAULT\_\-CORR\_\-ALERTS\_\-DIR@{DEFAULT\_\-CORR\_\-ALERTS\_\-DIR}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{DEFAULT\_\-CORR\_\-ALERTS\_\-DIR}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-CORR\_\-ALERTS\_\-DIR~\char`\"{}/var/log/snort/correlated\_\-alerts\char`\"{}}}
+\label{spp__ai_8h_a7bbeccba60012abcc98db33d39294829}
+Default directory for placing correlated alerts information (.dot and possibly .png files) \hypertarget{spp__ai_8h_a89448386cad5d5533992ae7ee84f4f1d}{
 \index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-CORR\_\-RULES\_\-DIR@{DEFAULT\_\-CORR\_\-RULES\_\-DIR}}
 \index{DEFAULT\_\-CORR\_\-RULES\_\-DIR@{DEFAULT\_\-CORR\_\-RULES\_\-DIR}!spp_ai.h@{spp\_\-ai.h}}
 \subsubsection[{DEFAULT\_\-CORR\_\-RULES\_\-DIR}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-CORR\_\-RULES\_\-DIR~\char`\"{}/etc/snort/corr\_\-rules\char`\"{}}}
 \label{spp__ai_8h_a89448386cad5d5533992ae7ee84f4f1d}
-Default path to alert correlation rules directory \hypertarget{spp__ai_8h_a3c4984a0ee515fbc091ac6e33b05e310}{
+Default path to alert correlation rules directory \hypertarget{spp__ai_8h_aaedb0b7dc2bdf8d44d3fee2189a55a19}{
+\index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-CORR\_\-THRESHOLD@{DEFAULT\_\-CORR\_\-THRESHOLD}}
+\index{DEFAULT\_\-CORR\_\-THRESHOLD@{DEFAULT\_\-CORR\_\-THRESHOLD}!spp_ai.h@{spp\_\-ai.h}}
+\subsubsection[{DEFAULT\_\-CORR\_\-THRESHOLD}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-CORR\_\-THRESHOLD~0.5}}
+\label{spp__ai_8h_aaedb0b7dc2bdf8d44d3fee2189a55a19}
+Default correlation threshold coefficient for correlating two hyperalerts \hypertarget{spp__ai_8h_a3c4984a0ee515fbc091ac6e33b05e310}{
 \index{spp\_\-ai.h@{spp\_\-ai.h}!DEFAULT\_\-DATABASE\_\-INTERVAL@{DEFAULT\_\-DATABASE\_\-INTERVAL}}
 \index{DEFAULT\_\-DATABASE\_\-INTERVAL@{DEFAULT\_\-DATABASE\_\-INTERVAL}!spp_ai.h@{spp\_\-ai.h}}
 \subsubsection[{DEFAULT\_\-DATABASE\_\-INTERVAL}]{\setlength{\rightskip}{0pt plus 5cm}\#define DEFAULT\_\-DATABASE\_\-INTERVAL~30}}

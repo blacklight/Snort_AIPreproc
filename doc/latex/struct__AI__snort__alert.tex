@@ -60,6 +60,12 @@ struct \hyperlink{struct__AI__snort__alert}{\_\-AI\_\-snort\_\-alert} $\ast$ \hy
 unsigned int \hyperlink{struct__AI__snort__alert_a285aff12d6bac03c316ccc5305d28e53}{grouped\_\-alarms\_\-count}
 \item 
 \hyperlink{structAI__hyperalert__info}{AI\_\-hyperalert\_\-info} $\ast$ \hyperlink{struct__AI__snort__alert_ac101de15b4f9451f235b82122f77b62a}{hyperalert}
+\item 
+struct \hyperlink{struct__AI__snort__alert}{\_\-AI\_\-snort\_\-alert} $\ast$ \hyperlink{struct__AI__snort__alert_a55a5488c7ee7706ded4c16b1235fd9c7}{previous\_\-correlated}
+\item 
+struct \hyperlink{struct__AI__snort__alert}{\_\-AI\_\-snort\_\-alert} $\ast$$\ast$ \hyperlink{struct__AI__snort__alert_aac5e4078600ed17532db1f3d78165390}{derived\_\-alerts}
+\item 
+unsigned int \hyperlink{struct__AI__snort__alert_a1f2d5e8cfd0e6321b977173d1e90cb68}{n\_\-derived\_\-alerts}
 \end{DoxyCompactItemize}
 
 
@@ -72,7 +78,12 @@ Data type for Snort alerts
 \index{classification@{classification}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
 \subsubsection[{classification}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ {\bf \_\-AI\_\-snort\_\-alert::classification}}}
 \label{struct__AI__snort__alert_aa89585e14acb2c4e684a1552d322632f}
-\hypertarget{struct__AI__snort__alert_ac0902d7c756ec675fb06347ce4706135}{
+\hypertarget{struct__AI__snort__alert_aac5e4078600ed17532db1f3d78165390}{
+\index{\_\-AI\_\-snort\_\-alert@{\_\-AI\_\-snort\_\-alert}!derived\_\-alerts@{derived\_\-alerts}}
+\index{derived\_\-alerts@{derived\_\-alerts}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
+\subsubsection[{derived\_\-alerts}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf \_\-AI\_\-snort\_\-alert}$\ast$$\ast$ {\bf \_\-AI\_\-snort\_\-alert::derived\_\-alerts}}}
+\label{struct__AI__snort__alert_aac5e4078600ed17532db1f3d78165390}
+Array of directly correlated 'derived' alerts from the current one, if any \hypertarget{struct__AI__snort__alert_ac0902d7c756ec675fb06347ce4706135}{
 \index{\_\-AI\_\-snort\_\-alert@{\_\-AI\_\-snort\_\-alert}!desc@{desc}}
 \index{desc@{desc}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
 \subsubsection[{desc}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ {\bf \_\-AI\_\-snort\_\-alert::desc}}}
@@ -132,12 +143,22 @@ Hyperalert information, pre-\/conditions and post-\/conditions \hypertarget{stru
 \index{ip\_\-ttl@{ip\_\-ttl}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
 \subsubsection[{ip\_\-ttl}]{\setlength{\rightskip}{0pt plus 5cm}{\bf uint8\_\-t} {\bf \_\-AI\_\-snort\_\-alert::ip\_\-ttl}}}
 \label{struct__AI__snort__alert_a3c9bbe84ec696cd58668a45799a66600}
-\hypertarget{struct__AI__snort__alert_aa8336d4b3359015ed8ea312ca1fd1173}{
+\hypertarget{struct__AI__snort__alert_a1f2d5e8cfd0e6321b977173d1e90cb68}{
+\index{\_\-AI\_\-snort\_\-alert@{\_\-AI\_\-snort\_\-alert}!n\_\-derived\_\-alerts@{n\_\-derived\_\-alerts}}
+\index{n\_\-derived\_\-alerts@{n\_\-derived\_\-alerts}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
+\subsubsection[{n\_\-derived\_\-alerts}]{\setlength{\rightskip}{0pt plus 5cm}unsigned int {\bf \_\-AI\_\-snort\_\-alert::n\_\-derived\_\-alerts}}}
+\label{struct__AI__snort__alert_a1f2d5e8cfd0e6321b977173d1e90cb68}
+Number of derived alerts \hypertarget{struct__AI__snort__alert_aa8336d4b3359015ed8ea312ca1fd1173}{
 \index{\_\-AI\_\-snort\_\-alert@{\_\-AI\_\-snort\_\-alert}!next@{next}}
 \index{next@{next}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
 \subsubsection[{next}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf \_\-AI\_\-snort\_\-alert}$\ast$ {\bf \_\-AI\_\-snort\_\-alert::next}}}
 \label{struct__AI__snort__alert_aa8336d4b3359015ed8ea312ca1fd1173}
-Pointer to the next alert in the log, if any \hypertarget{struct__AI__snort__alert_a25661fa4e212c5e30af5e6a892985ec9}{
+Pointer to the next alert in the log, if any \hypertarget{struct__AI__snort__alert_a55a5488c7ee7706ded4c16b1235fd9c7}{
+\index{\_\-AI\_\-snort\_\-alert@{\_\-AI\_\-snort\_\-alert}!previous\_\-correlated@{previous\_\-correlated}}
+\index{previous\_\-correlated@{previous\_\-correlated}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
+\subsubsection[{previous\_\-correlated}]{\setlength{\rightskip}{0pt plus 5cm}struct {\bf \_\-AI\_\-snort\_\-alert}$\ast$ {\bf \_\-AI\_\-snort\_\-alert::previous\_\-correlated}}}
+\label{struct__AI__snort__alert_a55a5488c7ee7706ded4c16b1235fd9c7}
+\hypertarget{struct__AI__snort__alert_a25661fa4e212c5e30af5e6a892985ec9}{
 \index{\_\-AI\_\-snort\_\-alert@{\_\-AI\_\-snort\_\-alert}!priority@{priority}}
 \index{priority@{priority}!_AI_snort_alert@{\_\-AI\_\-snort\_\-alert}}
 \subsubsection[{priority}]{\setlength{\rightskip}{0pt plus 5cm}unsigned short {\bf \_\-AI\_\-snort\_\-alert::priority}}}

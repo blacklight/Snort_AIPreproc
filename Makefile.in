@@ -150,6 +150,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
+LIBGRAPH_INCLUDES = @LIBGRAPH_INCLUDES@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
@@ -159,7 +160,6 @@ LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
-MYSQL = @MYSQL@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -235,7 +235,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign no-dependencies
 lib_LTLIBRARIES = libsf_ai_preproc.la
-libsf_ai_preproc_la_CFLAGS = -I./uthash -I./include ${LIBXML2_INCLUDES} -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -pedantic -pedantic-errors -fstack-protector
+libsf_ai_preproc_la_CFLAGS = -I./uthash -I./include ${LIBXML2_INCLUDES} ${LIBGRAPH_INCLUDES} -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -pedantic -pedantic-errors -fstack-protector
 libsf_ai_preproc_la_LDFLAGS = -module -export-dynamic
 BUILT_SOURCES = \
 include/sf_dynamic_preproc_lib.c \

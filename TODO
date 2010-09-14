@@ -1,5 +1,6 @@
 - Correlation macros valid also for hierarchies flags
 - Bayesian learning among alerts in alert log
+- libgc support
 
 - Managing clusters for addresses, timestamps (and more?)
 - Dynamic cluster_min_size algorithm

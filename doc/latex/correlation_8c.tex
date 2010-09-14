@@ -3,12 +3,20 @@
 \label{correlation_8c}\index{correlation.c@{correlation.c}}
 }
 {\ttfamily \#include \char`\"{}spp\_\-ai.h\char`\"{}}\par
+{\ttfamily \#include $<$stdio.h$>$}\par
+{\ttfamily \#include $<$stdlib.h$>$}\par
+{\ttfamily \#include $<$string.h$>$}\par
 {\ttfamily \#include $<$unistd.h$>$}\par
+{\ttfamily \#include $<$time.h$>$}\par
+{\ttfamily \#include $<$math.h$>$}\par
+{\ttfamily \#include $<$alloca.h$>$}\par
 {\ttfamily \#include $<$sys/stat.h$>$}\par
 {\ttfamily \#include $<$pthread.h$>$}\par
 {\ttfamily \#include $<$libxml/xmlreader.h$>$}\par
 \subsection*{Data Structures}
 \begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structAI__alert__correlation__key}{AI\_\-alert\_\-correlation\_\-key}
 \item 
 struct \hyperlink{structAI__alert__correlation}{AI\_\-alert\_\-correlation}
 \end{DoxyCompactItemize}
@@ -27,9 +35,17 @@ enum \{ \par
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-double \hyperlink{group__correlation_ga130e82017fc0abcb76b1a7740ae2f4df}{\_\-AI\_\-correlation\_\-coefficient} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$a, \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$b)
+PRIVATE void \hyperlink{group__correlation_ga9bcb94264ffe30f113f3fb7287b774e3}{\_\-AI\_\-correlation\_\-table\_\-cleanup} ()
+\begin{DoxyCompactList}\small\item\em Clean up the correlation hash table. \item\end{DoxyCompactList}\item 
+PRIVATE void \hyperlink{group__correlation_ga4267a39fa1a5ac035015823bca43288e}{\_\-AI\_\-print\_\-correlated\_\-alerts} (\hyperlink{structAI__alert__correlation}{AI\_\-alert\_\-correlation} $\ast$corr, FILE $\ast$fp)
+\begin{DoxyCompactList}\small\item\em Recursively write a flow of correlated alerts to a .dot file, ready for being rendered as graph. \item\end{DoxyCompactList}\item 
+PRIVATE char $\ast$ \hyperlink{group__correlation_ga7a1b2d01f526f24ea91d7f08bdefd4fe}{\_\-AI\_\-get\_\-function\_\-name} (const char $\ast$orig\_\-stmt)
+\begin{DoxyCompactList}\small\item\em Get the name of the function called by a pre-\/condition or post-\/condition predicate. \item\end{DoxyCompactList}\item 
+PRIVATE char $\ast$$\ast$ \hyperlink{group__correlation_gab716702cd226ab2ad957234a92da6e4a}{\_\-AI\_\-get\_\-function\_\-arguments} (char $\ast$orig\_\-stmt, int $\ast$n\_\-args)
+\begin{DoxyCompactList}\small\item\em Get the arguments passed to a function predicate in a pre-\/condition or post-\/condition (comma-\/separated values). \item\end{DoxyCompactList}\item 
+PRIVATE double \hyperlink{group__correlation_ga9cb283b28a66829574add58a251b93c6}{\_\-AI\_\-correlation\_\-coefficient} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$a, \hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$b)
 \begin{DoxyCompactList}\small\item\em Compute the correlation coefficient between two alerts, as INTERSECTION(pre(B), post(A) / UNION(pre(B), post(A)). \item\end{DoxyCompactList}\item 
-void \hyperlink{group__correlation_ga0d094eae1d014d89a2de21263fa747da}{\_\-AI\_\-macro\_\-subst} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$$\ast$alert)
+PRIVATE void \hyperlink{group__correlation_ga70a4aaf8b689472dad62ba7a9bbde1a6}{\_\-AI\_\-macro\_\-subst} (\hyperlink{struct__AI__snort__alert}{AI\_\-snort\_\-alert} $\ast$$\ast$alert)
 \begin{DoxyCompactList}\small\item\em Substitute the macros in hyperalert pre-\/conditions and post-\/conditions with their associated values. \item\end{DoxyCompactList}\item 
 PRIVATE \hyperlink{structAI__hyperalert__info}{AI\_\-hyperalert\_\-info} $\ast$ \hyperlink{group__correlation_ga929e5c17fdb247a998d83ed6a4ae5a65}{\_\-AI\_\-hyperalert\_\-from\_\-XML} (\hyperlink{structAI__hyperalert__key}{AI\_\-hyperalert\_\-key} key)
 \begin{DoxyCompactList}\small\item\em Parse info about a hyperalert from a correlation XML file, if it exists. \item\end{DoxyCompactList}\item 
