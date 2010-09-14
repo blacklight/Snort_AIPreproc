@@ -41,7 +41,9 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
 	int i;
 	regex_t regex;
 	regmatch_t *m = NULL;
-	*nmatches = 0;
+
+	if ( nmatches )
+		*nmatches = 0;
 
 	if ( regcomp ( &regex, expr, REG_EXTENDED | REG_ICASE ) != 0 )  {
 		return -1;
@@ -49,7 +51,6 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
 
 	if ( regex.re_nsub > 0 )
 	{
-		/* if ( !(m = (regmatch_t*) malloc ( (regex.re_nsub+1) * sizeof(regmatch_t) )) ) */
 		if ( !(m = (regmatch_t*) alloca ( (regex.re_nsub+1) * sizeof(regmatch_t) )) )
 		{
 			regfree ( &regex );
@@ -57,12 +58,15 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
 			exit ( EXIT_FAILURE );
 		}
 
-		if ( !( *matches = (char**) malloc ( (regex.re_nsub+1) * sizeof(char*) )) )
+		if ( matches )
 		{
-			regfree ( &regex );
-			m = NULL;
-			fprintf ( stderr, "\nDynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
-			exit ( EXIT_FAILURE );
+			if ( !( *matches = (char**) malloc ( (regex.re_nsub+1) * sizeof(char*) )) )
+			{
+				regfree ( &regex );
+				m = NULL;
+				fprintf ( stderr, "\nDynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+				exit ( EXIT_FAILURE );
+			}
 		}
 
 		if ( regexec ( &regex, str, regex.re_nsub+1, m, 0 ) == REG_NOMATCH )  {
@@ -78,20 +82,24 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
 		}
 	}
 
-	*nmatches = regex.re_nsub;
+	if ( nmatches )
+		*nmatches = regex.re_nsub;
 
-	for ( i=0; i < regex.re_nsub; i++ )  {
-		if ( !( (*matches)[i] = (char*) malloc ( m[i+1].rm_eo - m[i+1].rm_so + 1 )) )
-		{
-			regfree ( &regex );
-			free ( m );
-			m = NULL;
-			fprintf ( stderr, "\nDynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
-			exit ( EXIT_FAILURE );
+	if ( matches )
+	{
+		for ( i=0; i < regex.re_nsub; i++ )  {
+			if ( !( (*matches)[i] = (char*) malloc ( m[i+1].rm_eo - m[i+1].rm_so + 1 )) )
+			{
+				regfree ( &regex );
+				free ( m );
+				m = NULL;
+				fprintf ( stderr, "\nDynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+				exit ( EXIT_FAILURE );
+			}
+
+			memset ( (*matches)[i], 0, m[i+1].rm_eo - m[i+1].rm_so + 1 );
+			strncpy ( (*matches)[i], str + m[i+1].rm_so, m[i+1].rm_eo - m[i+1].rm_so );
 		}
-
-		memset ( (*matches)[i], 0, m[i+1].rm_eo - m[i+1].rm_so + 1 );
-		strncpy ( (*matches)[i], str + m[i+1].rm_so, m[i+1].rm_eo - m[i+1].rm_so );
 	}
 
 	regfree ( &regex );

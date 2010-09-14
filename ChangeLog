@@ -1,3 +1,10 @@
+2010-14-09  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
+	* correlation.c: Correlation completed, runtime substitution of macros
+	+ANY_ADDR+ and +ANY_PORT+ for runtime matching, runtime expansion of IP
+	netmasks for matching
+	* regex.c: Now supporting preg_match with matches and/or n_matches set to
+	NULL
+
 2010-11-09  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
 	* correlation.c: Most of the correlation thread is ready
 	* regex.c: Added method 'str_replace' and 'str_replace_all'

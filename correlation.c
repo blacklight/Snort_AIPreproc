@@ -75,6 +75,7 @@ PRIVATE BOOL                 lock_flag          = false;
 /**
  * \brief  Clean up the correlation hash table
  */
+
 PRIVATE void
 _AI_correlation_table_cleanup ()
 {
@@ -90,9 +91,10 @@ _AI_correlation_table_cleanup ()
 
 /**
  * \brief  Recursively write a flow of correlated alerts to a .dot file, ready for being rendered as graph
- * \param  corr_alerts 	Correlated alerts
- * \param  fp            File pointer
+ * \param  corr 	Correlated alerts
+ * \param  fp       File pointer
  */
+
 PRIVATE void
 _AI_print_correlated_alerts ( AI_alert_correlation *corr, FILE *fp )
 {
@@ -192,6 +194,7 @@ _AI_print_correlated_alerts ( AI_alert_correlation *corr, FILE *fp )
  * \param  orig_stmt 	Statement representing a pre-condition or post-condition
  * \return The name of the function called by that statement
  */
+
 PRIVATE char*
 _AI_get_function_name ( const char *orig_stmt )
 {
@@ -217,12 +220,12 @@ _AI_get_function_name ( const char *orig_stmt )
 
 
 /**
- * FUNCTION: _AI_get_function_arguments
  * \brief  Get the arguments passed to a function predicate in a pre-condition or post-condition (comma-separated values)
- * \param  origstmt 	Statement representing a pre-condition or post-condition
+ * \param  orig_stmt 	Statement representing a pre-condition or post-condition
  * \param  n_args 		Reference to an integer that will contain the number of arguments read
  * \return An array of strings containing the arguments of the function
  */
+
 PRIVATE char**
 _AI_get_function_arguments ( char *orig_stmt, int *n_args )
 {
@@ -271,19 +274,25 @@ _AI_get_function_arguments ( char *orig_stmt, int *n_args )
 PRIVATE double
 _AI_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
 {
-	unsigned int i, j, k,
+	unsigned int i, j, k, l,
 			   n_intersection = 0,
 			   n_union = 0;
 
-	char         **args1 = NULL,
-			   **args2 = NULL,
+	char         **args1         = NULL,
+			   **args2         = NULL,
+			   **matches       = NULL,
 			   *function_name1 = NULL,
 			   *function_name2 = NULL,
 			   new_stmt1[4096] = {0},
 			   new_stmt2[4096] = {0};
 
-	int          n_args1 = 0,
-			   n_args2 = 0;
+	int          n_args1   = 0,
+			   n_args2   = 0,
+			   n_matches = 0,
+			   min_addr  = 0,
+			   max_addr  = 0,
+			   ipaddr    = 0,
+			   netmask   = 0;
 
 	if ( !a->hyperalert || !b->hyperalert )
 		return 0.0;
@@ -302,7 +311,7 @@ _AI_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
 				n_intersection += 2;
 			} else {
 				/* Check if the predicates are the same, have the same number of arguments, and
-				 * substitute possible occurrencies of +ANY_ADDR+ and +ANY_PORT+ */
+				 * substitute possible occurrencies of +ANY_ADDR+ and +ANY_PORT+ or IP netmasks */
 				function_name1 = _AI_get_function_name ( a->hyperalert->postconds[i] );
 				function_name2 = _AI_get_function_name ( b->hyperalert->preconds[j] );
 
@@ -320,6 +329,8 @@ _AI_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
 
 							for ( k=0; k < n_args1; k++ )
 							{
+								/* If any occurrence of +ANY_ADDR+ or +ANY_PORT+ is found in any of the arguments,
+								 * substitute that occurrence with the associated value */
 								if ( !strcasecmp ( args1[k], "+ANY_ADDR+" ) || !strcasecmp ( args1[k], "+ANY_PORT+" ))
 								{
 									free ( args1[k] );
@@ -330,6 +341,72 @@ _AI_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
 								{
 									free ( args2[k] );
 									args2[k] = args1[k];
+								}
+
+								/* Substitute any occurrence of an IP netmask in any of the two arguments with
+								 * the associated IP value */
+								if ( preg_match ( "^([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})/([0-9]{1,2})$", args1[k], &matches, &n_matches ))
+								{
+									if ( preg_match ( "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$", args2[k], NULL, NULL ))
+									{
+										if (( netmask = strtol ( matches[1], NULL, 10 )) > 32 )
+											_dpd.fatalMsg ( "AIPreproc: Invalid netmask value in '%s'\n", args1[k] );
+
+										if (( min_addr = inet_addr ( matches[0] )) == INADDR_NONE )
+											_dpd.fatalMsg ( "AIPreproc: Invalid base IP address in '%s'\n", args1[k] );
+
+										ipaddr = inet_addr ( args2[k] );
+										
+										if ( ipaddr == INADDR_NONE )
+											_dpd.fatalMsg ( "AIPreproc: Invalid base IP address in '%s'\n", args2[k] );
+
+										netmask = 1 << (( 8*sizeof ( uint32_t )) - netmask );
+										min_addr = ntohl ( min_addr ) & (~(netmask - 1));
+										max_addr = min_addr | (netmask - 1);
+										ipaddr   = ntohl ( ipaddr );
+
+										if ( ipaddr >= min_addr && ipaddr <= max_addr )
+										{
+											free ( args1[k] );
+											args1[k] = args2[k];
+										}
+									}
+
+									for ( l=0; l < n_matches; l++ )
+										free ( matches[l] );
+									free ( matches );
+								}
+
+								if ( preg_match ( "^([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})/([0-9]{1,2})$", args2[k], &matches, &n_matches ))
+								{
+									if ( preg_match ( "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$", args1[k], NULL, NULL ))
+									{
+										if (( netmask = strtol ( matches[1], NULL, 10 )) > 32 )
+											_dpd.fatalMsg ( "AIPreproc: Invalid netmask value in '%s'\n", args2[k] );
+
+										if (( min_addr = inet_addr ( matches[0] )) == INADDR_NONE )
+											_dpd.fatalMsg ( "AIPreproc: Invalid base IP address in '%s'\n", args2[k] );
+
+										ipaddr = inet_addr ( args1[k] );
+
+										if ( ipaddr == INADDR_NONE )
+											_dpd.fatalMsg ( "AIPreproc: Invalid base IP address in '%s'\n", args1[k] );
+
+										netmask = 1 << (( 8*sizeof ( uint32_t )) - netmask );
+										min_addr = ntohl ( min_addr ) & (~(netmask - 1));
+										max_addr = min_addr | (netmask - 1);
+										ipaddr   = ntohl ( ipaddr );
+
+										if ( ipaddr >= min_addr && ipaddr <= max_addr )
+										{
+											free ( args2[k] );
+											args2[k] = args1[k];
+										}
+									}
+
+									for ( l=0; l < n_matches; l++ )
+										free ( matches[l] );
+									free ( matches );
 								}
 							}
 
@@ -477,12 +554,6 @@ _AI_macro_subst ( AI_snort_alert **alert )
 			free ( tmp );
 		}
 		
-		/* if ( strstr ( (*alert)->hyperalert->postconds[i], "+ANY_ADDR+" )) { */
-		/* 	tmp = (*alert)->hyperalert->postconds[i]; */
-		/* 	(*alert)->hyperalert->postconds[i] = str_replace ( (*alert)->hyperalert->postconds[i], "+ANY_ADDR+", "0.0.0.0" ); */
-		/* 	free ( tmp ); */
-		/* } */
-		
 		if ( strstr ( (*alert)->hyperalert->postconds[i], "+SRC_PORT+" )) {
 			snprintf ( src_port, sizeof ( src_port ), "%d", ntohs ((*alert)->tcp_src_port) );
 			tmp = (*alert)->hyperalert->postconds[i];
@@ -496,12 +567,6 @@ _AI_macro_subst ( AI_snort_alert **alert )
 			(*alert)->hyperalert->postconds[i] = str_replace ( (*alert)->hyperalert->postconds[i], "+DST_PORT+", dst_port );
 			free ( tmp );
 		}
-		
-		/* if ( strstr ( (*alert)->hyperalert->postconds[i], "+ANY_PORT+" )) { */
-		/* 	tmp = (*alert)->hyperalert->postconds[i]; */
-		/* 	(*alert)->hyperalert->postconds[i] = str_replace ( (*alert)->hyperalert->postconds[i], "+ANY_PORT+", "0" ); */
-		/* 	free ( tmp ); */
-		/* } */
 	}
 }		/* -----  end of function _AI_macro_subst  ----- */
 
@@ -801,6 +866,8 @@ AI_alert_correlation_thread ( void *arg )
 				{
 					_dpd.fatalMsg ( "AIPreproc: Unable to create directory '%s'\n", conf->corr_alerts_dir );
 				}
+			} else if ( !S_ISDIR ( st.st_mode )) {
+				_dpd.fatalMsg ( "AIPreproc: '%s' found but it's not a directory\n", conf->corr_alerts_dir );
 			}
 
 			if ( !( fp = fopen ( corr_dot_file, "w" )))
