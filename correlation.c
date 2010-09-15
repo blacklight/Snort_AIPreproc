@@ -70,7 +70,7 @@ PRIVATE AI_hyperalert_info   *hyperalerts       = NULL;
 PRIVATE AI_config            *conf              = NULL;
 PRIVATE AI_snort_alert       *alerts            = NULL;
 PRIVATE AI_alert_correlation *correlation_table = NULL;
-PRIVATE BOOL                 lock_flag          = false;
+PRIVATE pthread_mutex_t       correlation_lock  = PTHREAD_MUTEX_INITIALIZER; 
 
 /**
  * \brief  Clean up the correlation hash table
@@ -756,7 +756,7 @@ AI_alert_correlation_thread ( void *arg )
 		}
 
 		/* Set the lock flag to true, and keep it this way until I've done with generating the new hyperalerts */
-		lock_flag = true;
+		pthread_mutex_lock(&correlation_lock);
 
 		if ( alerts )
 		{
@@ -766,7 +766,7 @@ AI_alert_correlation_thread ( void *arg )
 
 		if ( !( alerts = AI_get_clustered_alerts() ))
 		{
-			lock_flag = false;
+			pthread_mutex_unlock(&correlation_lock);
 			continue;
 		}
 
@@ -917,7 +917,7 @@ AI_alert_correlation_thread ( void *arg )
 			#endif
 		}
 
-		lock_flag = false;
+		pthread_mutex_unlock(&correlation_lock);
 	}
 
 	pthread_exit (( void* ) 0 );

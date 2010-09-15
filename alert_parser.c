@@ -27,9 +27,9 @@
 #include 	<pthread.h>
 
 
-PRIVATE AI_snort_alert *alerts   = NULL;
-PRIVATE FILE           *alert_fp = NULL;
-PRIVATE BOOL           lock_flag = false;
+PRIVATE AI_snort_alert *alerts    = NULL;
+PRIVATE FILE           *alert_fp  = NULL;
+PRIVATE pthread_mutex_t file_lock = PTHREAD_MUTEX_INITIALIZER; 
 
 /** \defgroup alert_parser Parse the alert log into binary structures
  * @{ */
@@ -106,8 +106,8 @@ AI_file_alertparser_thread ( void* arg )
 		inotify_rm_watch ( ifd, wd );
 		close ( ifd );
 
-		/* Set the lock flag to true until it's done with alert parsing */
-		lock_flag = true;
+		/* Acquire the mutex until it's done with alert parsing */
+		pthread_mutex_lock(&file_lock)
 
 		while ( !feof ( alert_fp ))
 		{
@@ -305,7 +305,8 @@ AI_file_alertparser_thread ( void* arg )
 			}
 		}
 
-		lock_flag = false;
+		/* Release the file lock. */
+		pthread_mutex_unlock(&file_lock);
 	}
 
 	pthread_exit ((void*) 0 );
@@ -351,8 +352,15 @@ _AI_copy_alerts ( AI_snort_alert *node )
 AI_snort_alert*
 AI_get_alerts ()
 {
-	while ( lock_flag );
-	return _AI_copy_alerts ( alerts );
+	/* Acquire the mutex or block until the thread releases it. */
+	pthread_mutex_lock(&file_lock);
+	
+	AI_snort_alert* alerts = _AI_copy_alerts ( alerts );
+
+	/* We've done, we can release the mutex again and let the thread read the file. */
+	pthread_mutex_unlock(&file_lock);
+
+	return alerts;
 }		/* -----  end of function AI_get_alerts  ----- */
 
 

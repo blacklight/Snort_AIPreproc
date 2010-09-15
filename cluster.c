@@ -45,7 +45,7 @@ typedef struct  {
 PRIVATE hierarchy_node *h_root[CLUSTER_TYPES] = { NULL };
 PRIVATE AI_config      *_config               = NULL;
 PRIVATE AI_snort_alert *alert_log             = NULL;
-PRIVATE BOOL           lock_flag              = false;
+PRIVATE pthread_mutex_t cluster_lock          = PTHREAD_MUTEX_INITIALIZER; 
 
 
 /**
@@ -375,7 +375,7 @@ _AI_cluster_thread ( void* arg )
 		sleep ( _config->alertClusteringInterval );
 
 		/* Set the lock over the alert log until it's done with the clustering operation */
-		lock_flag = true;
+		pthread_mutex_lock(&cluster_lock);
 
 		/* Free the current alert log and get the latest one */
 		if ( alert_log )
@@ -386,7 +386,7 @@ _AI_cluster_thread ( void* arg )
 		
 		if ( !( alert_log = get_alerts() ))
 		{
-			lock_flag = false;
+			pthread_mutex_unlock(&cluster_lock);
 			continue;
 		}
 
@@ -490,7 +490,7 @@ _AI_cluster_thread ( void* arg )
 			/* 	break; */
 		} while ( old_alert_count != alert_count );
 
-		lock_flag = false;
+		pthread_mutex_unlock(&cluster_lock);
 
 		if ( !( cluster_fp = fopen ( _config->clusterfile, "w" )) )
 		{
@@ -661,8 +661,13 @@ _AI_copy_clustered_alerts ( AI_snort_alert *node )
 AI_snort_alert*
 AI_get_clustered_alerts ()
 {
-	while ( lock_flag );
-	return _AI_copy_clustered_alerts ( alert_log );
+	pthread_mutex_lock(&cluster_lock);
+	
+	AI_snort_alert *alerts = _AI_copy_clustered_alerts ( alert_log );
+
+	pthread_mutex_unlock(&cluster_lock);
+
+	return alerts;
 }		/* -----  end of function AI_get_clustered_alerts  ----- */
 
 /** @} */

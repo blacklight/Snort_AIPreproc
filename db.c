@@ -32,7 +32,7 @@
 
 PRIVATE AI_config      *config;
 PRIVATE AI_snort_alert *alerts   = NULL;
-PRIVATE BOOL           lock_flag = false;
+PRIVATE pthread_mutex_t db_lock  = PTHREAD_MUTEX_INITIALIZER;
 
 /** pthread mutex for accessing database data */
 PRIVATE pthread_mutex_t db_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -80,7 +80,7 @@ AI_db_alertparser_thread ( void *arg )
 		sleep ( config->databaseParsingInterval );
 
 		/* Set the lock flag to true until it's done with alert parsing */
-		lock_flag = true;
+		pthread_mutex_lock(&db_lock);
 
 		memset ( query, 0, sizeof ( query ));
 		snprintf ( query, sizeof (query), "select cid, unix_timestamp(timestamp), signature from event where cid > %d "
@@ -98,7 +98,7 @@ AI_db_alertparser_thread ( void *arg )
 			DB_close();
 			_dpd.fatalMsg ( "AIPreproc: Could not store the query result at %s:%d\n", __FILE__, __LINE__ );
 		} else if ( rows == 0 ) {
-			lock_flag = false;
+			pthread_mutex_unlock(&db_lock);
 			continue;
 		}
 
@@ -224,7 +224,7 @@ AI_db_alertparser_thread ( void *arg )
 			}
 		}
 		
-		lock_flag = false;
+		pthread_mutex_unlock(&db_lock);
 		DB_free_result ( res );
 		latest_time = time ( NULL );
 	}
@@ -272,8 +272,13 @@ _AI_db_copy_alerts ( AI_snort_alert *node )
 AI_snort_alert*
 AI_db_get_alerts ()
 {
-	while ( lock_flag );
-	return _AI_db_copy_alerts ( alerts );
+	pthread_mutex_lock(&db_lock);
+	
+	AI_snort_alert *alerts = _AI_db_copy_alerts ( alerts );
+
+	pthread_mutex_unlock(&db_lock);
+
+	return alerts;
 }		/* -----  end of function AI_db_get_alerts  ----- */
 
 /** @} */
