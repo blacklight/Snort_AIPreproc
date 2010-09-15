@@ -93,10 +93,11 @@ _AI_correlation_table_cleanup ()
  * \brief  Recursively write a flow of correlated alerts to a .dot file, ready for being rendered as graph
  * \param  corr 	Correlated alerts
  * \param  fp       File pointer
+ * \param  strong   Boolean value set if the correlation between the alerts is 'strong' (greater than avg + 2*k*deviation)
  */
 
 PRIVATE void
-_AI_print_correlated_alerts ( AI_alert_correlation *corr, FILE *fp )
+_AI_print_correlated_alerts ( AI_alert_correlation *corr, FILE *fp, BOOL strong )
 {
 	char  src_addr1[INET_ADDRSTRLEN],
 		 dst_addr1[INET_ADDRSTRLEN],
@@ -134,57 +135,25 @@ _AI_print_correlated_alerts ( AI_alert_correlation *corr, FILE *fp )
 
 	fprintf ( fp,
 		"\t\"[%d.%d.%d] %s\\n"
-		"%s%s%s:%s%s%s -> %s%s%s:%s%s%s\\n"
+		"%s:%s -> %s:%s\\n"
 		"%s\\n"
 		"(%d alerts grouped)\" -> "
 
 		"\"[%d.%d.%d] %s\\n"
-		"%s%s%s:%s%s%s -> %s%s%s:%s%s%s\\n"
+		"%s:%s -> %s:%s\\n"
 		"%s\\n"
-		"(%d alerts grouped)\";\n",
+		"(%d alerts grouped)\"%s;\n",
 
 		corr->key.a->gid, corr->key.a->sid, corr->key.a->rev, corr->key.a->desc,
-
-		( corr->key.a->h_node[src_addr] ) ? "[" : "",
-		( corr->key.a->h_node[src_addr] ) ? corr->key.a->h_node[src_addr]->label : src_addr1,
-		( corr->key.a->h_node[src_addr] ) ? "]" : "",
-
-		( corr->key.a->h_node[src_port] ) ? "[" : "",
-		( corr->key.a->h_node[src_port] ) ? corr->key.a->h_node[src_port]->label : src_port1,
-		( corr->key.a->h_node[src_port] ) ? "]" : "",
-
-		( corr->key.a->h_node[dst_addr] ) ? "[" : "",
-		( corr->key.a->h_node[dst_addr] ) ? corr->key.a->h_node[dst_addr]->label : dst_addr1,
-		( corr->key.a->h_node[dst_addr] ) ? "]" : "",
-
-		( corr->key.a->h_node[dst_port] ) ? "[" : "",
-		( corr->key.a->h_node[dst_port] ) ? corr->key.a->h_node[dst_port]->label : dst_port1,
-		( corr->key.a->h_node[dst_port] ) ? "]" : "",
-
+		src_addr1, src_port1, dst_addr1, dst_port1,
 		timestamp1,
 		corr->key.a->grouped_alarms_count,
 
-
 		corr->key.b->gid, corr->key.b->sid, corr->key.b->rev, corr->key.b->desc,
-
-		( corr->key.b->h_node[src_addr] ) ? "[" : "",
-		( corr->key.b->h_node[src_addr] ) ? corr->key.b->h_node[src_addr]->label : src_addr2,
-		( corr->key.b->h_node[src_addr] ) ? "]" : "",
-
-		( corr->key.b->h_node[src_port] ) ? "[" : "",
-		( corr->key.b->h_node[src_port] ) ? corr->key.b->h_node[src_port]->label : src_port2,
-		( corr->key.b->h_node[src_port] ) ? "]" : "",
-
-		( corr->key.b->h_node[dst_addr] ) ? "[" : "",
-		( corr->key.b->h_node[dst_addr] ) ? corr->key.b->h_node[dst_addr]->label : dst_addr2,
-		( corr->key.b->h_node[dst_addr] ) ? "]" : "",
-
-		( corr->key.b->h_node[dst_port] ) ? "[" : "",
-		( corr->key.b->h_node[dst_port] ) ? corr->key.b->h_node[dst_port]->label : dst_port2,
-		( corr->key.b->h_node[dst_port] ) ? "]" : "",
-
+		src_addr2, src_port2, dst_addr2, dst_port2,
 		timestamp2,
-		corr->key.b->grouped_alarms_count
+		corr->key.b->grouped_alarms_count,
+		strong ? "" : "[style=dotted]"
 	);
 }		/* -----  end of function _AI_correlation_flow_to_file  ----- */
 
@@ -718,27 +687,28 @@ AI_alert_correlation_thread ( void *arg )
 {
 	int                       i;
 	struct stat               st;
-	char                      corr_dot_file[4096] = { 0 };
+	char                      corr_dot_file[4096]   = { 0 };
 
-	double                    avg_correlation     = 0.0,
-						 std_deviation       = 0.0,
-						 corr_threshold      = 0.0;
+	double                    avg_correlation       = 0.0,
+						 std_deviation         = 0.0,
+						 corr_threshold        = 0.0,
+						 corr_strong_threshold = 0.0;
 
-	FILE                      *fp                 = NULL;
+	FILE                      *fp                   = NULL;
 
 	AI_alert_correlation_key  corr_key;
-	AI_alert_correlation      *corr               = NULL;
+	AI_alert_correlation      *corr                 = NULL;
 
 	AI_hyperalert_key         key;
-	AI_hyperalert_info        *hyp                = NULL;
+	AI_hyperalert_info        *hyp                  = NULL;
 
-	AI_snort_alert            *alert_iterator     = NULL,
-					      *alert_iterator2    = NULL;
+	AI_snort_alert            *alert_iterator       = NULL,
+					      *alert_iterator2      = NULL;
 
 	#ifdef                    HAVE_LIBGVC
-	char                      corr_png_file[4096] = { 0 };
-	GVC_t                     *gvc                = NULL;
-	graph_t                   *g                  = NULL;
+	char                      corr_png_file[4096]   = { 0 };
+	GVC_t                     *gvc                  = NULL;
+	graph_t                   *g                    = NULL;
 	#endif
 
 	conf = (AI_config*) arg;
@@ -858,6 +828,7 @@ AI_alert_correlation_thread ( void *arg )
 
 			std_deviation = sqrt ( std_deviation / (double) HASH_COUNT ( correlation_table ));
 			corr_threshold = avg_correlation + ( conf->correlationThresholdCoefficient * std_deviation );
+			corr_strong_threshold = avg_correlation + ( 2.0 * conf->correlationThresholdCoefficient * std_deviation );
 			snprintf ( corr_dot_file, sizeof ( corr_dot_file ), "%s/correlated_alerts.dot", conf->corr_alerts_dir );
 			
 			if ( stat ( conf->corr_alerts_dir, &st ) < 0 )
@@ -877,8 +848,8 @@ AI_alert_correlation_thread ( void *arg )
 			/* Find correlated alerts */
 			for ( corr = correlation_table; corr; corr = ( AI_alert_correlation* ) corr->hh.next )
 			{
-				if ( corr->correlation >= avg_correlation + std_deviation &&
-						avg_correlation + std_deviation != 0.0 &&
+				if ( corr->correlation >= corr_threshold &&
+						corr_threshold != 0.0 &&
 						corr->key.a->timestamp <= corr->key.b->timestamp && ! (
 						corr->key.a->gid == corr->key.b->gid &&
 						corr->key.a->sid == corr->key.b->sid &&
@@ -889,7 +860,7 @@ AI_alert_correlation_thread ( void *arg )
 
 					corr->key.a->derived_alerts[ corr->key.a->n_derived_alerts - 1 ] = corr->key.b;
 					corr->key.b->previous_correlated = corr->key.a;
-					_AI_print_correlated_alerts ( corr, fp );
+					_AI_print_correlated_alerts ( corr, fp, ( corr->correlation >= corr_strong_threshold ));
 				}
 			}
 

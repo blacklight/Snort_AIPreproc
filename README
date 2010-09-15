@@ -1,0 +1,301 @@
+============================================================================
+   ,,_        ____                   _        _    ___ 
+  o"  )~     / ___| _ __   ___  _ __| |_     / \  |_ _|
+   ''''      \___ \| '_ \ / _ \| '__| __|   / _ \  | | 
+              ___) | | | | (_) | |  | |_   / ___ \ | | 
+             |____/|_| |_|\___/|_|   \__| /_/   \_\___|
+
+
+              _ __  _ __ ___ _ __  _ __ ___   ___ ___  ___ ___  ___  _ __ 
+             | '_ \| '__/ _ \ '_ \| '__/ _ \ / __/ _ \/ __/ __|/ _ \| '__|
+             | |_) | | |  __/ |_) | | | (_) | (_|  __/\__ \__ \ (_) | |   
+             | .__/|_|  \___| .__/|_|  \___/ \___\___||___/___/\___/|_|   
+             |_|            |_|                                           
+
+ ~ A REALLY smart preprocessor module for Snort ~
+ by BlackLight <blacklight@autistici.org>, http://0x00.ath.cx
+============================================================================
+
+
+This document describes the AI preprocessor module for Snort.
+It also describes how to get it, install it, configure it and use it correctly.
+
+Table of contents:
+	1. What's Snort AI preprocessor
+	2. How to get Snort AI preprocessor
+	3. Installation
+		3.1 Dependancies
+		3.2 Configure options
+	4. Basic configuration
+	5. Correlation rules
+	6. Additional documentation
+
+
+===============================
+1. What's Snort AI preprocessor
+===============================
+
+Snort AI preprocessor is a preprocessor module for Snort whose purpose is making
+the reading of Snort's alerts more comfortable, clustering false positive alarms
+emphasizing  their  root  cause  in  order  to  reduce log pollution, clustering
+similar  alerts  in  function  of the type and hierarchies over IP addresses and
+ports  that  can  be  decided  by the user, depending on the kind of traffic and
+topology  of  the  network, and constructing the flows of a multi-step attack in
+function  of  correlation  rules  between  hyperalerts provided by the developer
+itself,  by third parts or created by the user itself, again, in function of the
+scenario  of  the  network.  It will furthermore possible, in a close future, to
+correlate  the  hyperalerts  automatically,  by self-learning on the base of the
+acquired alerts.
+
+
+===================================
+2. How to get Snort AI preprocessor
+===================================
+
+It  it strongly suggested to get the latest and always-fresh release of Snort AI
+preprocessor   from   GitHub   ->   http://github.com/BlackLight/Snort_AIPreproc
+
+git clone git://github.com/BlackLight/Snort_AIPreproc.git
+
+If git is not available on the machine or cannot be used, from the same page you
+can also choose "download source" and download the source code in tar.gz format.
+
+
+===============
+3. Installation
+===============
+
+The installation procedure is the usual one:
+
+$ ./configure
+$ make
+$ make install
+
+If  you did not install Snort in /usr directory you may need to use the --prefix
+option with configure for selecting the directory where you installed Snort (for
+ example    ./configure   --prefix=$HOME/local/snort).   If   the   prefix   was
+specified  correctly,  and  it  actually  points to the location where Snort was
+installed,      the      module     binaries     should     be     placed     in
+$SNORT_DIR/lib/snort_dynamicpreprocessor    after    the    installation,    and
+automatically  loaded  by  Snort  at  the  next start. Moreover, a new directory
+named  corr_rules  will  be  created, in /etc/snort if the prefix was /usr or in
+$SNORT_DIR/etc  otherwise,  containing  XML files describing default correlation
+rules provided by the developer. This set can be enriched in any moment with new
+XML  files,  provided  by  third parts or created by the user itself, describing
+more hyperalerts.
+
+
+================
+3.1 Dependancies
+================
+
+Dependancies required for a correct compilation and configuration:
+
+- pthread (REQUIRED), used for running multiple threads inside of the module. On
+a Debian-based  system,  install  libpthread-dev  if  you don't already have it.
+
+- libxml2 (REQUIRED), used for parsing XML files from corr_rules directory. On a
+Debian-based   system,  install  libxml2-dev  if  you  don't  already  have  it.
+
+- libgraphviz  (RECOMMANDED),  used  for  generating  PNG (and in future PS too)
+ files    representing   hyperalert   correlation   graphs   from   .dot   files
+ generated   from  the  software.  You  can  remove  this  dependancy  from  the
+ compilation  process  by  specifying  --without-graphviz to ./configure, but in
+ this  case  you  will  have  .dot  files, not easily understandable by a human,
+ for  representing  correlation  graphs,  and  you  may  need  an external graph
+ rendering  software  for  converting  them in a more easily readable format. On
+ a Debian  system,  install  libgraphviz-dev  if  you  don't  already  have  it.
+
+- libmysqlclient  (OPTIONAL),  used if you want to read alerts information saved
+on MySQL DBMS, or enable MySQL support in the module. This option is disabled by
+default  (if not specified otherwise, the module will read the alerts from Snort
+ plain   log   files),   and   can   be   enabled   by   specifying  the  option
+--with-mysql  to  ./configure.  On a Debian-based system you may need to install
+libmysqlclient-dev.
+
+
+=====================
+3.2 Configure options
+=====================
+
+You  can  pass  the  following  options  to ./configure script before compiling:
+
+--with-mysql  -  Enables  MySQL  DBMS  support  into  the  module  (it  requires
+ libmysqlclient)
+
+--without-graphviz  -  Disables  Graphviz  support from the module, avoiding the
+generation  of  PNG  or  PS  files  representing hyperalerts correlation as well
+
+
+======================
+4. Basic configuration
+======================
+
+After  installing the module in Snort installation directory a configuration for
+this  is  required  in  snort.conf.  A  sample configuration may appear like the
+following:
+
+
+preprocessor ai: \
+	hashtable_cleanup_interval 300 \
+	tcp_stream_expire_interval 300 \
+	alertfile "/home/youruser/local/snort/log/alert" \
+	alert_clustering_interval 300 \
+	correlation_graph_interval 300 \
+	correlation_rules_dir "/your/snort/dir/etc/corr_rules" \
+	correlated_alerts_dir "/your/snort/dir/log/correlated_alerts" \
+	correlation_threshold_coefficient 0.5 \
+	database ( type="mysql", name="snort", user="snortusr", password="snortpass", host="dbhost" ) \
+	database_parsing_interval 30 \
+	clusterfile "/your/snort/dir/log/clustered_alerts" \
+	cluster ( class="dst_port", name="privileged_ports", range="1-1023" ) \
+	cluster ( class="dst_port", name="unprivileged_ports", range="1024-65535" ) \
+	cluster ( class="src_addr", name="local_net", range="192.168.1.0/24" ) \
+	cluster ( class="src_addr", name="dmz_net", range="155.185.0.0/16" ) \
+	cluster ( class="src_addr", name="vpn_net", range="10.8.0.0/24" ) \
+	cluster ( class="dst_addr", name="local_net", range="192.168.1.0/24" ) \
+	cluster ( class="dst_addr", name="dmz_net", range="155.185.0.0/16" ) \
+	cluster ( class="dst_addr", name="vpn_net", range="10.8.0.0/24" )
+
+The options are the following:
+
+- hashtable_cleanup_interval: The interval that should occur from the cleanup of
+the  hashtable  of  TCP  streams and the next one (default if not specified: 300
+ seconds)
+
+- tcp_stream_expire_interval:  The  interval that should occur for marking a TCP
+stream as "expired", if no more packets are received inside of that and it's not
+"marked"    as    suspicious   (default   if   not   specified:   300   seconds)
+
+- alertfile:  The file where Snort saves its alerts, if they are saved to a file
+and   not  to  a  database  (default  if  not  specified:  /var/log/snort/alert)
+
+- alert_clustering_interval:  The interval that should occur from the clustering
+of  the  alerts  in the log according to the provided clustering hierarchies and
+the     next     one     (default     if    not    specified:    300    seconds)
+
+- correlation_graph_interval:  The  interval that should occur from the building
+of  the correlation graph between the clustered alerts and the next one (default
+ if              not             specified:             300             seconds)
+
+- correlation_rules_dir: Directory where the correlation rules are saved, as XML
+files      (default      if      not      specified:      /etc/snort/corr_rules)
+
+- correlated_alerts_dir:  Directory  where  the  information  between correlated
+alerts  will  be  saved,  as  .dot  files ready to be rendered as graphs and, if
+libgraphviz  support  is  enabled, as .png and .ps files as well (default if not
+ specified: /var/log/snort/clustered_alerts)
+
+- correlation_threshold_coefficient: The threshold the software uses for stating
+two   alerts   are   correlated   is   avg(correlation   coefficient)   +   k  *
+std_deviation(correlation_coefficient). The value of k is specified through this
+option,  whose  value  is 0.5 by default, and is dependant on how "sensible" you
+want  the  correlation algorithm. A value of k=0 means "consider all the couples
+of  alerts  whose  correlation  coefficient  is  greater than the average one as
+correlated"  (negative values of k are allowed as well, but unless you know what
+you're  doing  they're unrecommended, as some correlation constraints may appear
+where  no correlation exists). When the value of k raises also the threshold for
+two alerts for being considered as correlated raises. A high value of k may just
+lead           to          an          empty          correlation          graph
+
+- database:  If Snort saves its alerts to a database and the module was compiled
+ with   database   support   (e.g.   --with-mysql)  this  option  specifies  the
+ information   for   accessing   that   database.   The   fields   in  side  are
+	-- type: DBMS to be used (so far only MySQL is supported)
+	-- name: Database name
+	-- user: Username for accessing the database
+	-- password: Password for accessing the database
+	-- host: Host holding the database
+
+- database_parsing_interval:  The  interval  that should occur between a read of
+the alerts from database and the next one (default if not specified: 30 seconds)
+
+- clusterfile:  File  where  the  clustered  alerts  will be saved by the module
+(default       if      not      specified:      /var/log/snort/clustered_alerts)
+
+- cluster:  Clustering  hierarchy  or  list  of  hierarchies  to  be applied for
+grouping     similar     alerts.     This     option     needs    to    specify:
+	-- class: Class of the cluster node. It may be src_addr, dst_addr, src_port
+			or dst_port
+	-- name: Name for the clustering node
+	-- range: Range of the clustering node. It can include a single port or IP
+			address, an IP range (specified as subnet x.x.x.x/x), or a port
+			range (specified as xxx-xxx)
+
+
+====================
+5. Correlation rules
+====================
+
+The  hyperalert  correlation  rules  are  specified in $SNORT_DIR/etc/corr_rules
+directory  through a very simple XML syntax, and any user can add some new ones.
+The files in there must be named like the Snort alert ID they want to model. For
+example,  if  we  want  to  model  a TCP portscan alert (Snort ID: 122.1.0) as a
+hyperalert,  i.e.  as  an  alert  with  pre-conditions and post-conditions to be
+correlated  to  other  alerts,  then  we need to create a file named 122-1-0.xml
+inside   $SNORT_DIR/etc/corr_rules   with   a   content   like   the  following:
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hyperalert PUBLIC "-//blacklighth//DTD HYPERALERT SNORT MODEL//EN" "http://0x00.ath.cx/hyperalert.dtd">
+
+<hyperalert>
+	<snort-id>122.1.0</snort-id>
+	<desc>(portscan) TCP Portscan</desc>
+
+	<pre>HostExists(+DST_ADDR+)</pre>
+	<post>HasService(+DST_ADDR+, +ANY_PORT+)</post>
+</hyperalert>
+
+
+The  <desc>  tag  is  optional,  same  for  <pre>  and <post> if an alert has no
+pre-conditions and/or post-conditions, while the <snort-id> tag is mandatory for
+identifying the hyperalert. In this case we say that the pre-condition for a TCP
+portscan  for  being  successful  is  that the host +DST_ADDR+ exists (the macro
+ +DST_ADDR+   will   automatically   be  expanded  at  runtime  and  substituted
+ with   the   target   address   of  the  portscan).  The  post-condition  of  a
+portscan  consists  in  the  attacker  knowing that +DST_ADDR+ runs a service on
++ANY_PORT+  (+ANY_PORT+  is another macro that will be expanded on runtime). The
+hyperalerts  model  in  corr_rules  are  the knowledge base used for correlating
+alerts triggered by Snort, the more information it has inside, the more accurate
+and  complete  the  correlation will be. The macros recognized and automatically
+expanded           from           these          XML          files          are
+
+
+- +SRC_ADDR+: The IP address triggering the alert
+- +DST_ADDR+: The target IP address in the alert
+- +SRC_PORT+: The port from which the alert was triggered
+- +DST_PORT+: The port on which the alert was triggered
+- +ANY_ADDR+: Identifies any IP address
+- +ANY_PORT+: Identifies any port
+
+
+The correlation between two alerts A and B is made comparing the post-conditions
+of  A  with  the  pre-conditions of B. If the correlaton coefficient computed in
+this  way  is  greater  than  a  certain  threshold (see "Basic configuration ->
+ correlation_threshold_coefficient")    then    the   alerts   are   marked   as
+correlated, i.e. the alert A determines the alert B. This supports an elementary
+reasoning  algorithm  for  doing inferences on the conditions. For example, if A
+has  the  post-condition  "HasService(+DST_ADDR+,  +ANY_PORT+)"  and  B  has the
+pre-condition "HasService(+DST_ADDR, 22)", a match between A and B is triggered.
+Same   if   A   has   "HostExists(10.8.0.0/24)"  as  post-condition  and  B  has
+"HostExists(10.8.0.1)" as pre-condition.
+
+There  is  no  fixed  semantics  for  the  the  predicates in pre-conditions and
+post-conditions,  any  predicates  can  be used. The only constraint is that the
+same  predicates have the same semantic and prototype in all of the hyperalerts.
+For  example,  if  HasService  has a prototype like "HasService(ip_addr, port)",
+then   all    the  hyperalerts  should  follow  this  prototype,  otherwise  the
+matching    would   fail.   Any  new  predicates  can  be  defined  as  well  in
+hyperalerts,      provided     that     it     respects     this     constraint.
+
+
+===========================
+6. Additional documentation
+===========================
+
+
+The  additional  doxygen-generated  documentation  over  the code, functions and
+structures  can  be  found  in doc/ directory of source code or in SNORT_DIR/doc
+after installation.
+

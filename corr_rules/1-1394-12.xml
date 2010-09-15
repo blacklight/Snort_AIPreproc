@@ -3,11 +3,11 @@
 
 <hyperalert>
 	<snort-id>1.1394.12</snort-id>
-	<desc>Shellcode x86 inc ecx noop</desc>
+	<desc>Shellcode x86 inc ecx NOOP</desc>
 
 	<pre>HostExists(+DST_ADDR+)</pre>
 	<pre>HasService(+DST_ADDR+, +DST_PORT+)</pre>
 
-	<post>HasLocalAccess(+SRC_ADDR+, +DST_ADDR+)</post>
+	<post>HasRemoteAccess(+SRC_ADDR+, +DST_ADDR+)</post>
 </hyperalert>
 

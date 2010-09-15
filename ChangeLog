@@ -1,4 +1,7 @@
 2010-14-09  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
+	* README: Documentation added
+
+2010-14-09  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
 	* correlation.c: Correlation completed, runtime substitution of macros
 	+ANY_ADDR+ and +ANY_PORT+ for runtime matching, runtime expansion of IP
 	netmasks for matching

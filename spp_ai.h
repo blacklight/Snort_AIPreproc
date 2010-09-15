@@ -40,7 +40,7 @@
 #define 	DEFAULT_DATABASE_INTERVAL 			30
 
 /** Default interval in seconds for the thread clustering alerts */
-#define 	DEFAULT_ALERT_CLUSTERING_INTERVAL 		3600
+#define 	DEFAULT_ALERT_CLUSTERING_INTERVAL 		300
 
 /** Default interval in seconds for running the graph correlation thread */
 #define 	DEFAULT_ALERT_CORRELATION_INTERVAL 	300
@@ -49,7 +49,7 @@
 #define 	DEFAULT_ALERT_LOG_FILE 				"/var/log/snort/alert"
 
 /** Default path to Snort's clustered alerts file */
-#define 	DEFAULT_CLUSTER_LOG_FILE 			"/var/log/snort/cluster_alert"
+#define 	DEFAULT_CLUSTER_LOG_FILE 			"/var/log/snort/clustered_alerts"
 
 /** Default path to alert correlation rules directory */
 #define 	DEFAULT_CORR_RULES_DIR 				"/etc/snort/corr_rules"
