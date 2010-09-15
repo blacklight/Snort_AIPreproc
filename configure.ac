@@ -128,6 +128,9 @@ AS_IF([test "x$prefix" == x/usr],
 	[AC_SUBST([CORR_RULES_PREFIX], ["/etc/snort/corr_rules"])],
 	[AC_SUBST([CORR_RULES_PREFIX], ["${prefix}/etc/corr_rules"])])
 
+AC_SUBST([DOC_PREFIX], ["${prefix}/doc/snort_ai_preprocessor"])
+AC_SUBST([SHARE_PREFIX], ["${prefix}/share/snort_ai_preprocessor"])
+
 # Checks for header files.
 
 AS_IF([test ! -z "`pkg-config --cflags libxml-2.0 2> /dev/null`"],

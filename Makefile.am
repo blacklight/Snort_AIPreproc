@@ -26,7 +26,14 @@ spp_ai.c \
 stream.c
 
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = README INSTALL ChangeLog AUTHORS COPYING Doxyfile NEWS TODO doc etc include uthash etc/corr_rules *.h
+EXTRA_DIST = README INSTALL ChangeLog AUTHORS COPYING Doxyfile NEWS TODO doc etc include uthash corr_rules *.h
+
 corr_rulesdir = ${CORR_RULES_PREFIX}
 corr_rules_DATA = corr_rules/*
+
+docdir = ${DOC_PREFIX}
+doc_DATA = doc/html/*.html doc/html/*.css doc/html/*.png
+
+sharedir = ${SHARE_PREFIX}
+share_DATA = README INSTALL AUTHORS COPYING NEWS TODO ChangeLog
 

@@ -71,7 +71,8 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(corr_rulesdir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(corr_rulesdir)" \
+	"$(DESTDIR)$(docdir)" "$(DESTDIR)$(sharedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libsf_ai_preproc_la_LIBADD =
 am_libsf_ai_preproc_la_OBJECTS = libsf_ai_preproc_la-alert_parser.lo \
@@ -103,7 +104,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(libsf_ai_preproc_la_SOURCES) \
 	$(nodist_libsf_ai_preproc_la_SOURCES)
 DIST_SOURCES = $(libsf_ai_preproc_la_SOURCES)
-DATA = $(corr_rules_DATA)
+DATA = $(corr_rules_DATA) $(doc_DATA) $(share_DATA)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -134,6 +135,7 @@ CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DOC_PREFIX = @DOC_PREFIX@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
 ECHO_C = @ECHO_C@
@@ -177,6 +179,7 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
+SHARE_PREFIX = @SHARE_PREFIX@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
@@ -200,7 +203,7 @@ build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
-docdir = @docdir@
+docdir = ${DOC_PREFIX}
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
 extra_incl = @extra_incl@
@@ -256,9 +259,12 @@ spp_ai.c \
 stream.c
 
 ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = README INSTALL ChangeLog AUTHORS COPYING Doxyfile NEWS TODO doc etc include uthash etc/corr_rules *.h
+EXTRA_DIST = README INSTALL ChangeLog AUTHORS COPYING Doxyfile NEWS TODO doc etc include uthash corr_rules *.h
 corr_rulesdir = ${CORR_RULES_PREFIX}
 corr_rules_DATA = corr_rules/*
+doc_DATA = doc/html/*.html doc/html/*.css doc/html/*.png
+sharedir = ${SHARE_PREFIX}
+share_DATA = README INSTALL AUTHORS COPYING NEWS TODO ChangeLog
 all: $(BUILT_SOURCES) config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -422,6 +428,46 @@ uninstall-corr_rulesDATA:
 	test -n "$$files" || exit 0; \
 	echo " ( cd '$(DESTDIR)$(corr_rulesdir)' && rm -f" $$files ")"; \
 	cd "$(DESTDIR)$(corr_rulesdir)" && rm -f $$files
+install-docDATA: $(doc_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(docdir)" || $(MKDIR_P) "$(DESTDIR)$(docdir)"
+	@list='$(doc_DATA)'; test -n "$(docdir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(docdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(docdir)" || exit $$?; \
+	done
+
+uninstall-docDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(doc_DATA)'; test -n "$(docdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(docdir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(docdir)" && rm -f $$files
+install-shareDATA: $(share_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(sharedir)" || $(MKDIR_P) "$(DESTDIR)$(sharedir)"
+	@list='$(share_DATA)'; test -n "$(sharedir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(sharedir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(sharedir)" || exit $$?; \
+	done
+
+uninstall-shareDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(share_DATA)'; test -n "$(sharedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(sharedir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(sharedir)" && rm -f $$files
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -627,7 +673,7 @@ check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES) $(DATA) config.h
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(corr_rulesdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(corr_rulesdir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(sharedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -680,7 +726,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-corr_rulesDATA
+install-data-am: install-corr_rulesDATA install-docDATA \
+	install-shareDATA
 
 install-dvi: install-dvi-am
 
@@ -727,7 +774,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-corr_rulesDATA uninstall-libLTLIBRARIES
+uninstall-am: uninstall-corr_rulesDATA uninstall-docDATA \
+	uninstall-libLTLIBRARIES uninstall-shareDATA
 
 .MAKE: all check install install-am install-strip
 
@@ -739,15 +787,16 @@ uninstall-am: uninstall-corr_rulesDATA uninstall-libLTLIBRARIES
 	distclean-tags distcleancheck distdir distuninstallcheck dvi \
 	dvi-am html html-am info info-am install install-am \
 	install-corr_rulesDATA install-data install-data-am \
-	install-dvi install-dvi-am install-exec install-exec-am \
-	install-html install-html-am install-info install-info-am \
-	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-corr_rulesDATA \
-	uninstall-libLTLIBRARIES
+	install-docDATA install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-libLTLIBRARIES install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-shareDATA \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am \
+	uninstall-corr_rulesDATA uninstall-docDATA \
+	uninstall-libLTLIBRARIES uninstall-shareDATA
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
