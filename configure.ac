@@ -87,17 +87,10 @@ case "$host" in
     ;;
 # it is actually <platform>-apple-darwin1.2 or <platform>-apple-rhapsody5.x but lets stick with this for the moment    
   *-apple*)
-	# Use Fink.
-	if test -f "/sw/etc/fink.conf"; then
-		LDFLAGS="${LDFLAGS} -L/sw/lib"
-    	extra_incl="-I/sw/include"
-	# Use MacPorts
-	else
-		LDFLAGS="${LDFLAGS} -L/opt/local/lib"
-    	extra_incl="-I/opt/local/include"
-	fi
     AC_DEFINE([MACOS],[1],[Define if MacOS])
     AC_DEFINE([BROKEN_SIOCGIFMTU],[1],[Define if broken SIOCGIFMTU])
+    LDFLAGS="${LDFLAGS} -L/sw/lib"
+    extra_incl="-I/sw/include"
 esac
 
 # Checks for programs.
@@ -135,7 +128,9 @@ AS_IF([test "x$prefix" == x/usr],
 	[AC_SUBST([CORR_RULES_PREFIX], ["/etc/snort/corr_rules"])],
 	[AC_SUBST([CORR_RULES_PREFIX], ["${prefix}/etc/corr_rules"])])
 
-AC_SUBST([DOC_PREFIX], ["${prefix}/doc/snort_ai_preprocessor"])
+# Set extra prefixes and control if we have Doxygen
+
+AS_IF([test ! -z "`which doxygen`"], [AC_SUBST([DOC_PREFIX], ["${prefix}/doc/snort_ai_preprocessor"])], [])
 AC_SUBST([SHARE_PREFIX], ["${prefix}/share/snort_ai_preprocessor"])
 
 # Checks for header files.

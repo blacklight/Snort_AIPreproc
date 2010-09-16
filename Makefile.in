@@ -801,6 +801,27 @@ uninstall-am: uninstall-corr_rulesDATA uninstall-docDATA \
 	uninstall-libLTLIBRARIES uninstall-shareDATA
 
 
+install-docData:
+	if test ! -z "${DOC_PREFIX}"; then \
+		cp -r ./doxygen "$(docdir)/doxygen"; \
+	else \
+		exit 0; \
+	fi
+
+uninstall-docData:
+	if test ! -z "${DOC_PREFIX}"; then \
+		rm -rf "$(docdir)"; \
+	else \
+		exit 0; \
+	fi
+
+all:
+	if test ! -z "${DOC_PREFIX}"; then \
+		if test ! -d "./doc"; then \
+			doxygen; \
+		fi; \
+	fi
+
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

@@ -37,3 +37,24 @@ doc_DATA = doc/html/*.html doc/html/*.css doc/html/*.png
 sharedir = ${SHARE_PREFIX}
 share_DATA = README INSTALL AUTHORS COPYING NEWS TODO ChangeLog
 
+install-docData:
+	if test ! -z "${DOC_PREFIX}"; then \
+		cp -r ./doxygen "$(docdir)/doxygen"; \
+	else \
+		exit 0; \
+	fi
+	
+uninstall-docData:
+	if test ! -z "${DOC_PREFIX}"; then \
+		rm -rf "$(docdir)"; \
+	else \
+		exit 0; \
+	fi
+
+all:
+	if test ! -z "${DOC_PREFIX}"; then \
+		if test ! -d "./doc"; then \
+			doxygen; \
+		fi; \
+	fi
+

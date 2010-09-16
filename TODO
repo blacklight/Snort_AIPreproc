@@ -1,7 +1,9 @@
 - Bayesian learning among alerts in alert log
 - libgc support
 - PostgreSQL support
+- Dynamic k parameter in correlation threshold
+- Dynamic cluster_min_size algorithm
+- Regex comp cache
 
 - Managing clusters for addresses, timestamps (and more?)
-- Dynamic cluster_min_size algorithm
 
