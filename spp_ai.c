@@ -27,6 +27,8 @@
 /** \defgroup spp_ai Main file for spp_ai module
  * @{ */
 
+AI_snort_alert* (*get_alerts)(void);
+
 tSfPolicyUserContextId ex_config = NULL;
 static void* (*alertparser_thread)(void*) = NULL;
 

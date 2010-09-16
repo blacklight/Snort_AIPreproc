@@ -22,6 +22,22 @@
 #include	<string.h>
 #include	<alloca.h>
 #include	<regex.h>
+#include	"uthash.h"
+
+/** Compiled and cached regular expression entry */
+struct regex_cache_entry {
+	/** The expression itself, used as the key of the hashtable */
+    char	 expression[0xFF];
+	/** The compiled expression */
+    regex_t *compiled;
+	/** Make the struct 'hashable' */
+	UT_hash_handle hh;
+};
+/** 
+ * Regular expression cache container 
+ * TODO: Free the cache at the end of program execution.
+ */
+static struct regex_cache_entry *reg_cache = NULL;
 
 /** \defgroup regex Regex management
  * @{ */
@@ -39,58 +55,82 @@ int
 preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
 {
 	int i;
-	regex_t regex;
+	regex_t    *regex = NULL;
 	regmatch_t *m = NULL;
+	struct regex_cache_entry *cached_regex;
 
 	if ( nmatches )
 		*nmatches = 0;
-
-	if ( regcomp ( &regex, expr, REG_EXTENDED | REG_ICASE ) != 0 )  {
-		return -1;
+	
+	/*
+	 * Search for a compiled regex in the cache.
+	 */
+	HASH_FIND_STR( reg_cache, expr, cached_regex );
+	if( cached_regex != NULL ){
+		/*
+		 * Yeppa!
+		 */
+		regex = cached_regex->compiled;
+	}
+	else {
+		/*
+		 * Not found, create a new structure, compile the regexp and add it to the cache
+		 * for latter use.
+		 */
+		regex = (regex_t *)malloc( sizeof(regex_t) );
+		if ( regcomp ( regex, expr, REG_EXTENDED | REG_ICASE ) != 0 )  {
+			return -1;
+		}
+		cached_regex = (struct regex_cache_entry *)malloc( sizeof( struct regex_cache_entry ) );
+		
+		strncpy( cached_regex->expression, expr, 0xFF );
+		cached_regex->compiled = regex;
+		/*
+		 * The key is the expression itself.
+		 */
+		HASH_ADD_STR( reg_cache, expression, cached_regex );
 	}
 
-	if ( regex.re_nsub > 0 )
+	if ( regex->re_nsub > 0 )
 	{
-		if ( !(m = (regmatch_t*) alloca ( (regex.re_nsub+1) * sizeof(regmatch_t) )) )
+		if ( !(m = (regmatch_t*) alloca ( (regex->re_nsub+1) * sizeof(regmatch_t) )) )
 		{
-			regfree ( &regex );
+			regfree ( regex );
 			fprintf ( stderr, "\nDynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
 			exit ( EXIT_FAILURE );
 		}
 
 		if ( matches )
 		{
-			if ( !( *matches = (char**) malloc ( (regex.re_nsub+1) * sizeof(char*) )) )
+			if ( !( *matches = (char**) malloc ( (regex->re_nsub+1) * sizeof(char*) )) )
 			{
-				regfree ( &regex );
+				regfree ( regex );
 				m = NULL;
 				fprintf ( stderr, "\nDynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
 				exit ( EXIT_FAILURE );
 			}
 		}
 
-		if ( regexec ( &regex, str, regex.re_nsub+1, m, 0 ) == REG_NOMATCH )  {
-			regfree ( &regex );
+		if ( regexec ( regex, str, regex->re_nsub+1, m, 0 ) == REG_NOMATCH )  {
 			m = NULL;
 			return 0;
 		}
 	} else {
-		if ( regexec ( &regex, str, 0, NULL, 0 ) == REG_NOMATCH )  {
-			regfree ( &regex );
+		if ( regexec ( regex, str, 0, NULL, 0 ) == REG_NOMATCH )  {
 			m = NULL;
 			return 0;
 		}
 	}
 
 	if ( nmatches )
-		*nmatches = regex.re_nsub;
+		*nmatches = regex->re_nsub;
 
 	if ( matches )
 	{
-		for ( i=0; i < regex.re_nsub; i++ )  {
+		for ( i=0; i < regex->re_nsub; i++ )  {
 			if ( !( (*matches)[i] = (char*) malloc ( m[i+1].rm_eo - m[i+1].rm_so + 1 )) )
 			{
-				regfree ( &regex );
+				regfree ( regex );
 				free ( m );
 				m = NULL;
 				fprintf ( stderr, "\nDynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
@@ -102,7 +142,6 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
 		}
 	}
 
-	regfree ( &regex );
 	m = NULL;
 	return 1;
 }		/* -----  end of function preg_match  ----- */

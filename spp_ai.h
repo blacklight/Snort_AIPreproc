@@ -288,7 +288,7 @@ AI_snort_alert*    AI_get_alerts ( void );
 AI_snort_alert*    AI_get_clustered_alerts ( void );
 
 /** Function pointer to the function used for getting the alert list (from log file, db, ...) */
-AI_snort_alert* (*get_alerts)(void);
+extern AI_snort_alert* (*get_alerts)(void);
 
 #endif  /* _SPP_AI_H */
 

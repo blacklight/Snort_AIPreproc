@@ -22,7 +22,9 @@
 #include	<stdio.h>
 #include	<unistd.h>
 #include	<time.h>
-#include	<sys/inotify.h>
+#ifndef MACOS
+#	include	<sys/inotify.h>
+#endif
 #include	<sys/stat.h>
 #include 	<pthread.h>
 
@@ -52,8 +54,15 @@ AI_file_alertparser_thread ( void* arg )
 	};
 
 	int             i;
+#ifndef __APPLE__
 	int             ifd;
 	int             wd;
+	struct stat     st;
+#else
+	int				fd = -1;
+	struct stat	    stats;
+	time_t			last_mod_time = (time_t)0;
+#endif
 	int             nmatches = 0;
 	char            line[8192];
 	char            strtime[256];
@@ -61,7 +70,6 @@ AI_file_alertparser_thread ( void* arg )
 	time_t          stamp;
 	struct tm       *_tm;
 	struct logtime  ltime;
-	struct stat     st;
 	struct pkt_key  key;
 	struct pkt_info *info;
 
@@ -72,6 +80,7 @@ AI_file_alertparser_thread ( void* arg )
 
 	while ( 1 )
 	{
+#ifndef MACOS
 		if (( ifd = inotify_init() ) < 0 )
 		{
 			_dpd.fatalMsg ( "Could not initialize an inotify object on the alert log file" );
@@ -105,7 +114,44 @@ AI_file_alertparser_thread ( void* arg )
 		read ( ifd, line, sizeof(line) );
 		inotify_rm_watch ( ifd, wd );
 		close ( ifd );
-
+#else
+		/*
+		 * Under Apple environments we don't have inotify capabilities, so use polling instead.
+		 * TODO: Use FSEvent.
+		 */
+		if ( !alert_fp )
+		{
+			if ( ! (alert_fp = fopen ( conf->alertfile, "r" )) )
+			{
+				_dpd.fatalMsg ( "Could not open alert log file for reading" );
+			}
+			else if( fd == -1 ){
+				/*
+				 * Convert a FILE * to an integer file descriptor to be used with fstat.
+				 */
+				fd = fileno(alert_fp);
+			}
+		}
+		/*
+		 * Cause the thread to wait until a new file modification (a new alert).
+		 */
+		while( stats.st_mtime == last_mod_time ){
+			usleep(100);
+			fstats( fd, &stats );
+		}
+		/*
+		 * The first time the thread is called, the flow exits instantly from the while,
+		 * so this first time the stats structure has to be initialized properly.
+		 */
+		if( last_mod_time == (time_t)0 ){
+			fstats( fd, &stats );
+		}
+		
+		last_mod_time = stats.st_mtime;
+		
+		fseek ( alert_fp, 0, SEEK_END );
+#endif
+		
 		/* Set the lock flag to true until it's done with alert parsing */
 		lock_flag = true;
 
