@@ -60,6 +60,17 @@
 /** Default correlation threshold coefficient for correlating two hyperalerts */
 #define 	DEFAULT_CORR_THRESHOLD 				0.5
 
+/****************************/
+/* Database support */
+#ifdef 	HAVE_LIBMYSQLCLIENT
+#define 	HAVE_DB 	1
+#endif
+
+#ifdef 	HAVE_LIBPQ
+#define 	HAVE_DB 	1
+#endif
+/****************************/
+
 extern DynamicPreprocessorData _dpd;
 typedef unsigned char   uint8_t;
 typedef unsigned short  uint16_t;
@@ -272,7 +283,7 @@ void*              AI_hashcleanup_thread ( void* );
 void*              AI_file_alertparser_thread ( void* );
 void*              AI_alert_correlation_thread ( void* );
 
-#ifdef 	HAVE_LIBMYSQLCLIENT
+#ifdef 	HAVE_DB
 AI_snort_alert*    AI_db_get_alerts ( void );
 void               AI_db_free_alerts ( AI_snort_alert *node );
 void*              AI_db_alertparser_thread ( void* );

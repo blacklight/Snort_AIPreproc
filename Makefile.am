@@ -21,6 +21,7 @@ cluster.c \
 correlation.c \
 db.c \
 mysql.c \
+postgresql.c \
 regex.c \
 spp_ai.c \
 stream.c
@@ -31,30 +32,17 @@ EXTRA_DIST = README INSTALL ChangeLog AUTHORS COPYING Doxyfile NEWS TODO doc etc
 corr_rulesdir = ${CORR_RULES_PREFIX}
 corr_rules_DATA = corr_rules/*
 
-docdir = ${DOC_PREFIX}
-doc_DATA = doc/html/*.html doc/html/*.css doc/html/*.png
-
 sharedir = ${SHARE_PREFIX}
 share_DATA = README INSTALL AUTHORS COPYING NEWS TODO ChangeLog
 
-install-docData:
+doc:
 	if test ! -z "${DOC_PREFIX}"; then \
-		cp -r ./doxygen "$(docdir)/doxygen"; \
-	else \
-		exit 0; \
-	fi
-	
-uninstall-docData:
-	if test ! -z "${DOC_PREFIX}"; then \
-		rm -rf "$(docdir)"; \
-	else \
-		exit 0; \
-	fi
+	doxygen; \
+fi
 
-all:
+doc-install:
 	if test ! -z "${DOC_PREFIX}"; then \
-		if test ! -d "./doc"; then \
-			doxygen; \
-		fi; \
-	fi
+	mkdir -p "${DOC_PREFIX}"; \
+	cp -r doc/* "${DOC_PREFIX}"; \
+fi
 

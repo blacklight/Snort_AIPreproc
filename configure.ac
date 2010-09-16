@@ -101,9 +101,15 @@ AC_PROG_MAKE_SET
 # Check for optional features
 AC_ARG_WITH(mysql,
 	AS_HELP_STRING([--with-mysql],
-		[Enable support for MySQL alert logs @<:@default=no@:>@]),
+		[Enable support for MySQL alert logs @<:@default=no@:>@ WARNING: You cannot enable the support for two databases at the same time]),
 	[with_mysql=yes],
 	[with_mysql=no])
+
+AC_ARG_WITH(postgresql,
+	AS_HELP_STRING([--with-postgresql],
+		[Enable support for PostgreSQL alert logs @<:@default=no@:>@ WARNING: You cannot enable the support for two databases at the same time]),
+	[with_postgresql=yes],
+	[with_postgresql=no])
 
 AC_ARG_WITH(graphviz,
 	AS_HELP_STRING([--without-graphviz],
@@ -115,6 +121,13 @@ AC_ARG_WITH(graphviz,
 AS_IF([test "x$with_mysql" != xno],
 	[AC_CHECK_LIB([mysqlclient], [mysql_query],,
 		[AC_MSG_FAILURE([--with-mysql option used, but libmysqlclient was not found - do not use --with-mysql, or, on a Debian-based system, install libmysqlclient-dev])])])
+
+AS_IF([test "x$with_postgresql" != xno],
+	[AC_CHECK_LIB([pq], [PQexec],,
+		[AC_MSG_FAILURE([--with-postgresql option used, but libpq was not found - do not use --with-postgresql, or, on a Debian-based system, install libpq-dev])])])
+
+AS_IF([test "x$with_mysql" != xno -a "x$with_postgresql" != xno],
+	[AC_MSG_FAILURE([The support for an only DBMS can be enabled via ./configure, for example, you cannot enable MySQL and PostgreSQL support at the same time])], [])
 
 AS_IF([test "x$with_graphviz" != xno],
 	[AC_CHECK_LIB([gvc], [agread],,

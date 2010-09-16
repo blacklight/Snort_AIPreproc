@@ -1,3 +1,7 @@
+2010-16-09  Simone "evilsocket" Margaritelli <evilsocket@gmail.com>
+	* all: Support for MacOS
+	* regex.c: Support for regex caching
+
 2010-14-09  Fabio "BlackLight" Manganiello <blacklight@autistici.org>
 	* README: Documentation added
 

@@ -17,10 +17,11 @@
  * =====================================================================================
  */
 
-#ifdef 	HAVE_LIBMYSQLCLIENT
+#ifdef 	HAVE_DB
 	#ifndef 	_AI_DB_H
 	#define 	_AI_DB_H
 
+#ifdef 	HAVE_LIBMYSQLCLIENT
 	#include	<mysql/mysql.h>
 
 	typedef   MYSQL_RES* 	DB_result;
@@ -33,13 +34,35 @@
 	#define 	DB_free_result mysql_free_result
 	#define 	DB_close 		mysql_do_close
 
-	/** Initializer for the database */
-	void*      DB_init ( AI_config* );
-
-	/** Execute a query on the database and returns the result */
 	DB_result* DB_query ( const char* );
+#endif
 
-	/** Close the database descriptor */
+#ifdef 	HAVE_LIBPQ
+	#include	<postgresql/libpq-fe.h>
+
+	typedef struct  {
+		PGresult *res;
+		int index;
+		char ***rows;
+	} PSQL_result;
+
+	typedef 	PSQL_result* 	DB_result;
+	typedef 	char** 		DB_row;
+
+	#define 	DB_init 		postgresql_do_init
+	#define 	DB_query 		postgresql_do_query
+	#define 	DB_num_rows 	postgresql_num_rows
+	#define 	DB_fetch_row 	postgresql_fetch_row
+	#define 	DB_free_result postgresql_free_result
+	#define 	DB_close 		postgresql_do_close
+
+	int 			DB_num_rows ( PSQL_result *res );
+	DB_row 		DB_fetch_row ( PSQL_result *res );
+	void 		DB_free_result ( PSQL_result *res );
+	DB_result 	DB_query ( const char* );
+#endif
+
+	void*      DB_init ( AI_config* );
 	void       DB_close();
 
 	#endif

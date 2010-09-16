@@ -448,10 +448,9 @@ static AI_config * AI_parse(char *args)
 
 		if ( preg_match ( "type\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
 		{
-			/* TODO Support other databases than MySQL */
-			if ( strcasecmp ( matches[0], "mysql" ))
+			if ( strcasecmp ( matches[0], "mysql" ) && strcasecmp ( matches[0], "postgresql" ))
 			{
-				_dpd.fatalMsg ( "AIPreproc: Not supported database '%s' (supported types: mysql)\n", matches[0] );
+				_dpd.fatalMsg ( "AIPreproc: Not supported database '%s' (supported types: mysql, postgresql)\n", matches[0] );
 			}
 
 			for ( i=0; i < nmatches; i++ )
@@ -758,11 +757,11 @@ static AI_config * AI_parse(char *args)
 	} else if ( has_database_log )  {
 		has_alertfile = false;
 
-		#ifdef 	HAVE_LIBMYSQLCLIENT
+		#ifdef 	HAVE_DB
 			alertparser_thread = AI_db_alertparser_thread;
 		#else
 		_dpd.fatalMsg ( "AIPreproc: database logging enabled in config file, but the module was not compiled "
-				"with database support (recompile, i.e., with ./configure --with-mysql)\n" );
+				"with database support (recompile, i.e., with ./configure --with-mysql or --with-postgresql)\n" );
 		#endif
 	} else if ( has_alertfile ) {
 		alertparser_thread = AI_file_alertparser_thread;
@@ -813,7 +812,7 @@ static AI_config * AI_parse(char *args)
 
 	if ( has_database_log )
 	{
-		#ifdef 	HAVE_LIBMYSQLCLIENT
+		#ifdef 	HAVE_DB
 			get_alerts = AI_db_get_alerts;
 		#else
 			_dpd.fatalMsg ( "AIPreproc: Using database alert log, but the module was not compiled with database support\n" );
