@@ -1,9 +1,25 @@
+======================
+AVERAGE/HIGH PRIORITY:
+======================
+
+- Dynamic cluster_min_size algorithm
+- Dynamic k parameter in correlation threshold
+- Testing more scenarios, making more hyperalert models
 - Bayesian learning among alerts in alert log
 - libgc support
-+ PostgreSQL support [DONE]
-- Dynamic k parameter in correlation threshold
-- Dynamic cluster_min_size algorithm
-+ Regex comp cache [DONE]
+
+=============
+LOW PRIORITY:
+=============
 
 - Managing clusters for addresses, timestamps (and more?)
+
+=====
+DONE:
+=====
+
++ PostgreSQL support
++ Regex comp cache
++ Managing hyperalert graph connection inside the alert structure itself
++ Keeping track of all the streams and alerts even after clustered
 

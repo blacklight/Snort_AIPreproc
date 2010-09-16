@@ -147,12 +147,12 @@ _AI_print_correlated_alerts ( AI_alert_correlation *corr, FILE *fp, BOOL strong 
 		corr->key.a->gid, corr->key.a->sid, corr->key.a->rev, corr->key.a->desc,
 		src_addr1, src_port1, dst_addr1, dst_port1,
 		timestamp1,
-		corr->key.a->grouped_alarms_count,
+		corr->key.a->grouped_alerts_count,
 
 		corr->key.b->gid, corr->key.b->sid, corr->key.b->rev, corr->key.b->desc,
 		src_addr2, src_port2, dst_addr2, dst_port2,
 		timestamp2,
-		corr->key.b->grouped_alarms_count,
+		corr->key.b->grouped_alerts_count,
 		strong ? "" : "[style=dotted]"
 	);
 }		/* -----  end of function _AI_correlation_flow_to_file  ----- */
@@ -687,7 +687,8 @@ AI_alert_correlation_thread ( void *arg )
 {
 	int                       i;
 	struct stat               st;
-	char                      corr_dot_file[4096]   = { 0 };
+	char                      corr_dot_file[4096]   = { 0 },
+						 corr_ps_file [4096]   = { 0 };
 
 	double                    avg_correlation       = 0.0,
 						 std_deviation         = 0.0,
@@ -858,8 +859,11 @@ AI_alert_correlation_thread ( void *arg )
 					if ( !( corr->key.a->derived_alerts = ( AI_snort_alert** ) realloc ( corr->key.a->derived_alerts, (++corr->key.a->n_derived_alerts) * sizeof ( AI_snort_alert* ))))
 						_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
 
+					if ( !( corr->key.b->parent_alerts = ( AI_snort_alert** ) realloc ( corr->key.b->parent_alerts, (++corr->key.b->n_parent_alerts) * sizeof ( AI_snort_alert* ))))
+						_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+
 					corr->key.a->derived_alerts[ corr->key.a->n_derived_alerts - 1 ] = corr->key.b;
-					corr->key.b->previous_correlated = corr->key.a;
+					corr->key.b->parent_alerts [ corr->key.b->n_parent_alerts  - 1 ] = corr->key.a;
 					_AI_print_correlated_alerts ( corr, fp, ( corr->correlation >= corr_strong_threshold ));
 				}
 			}
@@ -869,6 +873,7 @@ AI_alert_correlation_thread ( void *arg )
 
 			#ifdef HAVE_LIBGVC
 				snprintf ( corr_png_file, sizeof ( corr_png_file ), "%s/correlated_alerts.png", conf->corr_alerts_dir );
+				snprintf ( corr_ps_file , sizeof ( corr_ps_file  ), "%s/correlated_alerts.ps" , conf->corr_alerts_dir );
 
 				if ( !( gvc = gvContext() ))
 					continue;
@@ -881,6 +886,7 @@ AI_alert_correlation_thread ( void *arg )
 
 				gvLayout ( gvc, g, "dot" );
 				gvRenderFilename ( gvc, g, "png", corr_png_file );
+				gvRenderFilename ( gvc, g, "ps" , corr_ps_file  );
 
 				gvFreeLayout ( gvc, g );
 				agclose ( g );

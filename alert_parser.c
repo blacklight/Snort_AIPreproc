@@ -417,6 +417,20 @@ AI_free_alerts ( AI_snort_alert *node )
 	if ( node->next )
 		AI_free_alerts ( node->next );
 
+	/* if ( node->grouped_alerts ) */
+	/* { */
+	/* 	for ( i=0; i < node->grouped_alerts_count; i++ ) */
+	/* 	{ */
+	/* 		if ( node->grouped_alerts[i] ) */
+	/* 		{ */
+	/* 			free ( node->grouped_alerts[i] ); */
+	/* 			node->grouped_alerts[i] = NULL; */
+	/* 		} */
+	/* 	} */
+
+	/* 	free ( node->grouped_alerts ); */
+	/* } */
+
 	if ( node->hyperalert )
 	{
 		for ( i=0; i < node->hyperalert->n_preconds; i++ )
@@ -430,6 +444,9 @@ AI_free_alerts ( AI_snort_alert *node )
 		free ( node->hyperalert );
 		node->hyperalert = NULL;
 	}
+
+	if ( node->parent_alerts )
+		free ( node->parent_alerts );
 
 	if ( node->derived_alerts )
 		free ( node->derived_alerts );

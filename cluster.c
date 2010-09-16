@@ -268,12 +268,15 @@ _AI_merge_alerts ( AI_snort_alert **log )
 				{
 					if ( _AI_equal_alarms ( tmp, tmp2->next ))
 					{
-						tmp3 = tmp2->next->next;
-						free ( tmp2->next );
-						tmp2->next = tmp3;
+						if ( !( tmp->grouped_alerts = ( AI_snort_alert** ) realloc ( tmp->grouped_alerts, (++(tmp->grouped_alerts_count)) * sizeof ( AI_snort_alert* ))))
+							_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
 
-						tmp->grouped_alarms_count++;
+						tmp->grouped_alerts[ tmp->grouped_alerts_count - 1 ] = tmp2->next;
 						count++;
+
+						tmp3 = tmp2->next->next;
+						/* free ( tmp2->next ); */
+						tmp2->next = tmp3;
 					}
 				}
 
@@ -311,7 +314,7 @@ _AI_print_clustered_alerts ( AI_snort_alert *log, FILE *fp )
 
 		timestamp = ctime ( &tmp->timestamp );
 		timestamp[ strlen(timestamp)-1 ] = 0;
-		fprintf ( fp, "[Grouped alerts: %d] [Starting from: %s]\n", tmp->grouped_alarms_count, timestamp );
+		fprintf ( fp, "[Grouped alerts: %d] [Starting from: %s]\n", tmp->grouped_alerts_count, timestamp );
 
 		if ( h_root[src_addr] && tmp->h_node[src_addr] )
 		{
@@ -395,13 +398,13 @@ _AI_cluster_thread ( void* arg )
 		for ( tmp = alert_log, alert_count=0; tmp; tmp = tmp->next, alert_count++ )
 		{
 			/* If an alert has an unitialized "grouped alarms count", set its counter to 1 (it only groupes the current alert) */
-			if ( tmp->grouped_alarms_count == 0 )
+			if ( tmp->grouped_alerts_count == 0 )
 			{
-				tmp->grouped_alarms_count = 1;
+				tmp->grouped_alerts_count = 1;
 			}
 
 			/* If the current alarm already group at least min_size alarms, then no need to do further clusterization */
-			if ( tmp->grouped_alarms_count >= cluster_min_size )
+			if ( tmp->grouped_alerts_count >= cluster_min_size )
 			{
 				has_small_clusters = false;
 			}
@@ -475,7 +478,7 @@ _AI_cluster_thread ( void* arg )
 			/* For all the alerts, the corresponing clustering value is the parent of the current one in the hierarchy */
 			for ( tmp = alert_log; tmp; tmp = tmp->next )
 			{
-				if ( tmp->grouped_alarms_count < cluster_min_size && tmp->h_node[best_type] )
+				if ( tmp->grouped_alerts_count < cluster_min_size && tmp->h_node[best_type] )
 				{
 					if ( tmp->h_node[best_type]->parent )
 					{

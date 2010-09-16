@@ -254,17 +254,24 @@ typedef struct _AI_snort_alert  {
 	hierarchy_node  *h_node[CLUSTER_TYPES];
 
 	/** If the clustering algorithm is used,
+	 * keep tracked of the pointers to the
+	 * single grouped alerts */
+	struct _AI_snort_alert **grouped_alerts;
+
+	/** If the clustering algorithm is used,
 	 * we also count how many alerts this
 	 * single alert groups */
-	unsigned int    grouped_alarms_count;
+	unsigned int    grouped_alerts_count;
 
 	/** Hyperalert information, pre-conditions
 	 * and post-conditions*/
 	AI_hyperalert_info  *hyperalert;
 
-	/* 'Parent' correlated alert in the chain,
-	 * if any*/
-	struct _AI_snort_alert  *previous_correlated;
+	/* Parent alerts in the chain, if any */
+	struct _AI_snort_alert  **parent_alerts;
+
+	/* Number of parent alerts */
+	unsigned int        n_parent_alerts;
 
 	/** Array of directly correlated 'derived'
 	 * alerts from the current one, if any */
