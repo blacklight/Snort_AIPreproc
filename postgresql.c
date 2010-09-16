@@ -116,8 +116,16 @@ postgresql_fetch_row ( PSQL_result *res )
 void
 postgresql_free_result ( PSQL_result *res )
 {
+	int i, j, ntuples;
+
 	if ( res )
 	{
+		ntuples = PQntuples ( res->res );
+
+		for ( i=0; i < ntuples; i++ )
+			free ( res->rows[i] );
+		free ( res->rows );
+
 		PQclear ( res->res );
 		free ( res );
 	}
