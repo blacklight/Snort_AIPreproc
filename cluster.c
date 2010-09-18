@@ -21,6 +21,7 @@
 
 #include	<stdio.h>
 #include	<unistd.h>
+#include	<math.h>
 #include	<limits.h>
 #include 	<pthread.h>
 
@@ -40,6 +41,13 @@ typedef struct  {
 	unsigned int    count;
 	UT_hash_handle  hh;
 } attribute_value;
+
+/** Structure containing the count of occurrences of the single alerts in the log */
+typedef struct  {
+	AI_hyperalert_key   key;
+	unsigned int        count;
+	UT_hash_handle  hh;
+} AI_alert_occurrence;
 
 
 PRIVATE hierarchy_node *h_root[CLUSTER_TYPES] = { NULL };
@@ -266,6 +274,8 @@ _AI_merge_alerts ( AI_snort_alert **log )
 			{
 				if ( tmp != tmp2->next )
 				{
+					_dpd.logMsg ( "Comparing '%s' and '%s'...\n", tmp->desc, tmp2->next->desc );
+
 					if ( _AI_equal_alarms ( tmp, tmp2->next ))
 					{
 						if ( !( tmp->grouped_alerts = ( AI_snort_alert** ) realloc ( tmp->grouped_alerts, (++(tmp->grouped_alerts_count)) * sizeof ( AI_snort_alert* ))))
@@ -273,9 +283,9 @@ _AI_merge_alerts ( AI_snort_alert **log )
 
 						tmp->grouped_alerts[ tmp->grouped_alerts_count - 1 ] = tmp2->next;
 						count++;
+						_dpd.logMsg ( " -> Grouping '%s' and '%s'\n", tmp->desc, tmp2->next->desc );
 
 						tmp3 = tmp2->next->next;
-						/* free ( tmp2->next ); */
 						tmp2->next = tmp3;
 					}
 				}
@@ -286,9 +296,67 @@ _AI_merge_alerts ( AI_snort_alert **log )
 		}
 	}
 
+	_dpd.logMsg ( "\n" );
 	return count;
 }		/* -----  end of function _AI_merge_alerts  ----- */
 
+/**
+ * \brief  Get the average heterogeneity coefficient of the set of alerts
+ * \return The average heterogeneity coefficient of the set of alerts
+ */
+
+double
+_AI_get_alerts_heterogeneity ( int *alert_count )
+{
+	double       heterogeneity  = 0.0;
+	int          distinct_count = 0;
+
+	AI_hyperalert_key key;
+	AI_snort_alert *alert_iterator = NULL;
+
+	AI_alert_occurrence *table = NULL,
+					*found = NULL;
+	*alert_count = 0;
+
+	for ( alert_iterator = alert_log; alert_iterator; alert_iterator = alert_iterator->next )
+	{
+		found   = NULL;
+		*alert_count += alert_iterator->grouped_alerts_count;
+		key.gid = alert_iterator->gid;
+		key.sid = alert_iterator->sid;
+		key.rev = alert_iterator->rev;
+		HASH_FIND ( hh, table, &key, sizeof ( AI_hyperalert_key ), found );
+
+		if ( !found )
+		{
+			if ( !( found = (AI_alert_occurrence*) malloc ( sizeof ( AI_alert_occurrence ))))
+				_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+
+			found->key   = key;
+			found->count = 1;
+			HASH_ADD ( hh, table, key, sizeof ( AI_hyperalert_key ), found );
+		} else {
+			found->count++;
+		}
+	}
+
+	for ( found = table; found; found = (AI_alert_occurrence*) found->hh.next )
+		distinct_count++;
+
+	if ( *alert_count > 0 )
+		heterogeneity = (double) distinct_count / (double) *alert_count;
+	else
+		heterogeneity = 0.0;
+
+	while ( table )
+	{
+		found = table;
+		HASH_DEL ( table, found );
+		free ( found );
+	}
+
+	return heterogeneity;
+}		/* -----  end of function _AI_get_alerts_heterogeneity  ----- */
 
 /**
  * \brief  Print the clustered alerts to a log file
@@ -361,16 +429,17 @@ _AI_cluster_thread ( void* arg )
 	hierarchy_node *node, *child;
 	cluster_type   type;
 	cluster_type   best_type;
-	BOOL           has_small_clusters = true;
 	FILE           *cluster_fp;
 	char           label[256];
 	int            hostval;
 	int            netval;
 	int            minval;
 	int            heuristic_val;
-	int            cluster_min_size = 2;
+	int            cluster_min_size = 1;
 	int            alert_count = 0;
 	int            old_alert_count = 0;
+	int            single_alerts_count = 0;
+	double         heterogeneity = 0;
 
 	while ( 1 )
 	{
@@ -393,20 +462,12 @@ _AI_cluster_thread ( void* arg )
 			continue;
 		}
 
-		has_small_clusters = true;
-
 		for ( tmp = alert_log, alert_count=0; tmp; tmp = tmp->next, alert_count++ )
 		{
 			/* If an alert has an unitialized "grouped alarms count", set its counter to 1 (it only groupes the current alert) */
 			if ( tmp->grouped_alerts_count == 0 )
 			{
 				tmp->grouped_alerts_count = 1;
-			}
-
-			/* If the current alarm already group at least min_size alarms, then no need to do further clusterization */
-			if ( tmp->grouped_alerts_count >= cluster_min_size )
-			{
-				has_small_clusters = false;
 			}
 
 			/* Initialize the clustering hierarchies in the current alert */
@@ -454,8 +515,14 @@ _AI_cluster_thread ( void* arg )
 		}
 
 		alert_count -= _AI_merge_alerts ( &alert_log );
+		heterogeneity = _AI_get_alerts_heterogeneity( &single_alerts_count );
 
-		/* while ( has_small_clusters && alert_count > cluster_min_size ) */
+		/* Get the minimum size for the clusters in function of the heterogeneity of alerts' set */
+		if ( heterogeneity > 0 )
+			cluster_min_size = (int) round ( 1/heterogeneity );
+		else
+			cluster_min_size = 1;
+
 		do
 		{
 			old_alert_count = alert_count;
@@ -488,9 +555,6 @@ _AI_cluster_thread ( void* arg )
 			}
 
 			alert_count -= _AI_merge_alerts ( &alert_log );
-
-			/* if ( old_alert_count == alert_count ) */
-			/* 	break; */
 		} while ( old_alert_count != alert_count );
 
 		lock_flag = false;
@@ -664,7 +728,7 @@ _AI_copy_clustered_alerts ( AI_snort_alert *node )
 AI_snort_alert*
 AI_get_clustered_alerts ()
 {
-	while ( lock_flag );
+	for ( ; lock_flag; usleep(100) );
 	return _AI_copy_clustered_alerts ( alert_log );
 }		/* -----  end of function AI_get_clustered_alerts  ----- */
 
