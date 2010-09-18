@@ -272,10 +272,16 @@ _AI_merge_alerts ( AI_snort_alert **log )
 		{
 			if ( tmp2->next )
 			{
-				if ( tmp != tmp2->next )
+				if ( !(
+						tmp->gid == tmp2->next->gid &&
+						tmp->sid == tmp2->next->sid &&
+						tmp->rev == tmp2->next->rev &&
+						tmp->timestamp == tmp2->next->timestamp &&
+						tmp->ip_src_addr == tmp2->next->ip_src_addr &&
+						tmp->ip_dst_addr == tmp2->next->ip_dst_addr &&
+						tmp->tcp_src_port == tmp2->next->tcp_src_port &&
+						tmp->tcp_dst_port == tmp2->next->tcp_dst_port ))
 				{
-					_dpd.logMsg ( "Comparing '%s' and '%s'...\n", tmp->desc, tmp2->next->desc );
-
 					if ( _AI_equal_alarms ( tmp, tmp2->next ))
 					{
 						if ( !( tmp->grouped_alerts = ( AI_snort_alert** ) realloc ( tmp->grouped_alerts, (++(tmp->grouped_alerts_count)) * sizeof ( AI_snort_alert* ))))
@@ -283,7 +289,6 @@ _AI_merge_alerts ( AI_snort_alert **log )
 
 						tmp->grouped_alerts[ tmp->grouped_alerts_count - 1 ] = tmp2->next;
 						count++;
-						_dpd.logMsg ( " -> Grouping '%s' and '%s'\n", tmp->desc, tmp2->next->desc );
 
 						tmp3 = tmp2->next->next;
 						tmp2->next = tmp3;
@@ -296,7 +301,6 @@ _AI_merge_alerts ( AI_snort_alert **log )
 		}
 	}
 
-	_dpd.logMsg ( "\n" );
 	return count;
 }		/* -----  end of function _AI_merge_alerts  ----- */
 
