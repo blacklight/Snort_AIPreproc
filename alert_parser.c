@@ -29,9 +29,9 @@
 #include 	<pthread.h>
 
 
-PRIVATE AI_snort_alert *alerts   = NULL;
-PRIVATE FILE           *alert_fp = NULL;
-PRIVATE BOOL           lock_flag = false;
+PRIVATE AI_snort_alert   *alerts   = NULL;
+PRIVATE FILE             *alert_fp = NULL;
+PRIVATE pthread_mutex_t  mutex;
 
 /** \defgroup alert_parser Parse the alert log into binary structures
  * @{ */
@@ -77,6 +77,8 @@ AI_file_alertparser_thread ( void* arg )
 	AI_snort_alert *alert  = NULL;
 	AI_snort_alert *tmp    = NULL;
 	BOOL in_alert          = false;
+
+	pthread_mutex_init ( &mutex, NULL );
 
 	while ( 1 )
 	{
@@ -132,6 +134,7 @@ AI_file_alertparser_thread ( void* arg )
 				fd = fileno(alert_fp);
 			}
 		}
+
 		/*
 		 * Cause the thread to wait until a new file modification (a new alert).
 		 */
@@ -139,6 +142,7 @@ AI_file_alertparser_thread ( void* arg )
 			usleep(100);
 			fstats( fd, &stats );
 		}
+
 		/*
 		 * The first time the thread is called, the flow exits instantly from the while,
 		 * so this first time the stats structure has to be initialized properly.
@@ -153,7 +157,6 @@ AI_file_alertparser_thread ( void* arg )
 #endif
 		
 		/* Set the lock flag to true until it's done with alert parsing */
-		lock_flag = true;
 
 		while ( !feof ( alert_fp ))
 		{
@@ -205,6 +208,8 @@ AI_file_alertparser_thread ( void* arg )
 
 			if ( !in_alert )
 			{
+				pthread_mutex_lock ( &mutex );
+
 				if ( preg_match ( "^\\[\\*\\*\\]\\s*\\[([0-9]+):([0-9]+):([0-9]+)\\]\\s*(.*)\\s*\\[\\*\\*\\]$", line, &matches, &nmatches ) > 0 )
 				{
 					in_alert = true;
@@ -351,9 +356,11 @@ AI_file_alertparser_thread ( void* arg )
 			}
 		}
 
-		lock_flag = false;
+		pthread_mutex_unlock ( &mutex );
+		/* AI_alert_serialize ( alert, conf ); */
 	}
 
+	pthread_mutex_destroy ( &mutex );
 	pthread_exit ((void*) 0 );
 	return (void*) 0;
 }		/* -----  end of function AI_file_alertparser_thread  ----- */
@@ -397,8 +404,13 @@ _AI_copy_alerts ( AI_snort_alert *node )
 AI_snort_alert*
 AI_get_alerts ()
 {
-	while ( lock_flag );
-	return _AI_copy_alerts ( alerts );
+	AI_snort_alert *alerts_copy;
+
+	pthread_mutex_lock ( &mutex );
+	alerts_copy = _AI_copy_alerts ( alerts );
+	pthread_mutex_unlock ( &mutex );
+
+	return alerts_copy;
 }		/* -----  end of function AI_get_alerts  ----- */
 
 

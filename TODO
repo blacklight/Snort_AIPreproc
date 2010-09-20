@@ -2,7 +2,6 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
-- Dynamic k parameter in correlation threshold
 - Testing more scenarios, making more hyperalert models
 - Bayesian learning among alerts in alert log
 - libgc support

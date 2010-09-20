@@ -57,6 +57,9 @@
 /** Default directory for placing correlated alerts information (.dot and possibly .png files) */
 #define 	DEFAULT_CORR_ALERTS_DIR 				"/var/log/snort/correlated_alerts"
 
+/** Default path to alert history binary file, used for bayesian statistical correlation over alerts */
+#define 	DEFAULT_ALERT_HISTORY_FILE 			"/var/log/snort/alert_history"
+
 /** Default correlation threshold coefficient for correlating two hyperalerts */
 #define 	DEFAULT_CORR_THRESHOLD 				0.5
 
@@ -143,6 +146,9 @@ typedef struct
 
 	/** Alert file */
 	char          alertfile[1024];
+
+	/** Alert history binary file */
+	char          alert_history_file[1024];
 
 	/** Clustered alerts file */
 	char          clusterfile[1024];
@@ -304,6 +310,9 @@ void               AI_free_alerts ( AI_snort_alert *node );
 struct pkt_info*   AI_get_stream_by_key ( struct pkt_key );
 AI_snort_alert*    AI_get_alerts ( void );
 AI_snort_alert*    AI_get_clustered_alerts ( void );
+
+void               AI_serialize_alert ( AI_snort_alert*, AI_config* );
+void               AI_deserialize_alert ( AI_snort_alert*, AI_config* );
 
 /** Function pointer to the function used for getting the alert list (from log file, db, ...) */
 extern AI_snort_alert* (*get_alerts)(void);

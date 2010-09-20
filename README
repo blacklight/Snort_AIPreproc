@@ -147,7 +147,8 @@ following:
 preprocessor ai: \
 	hashtable_cleanup_interval 300 \
 	tcp_stream_expire_interval 300 \
-	alertfile "/home/youruser/local/snort/log/alert" \
+	alertfile "/your/snort/dir/log/alert" \
+	alert_history_file "/your/snort/dir/log/alert_history" \
 	alert_clustering_interval 300 \
 	correlation_graph_interval 300 \
 	correlation_rules_dir "/your/snort/dir/etc/corr_rules" \
@@ -177,6 +178,10 @@ stream as "expired", if no more packets are received inside of that and it's not
 
 - alertfile:  The file where Snort saves its alerts, if they are saved to a file
 and   not  to  a  database  (default  if  not  specified:  /var/log/snort/alert)
+
+- alert_history_file:  The   file keeping track of the history, in binary format,
+of   all  the  alerts  received  by  the  IDS, so that the module can build some
+statistical        correlation        inferences       over       the       past
 
 - alert_clustering_interval:  The interval that should occur from the clustering
 of  the  alerts  in the log according to the provided clustering hierarchies and

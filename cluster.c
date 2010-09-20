@@ -50,11 +50,10 @@ typedef struct  {
 } AI_alert_occurrence;
 
 
-PRIVATE hierarchy_node *h_root[CLUSTER_TYPES] = { NULL };
-PRIVATE AI_config      *_config               = NULL;
-PRIVATE AI_snort_alert *alert_log             = NULL;
-PRIVATE BOOL           lock_flag              = false;
-
+PRIVATE hierarchy_node  *h_root[CLUSTER_TYPES] = { NULL };
+PRIVATE AI_config       *_config               = NULL;
+PRIVATE AI_snort_alert  *alert_log             = NULL;
+PRIVATE pthread_mutex_t  mutex;
 
 /**
  * \brief  Function that picks up the heuristic value for a clustering attribute in according to Julisch's heuristic (ACM, Vol.2, No.3, 09 2002, pag.124)
@@ -373,7 +372,8 @@ _AI_print_clustered_alerts ( AI_snort_alert *log, FILE *fp )
 {
 	AI_snort_alert *tmp;
 	char ip[INET_ADDRSTRLEN];
-	char *timestamp;
+	char timestamp[128];
+	struct tm *_tm;
 
 	for ( tmp = log; tmp; tmp = tmp->next )
 	{
@@ -384,8 +384,8 @@ _AI_print_clustered_alerts ( AI_snort_alert *log, FILE *fp )
 
 		fprintf ( fp, "[Priority: %d]\n", tmp->priority );
 
-		timestamp = ctime ( &tmp->timestamp );
-		timestamp[ strlen(timestamp)-1 ] = 0;
+		_tm = localtime ( &tmp->timestamp );
+		strftime ( timestamp, sizeof ( timestamp ), "%a %b %d %Y, %H:%M:%S", _tm );
 		fprintf ( fp, "[Grouped alerts: %d] [Starting from: %s]\n", tmp->grouped_alerts_count, timestamp );
 
 		if ( h_root[src_addr] && tmp->h_node[src_addr] )
@@ -445,13 +445,15 @@ _AI_cluster_thread ( void* arg )
 	int            single_alerts_count = 0;
 	double         heterogeneity = 0;
 
+	pthread_mutex_init ( &mutex, NULL );
+
 	while ( 1 )
 	{
 		/* Between an execution of the thread and the next one, sleep for alert_clustering_interval seconds */
 		sleep ( _config->alertClusteringInterval );
 
 		/* Set the lock over the alert log until it's done with the clustering operation */
-		lock_flag = true;
+		pthread_mutex_lock ( &mutex );
 
 		/* Free the current alert log and get the latest one */
 		if ( alert_log )
@@ -462,7 +464,7 @@ _AI_cluster_thread ( void* arg )
 		
 		if ( !( alert_log = get_alerts() ))
 		{
-			lock_flag = false;
+			pthread_mutex_unlock ( &mutex );
 			continue;
 		}
 
@@ -561,7 +563,7 @@ _AI_cluster_thread ( void* arg )
 			alert_count -= _AI_merge_alerts ( &alert_log );
 		} while ( old_alert_count != alert_count );
 
-		lock_flag = false;
+		pthread_mutex_unlock ( &mutex );
 
 		if ( !( cluster_fp = fopen ( _config->clusterfile, "w" )) )
 		{
@@ -732,8 +734,13 @@ _AI_copy_clustered_alerts ( AI_snort_alert *node )
 AI_snort_alert*
 AI_get_clustered_alerts ()
 {
-	for ( ; lock_flag; usleep(100) );
-	return _AI_copy_clustered_alerts ( alert_log );
+	AI_snort_alert *alerts_copy;
+
+	pthread_mutex_lock ( &mutex );
+	alerts_copy = _AI_copy_clustered_alerts ( alert_log );
+	pthread_mutex_unlock ( &mutex );
+
+	return alerts_copy;
 }		/* -----  end of function AI_get_clustered_alerts  ----- */
 
 /** @} */

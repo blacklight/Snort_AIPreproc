@@ -135,10 +135,11 @@ static AI_config * AI_parse(char *args)
 {
 	char *arg;
 	char *match;
-	char alertfile[1024]       = { 0 };
-	char clusterfile[1024]     = { 0 };
-	char corr_rules_dir[1024]  = { 0 };
-	char corr_alerts_dir[1024] = { 0 };
+	char alertfile[1024]          = { 0 };
+	char clusterfile[1024]        = { 0 };
+	char corr_rules_dir[1024]     = { 0 };
+	char corr_alerts_dir[1024]    = { 0 };
+	char alert_history_file[1024] = { 0 };
 
 	char **matches       = NULL;
 	int  nmatches        = 0;
@@ -160,6 +161,7 @@ static AI_config * AI_parse(char *args)
 	unsigned long cleanup_interval           = 0,
 			    stream_expire_interval     = 0,
 			    alertfile_len              = 0,
+			    alert_history_file_len     = 0,
 			    clusterfile_len            = 0,
 			    corr_rules_dir_len         = 0,
 			    corr_alerts_dir_len        = 0,
@@ -176,7 +178,8 @@ static AI_config * AI_parse(char *args)
 		has_clusterfile             = false,
 		has_corr_rules_dir          = false,
 		has_clustering              = false,
-		has_database_log            = false;
+		has_database_log            = false,
+		has_alert_history_file      = false;
 
 	AI_config *config                = NULL;
 
@@ -332,6 +335,38 @@ static AI_config * AI_parse(char *args)
 				alertfile[ alertfile_len-1 ] = 0;
 				strncpy ( config->alertfile, alertfile, alertfile_len );
 				_dpd.logMsg("    alertfile path: %s\n", config->alertfile);
+			}
+		}
+	}
+
+	/* Parsing the alert_history_file option */
+	if (( arg = (char*) strcasestr( args, "alert_history_file" ) ))
+	{
+		for ( arg += strlen("alert_history_file");
+				*arg && *arg != '"';
+				arg++ );
+
+		if ( !(*(arg++)) )
+		{
+			_dpd.fatalMsg("AIPreproc: alert_history_file option used but no filename specified\n");
+		}
+
+		for ( alert_history_file[ (++alert_history_file_len)-1 ] = *arg;
+				*arg && *arg != '"' && alert_history_file_len < 1024;
+				arg++, alert_history_file[ (++alert_history_file_len)-1 ] = *arg );
+
+		if ( alert_history_file[0] == 0 || alert_history_file_len <= 1 )  {
+			has_alert_history_file = false;
+		} else {
+			if ( alert_history_file_len >= 1024 )  {
+				_dpd.fatalMsg("AIPreproc: alert_history_file path too long ( >= 1024 )\n");
+			} else if ( strlen( alert_history_file ) == 0 ) {
+				has_alert_history_file = false;
+			} else {
+				has_alert_history_file = true;
+				alert_history_file [ alert_history_file_len-1 ] = 0;
+				strncpy ( config->alert_history_file, alert_history_file, alert_history_file_len );
+				_dpd.logMsg("    alert_history_file path: %s\n", config->alert_history_file);
 			}
 		}
 	}
@@ -765,6 +800,12 @@ static AI_config * AI_parse(char *args)
 		#endif
 	} else if ( has_alertfile ) {
 		alertparser_thread = AI_file_alertparser_thread;
+	}
+
+	if ( !has_alert_history_file )
+	{
+		strncpy ( config->alert_history_file, DEFAULT_ALERT_HISTORY_FILE, sizeof ( config->alert_history_file ));
+		has_alert_history_file = true;
 	}
 
 	if ( has_clustering )
