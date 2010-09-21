@@ -63,6 +63,12 @@
 /** Default correlation threshold coefficient for correlating two hyperalerts */
 #define 	DEFAULT_CORR_THRESHOLD 				0.5
 
+/** Default size of the alerts' buffer to be periodically sent to the serialization thread */
+#define 	DEFAULT_ALERT_BUFSIZE 				30
+
+/** Default timeout in seconds between a serialization of the alerts' buffer and the next one */
+#define 	DEFAULT_ALERT_SERIALIZATION_INTERVAL 	3600
+
 /****************************/
 /* Database support */
 #ifdef 	HAVE_LIBMYSQLCLIENT
@@ -133,6 +139,12 @@ typedef struct
 
 	/** Interval in seconds for running the thread for building alert correlation graphs */
 	unsigned long correlationGraphInterval;
+	
+	/** Interval in seconds between a serialization of the alerts' buffer and the next one */
+	unsigned long alertSerializationInterval;
+
+	/** Size of the alerts' buffer to be periodically sent to the serialization thread */
+	unsigned long alert_bufsize;
 
 	/** Correlation threshold coefficient for correlating two hyperalerts. Two hyperalerts
 	 * are 'correlated' to each other in a multi-step attack graph if and only if their
@@ -289,8 +301,8 @@ typedef struct _AI_snort_alert  {
 /*****************************************************************/
 
 int                preg_match ( const char*, char*, char***, int* );
-char*              str_replace ( char *str, char *orig, char *rep );
-char*              str_replace_all ( char *str, char *orig, char *rep );
+char*              str_replace ( char*, char*, char *);
+char*              str_replace_all ( char*, char*, char* );
 
 void*              AI_hashcleanup_thread ( void* );
 void*              AI_file_alertparser_thread ( void* );
@@ -298,7 +310,7 @@ void*              AI_alert_correlation_thread ( void* );
 
 #ifdef 	HAVE_DB
 AI_snort_alert*    AI_db_get_alerts ( void );
-void               AI_db_free_alerts ( AI_snort_alert *node );
+void               AI_db_free_alerts ( AI_snort_alert* );
 void*              AI_db_alertparser_thread ( void* );
 #endif
 
@@ -311,8 +323,8 @@ struct pkt_info*   AI_get_stream_by_key ( struct pkt_key );
 AI_snort_alert*    AI_get_alerts ( void );
 AI_snort_alert*    AI_get_clustered_alerts ( void );
 
-void               AI_serialize_alert ( AI_snort_alert*, AI_config* );
-void               AI_deserialize_alert ( AI_snort_alert*, AI_config* );
+void               AI_serialize_alerts ( AI_snort_alert**, unsigned int, AI_config* );
+void*              AI_deserialize_alerts ( AI_config* );
 
 /** Function pointer to the function used for getting the alert list (from log file, db, ...) */
 extern AI_snort_alert* (*get_alerts)(void);

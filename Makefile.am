@@ -16,6 +16,7 @@ include/sf_dynamic_preproc_lib.c \
 include/sfPolicyUserData.c
 
 libsf_ai_preproc_la_SOURCES = \
+alert_history.c \
 alert_parser.c \
 cluster.c \
 correlation.c \

@@ -85,7 +85,7 @@ static void AI_init(char *args)
 	{
 		ex_config = sfPolicyConfigCreate();
 		if (ex_config == NULL)
-			_dpd.fatalMsg("Could not allocate configuration struct.\n");
+			_dpd.fatalMsg ("Could not allocate configuration struct.\n");
 	}
 
 	config = AI_parse(args);
@@ -158,16 +158,18 @@ static AI_config * AI_parse(char *args)
 	hierarchy_node **hierarchy_nodes = NULL;
 	int            n_hierarchy_nodes = 0;
 
-	unsigned long cleanup_interval           = 0,
-			    stream_expire_interval     = 0,
-			    alertfile_len              = 0,
-			    alert_history_file_len     = 0,
-			    clusterfile_len            = 0,
-			    corr_rules_dir_len         = 0,
-			    corr_alerts_dir_len        = 0,
-			    alert_clustering_interval  = 0,
-			    database_parsing_interval  = 0,
-			    correlation_graph_interval = 0;
+	unsigned long cleanup_interval             = 0,
+			    stream_expire_interval       = 0,
+			    alertfile_len                = 0,
+			    alert_history_file_len       = 0,
+			    alert_serialization_interval = 0,
+			    alert_bufsize                = 0,
+			    clusterfile_len              = 0,
+			    corr_rules_dir_len           = 0,
+			    corr_alerts_dir_len          = 0,
+			    alert_clustering_interval    = 0,
+			    database_parsing_interval    = 0,
+			    correlation_graph_interval   = 0;
 
 	BOOL has_cleanup_interval        = false,
 		has_stream_expire_interval  = false,
@@ -283,6 +285,42 @@ static AI_config * AI_parse(char *args)
 		correlation_graph_interval = strtoul(arg, NULL, 10);
 		config->correlationGraphInterval = correlation_graph_interval;
 		_dpd.logMsg("    Correlation graph thread interval: %d\n", config->correlationGraphInterval);
+	}
+
+	/* Parsing the alert_serialization_interval option */
+	if (( arg = (char*) strcasestr( args, "alert_serialization_interval" ) ))
+	{
+		for ( arg += strlen("alert_serialization_interval");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			_dpd.fatalMsg("AIPreproc: alert_serialization_interval option used but "
+				"no value specified\n");
+		}
+
+		alert_serialization_interval = strtoul(arg, NULL, 10);
+		config->alertSerializationInterval = alert_serialization_interval;
+		_dpd.logMsg("    Alert serialization thread interval: %d\n", config->correlationGraphInterval);
+	}
+
+	/* Parsing the alert_bufsize option */
+	if (( arg = (char*) strcasestr( args, "alert_bufsize" ) ))
+	{
+		for ( arg += strlen("alert_bufsize");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			_dpd.fatalMsg("AIPreproc: alert_bufsize option used but "
+				"no value specified\n");
+		}
+
+		alert_bufsize = strtoul(arg, NULL, 10);
+		config->alert_bufsize= alert_bufsize;
+		_dpd.logMsg("    Alert buffer size: %d\n", config->alert_bufsize );
 	}
 
 	/* Parsing the correlation_threshold_coefficient option */
@@ -847,6 +885,16 @@ static AI_config * AI_parse(char *args)
 	if ( ! has_corr_alerts_dir )
 	{
 		strncpy ( config->corr_alerts_dir, DEFAULT_CORR_ALERTS_DIR, sizeof ( DEFAULT_CORR_ALERTS_DIR ));
+	}
+
+	if ( ! alert_serialization_interval )
+	{
+		config->alertSerializationInterval = DEFAULT_ALERT_SERIALIZATION_INTERVAL;
+	}
+
+	if ( ! alert_bufsize )
+	{
+		config->alert_bufsize = DEFAULT_ALERT_BUFSIZE;
 	}
 
 	_dpd.logMsg ( "Saving correlated alerts information in %s\n", config->corr_alerts_dir );

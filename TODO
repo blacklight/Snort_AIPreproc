@@ -2,6 +2,7 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
+- Add alerts' history serialization to db.c as well
 - Testing more scenarios, making more hyperalert models
 - Bayesian learning among alerts in alert log
 - libgc support

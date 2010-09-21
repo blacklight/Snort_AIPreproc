@@ -75,7 +75,8 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(corr_rulesdir)" \
 	"$(DESTDIR)$(sharedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libsf_ai_preproc_la_LIBADD =
-am_libsf_ai_preproc_la_OBJECTS = libsf_ai_preproc_la-alert_parser.lo \
+am_libsf_ai_preproc_la_OBJECTS = libsf_ai_preproc_la-alert_history.lo \
+	libsf_ai_preproc_la-alert_parser.lo \
 	libsf_ai_preproc_la-cluster.lo \
 	libsf_ai_preproc_la-correlation.lo libsf_ai_preproc_la-db.lo \
 	libsf_ai_preproc_la-mysql.lo libsf_ai_preproc_la-postgresql.lo \
@@ -250,6 +251,7 @@ include/sf_dynamic_preproc_lib.c \
 include/sfPolicyUserData.c
 
 libsf_ai_preproc_la_SOURCES = \
+alert_history.c \
 alert_parser.c \
 cluster.c \
 correlation.c \
@@ -370,6 +372,9 @@ distclean-compile:
 
 .c.lo:
 	$(LTCOMPILE) -c -o $@ $<
+
+libsf_ai_preproc_la-alert_history.lo: alert_history.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-alert_history.lo `test -f 'alert_history.c' || echo '$(srcdir)/'`alert_history.c
 
 libsf_ai_preproc_la-alert_parser.lo: alert_parser.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-alert_parser.lo `test -f 'alert_parser.c' || echo '$(srcdir)/'`alert_parser.c

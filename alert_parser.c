@@ -29,12 +29,90 @@
 #include 	<pthread.h>
 
 
-PRIVATE AI_snort_alert   *alerts   = NULL;
-PRIVATE FILE             *alert_fp = NULL;
-PRIVATE pthread_mutex_t  mutex;
+PRIVATE AI_snort_alert   *alerts           = NULL;
+PRIVATE AI_snort_alert   **alerts_pool     = NULL;
+PRIVATE AI_config        *conf             = NULL;
+PRIVATE FILE             *alert_fp         = NULL;
+PRIVATE unsigned int     alerts_pool_count = 0;
+PRIVATE pthread_mutex_t  alert_mutex;
+PRIVATE pthread_mutex_t  alerts_pool_mutex;
+
 
 /** \defgroup alert_parser Parse the alert log into binary structures
  * @{ */
+
+
+/**
+ * \brief  Serialize the pool of alerts in a separated thread
+ * \param  arg   void* pointer to the alert to be added to the pool, if any
+ */
+
+PRIVATE void*
+_AI_serializer_thread ( void *arg )
+{
+	unsigned int    i      = 0;
+	AI_snort_alert  *alert = NULL;
+
+	if ( arg )
+	{
+		alert = ( AI_snort_alert* ) arg;
+
+		pthread_mutex_lock ( &alerts_pool_mutex );
+		alerts_pool [ alerts_pool_count++ ] = alert;
+		pthread_mutex_unlock ( &alerts_pool_mutex );
+	}
+
+	if ( !arg || ( arg && alerts_pool_count >= conf->alert_bufsize ))
+	{
+		pthread_mutex_lock ( &alerts_pool_mutex );
+		_dpd.logMsg ( "**** LOCKED ****\n" );
+		AI_serialize_alerts ( alerts_pool, alerts_pool_count, conf );
+
+		for ( i=0; i < alerts_pool_count; i++ )
+		{
+			alerts_pool[i] = NULL;
+		}
+
+		alerts_pool_count = 0;
+		pthread_mutex_unlock ( &alerts_pool_mutex );
+		_dpd.logMsg ( "**** UNLOCKED ****\n\n" );
+	}
+
+	pthread_exit ((void*) 0);
+	return (void*) 0;
+}		/* -----  end of function _AI_serializer_thread  ----- */
+
+
+/**
+ * \brief  Thread for managing the buffer of alerts and serialize them at constant intervals
+ */
+
+PRIVATE void*
+_AI_alerts_pool_thread ( void *arg )
+{
+	pthread_t  serializer_thread;
+
+	while ( 1 )
+	{
+		if ( !conf )
+		{
+			pthread_exit ((void*) 0);
+			return (void*) 0;
+		}
+		
+		sleep ( conf->alertSerializationInterval );
+
+		if ( !alerts_pool || alerts_pool_count == 0 )
+			continue;
+
+		if ( pthread_create ( &serializer_thread, NULL, _AI_serializer_thread, NULL ) != 0 )
+			_dpd.fatalMsg ( "Failed to create the alerts' serializer thread\n" );
+	}
+
+	pthread_exit ((void*) 0);
+	return (void*) 0;
+}		/* -----  end of function _AI_alerts_pool_thread  ----- */
+
 
 /**
  * \brief  Thread for parsing Snort's alert file
@@ -54,14 +132,14 @@ AI_file_alertparser_thread ( void* arg )
 	};
 
 	int             i;
-#ifndef __APPLE__
+#ifdef LINUX
 	int             ifd;
 	int             wd;
 	struct stat     st;
 #else
-	int				fd = -1;
-	struct stat	    stats;
-	time_t			last_mod_time = (time_t)0;
+	int             fd = -1;
+	struct stat     stats;
+	time_t          last_mod_time = (time_t) 0;
 #endif
 	int             nmatches = 0;
 	char            line[8192];
@@ -73,16 +151,34 @@ AI_file_alertparser_thread ( void* arg )
 	struct pkt_key  key;
 	struct pkt_info *info;
 
-	AI_config *conf        = ( AI_config* ) arg;
-	AI_snort_alert *alert  = NULL;
-	AI_snort_alert *tmp    = NULL;
-	BOOL in_alert          = false;
+	AI_snort_alert *alert   = NULL;
+	AI_snort_alert *tmp     = NULL;
+	BOOL           in_alert = false;
+	pthread_t      alerts_pool_thread;
+	pthread_t      serializer_thread;
 
-	pthread_mutex_init ( &mutex, NULL );
+	conf = ( AI_config* ) arg;
+
+	/* Initialize the mutex lock, so nobody can read the alerts while we write there */
+	pthread_mutex_init ( &alert_mutex, NULL );
+
+	/* Initialize the mutex on the alerts' pool, so that an only thread per time can write there */
+	pthread_mutex_init ( &alerts_pool_mutex, NULL );
+
+	/* Initialize the pool of alerts to be passed to the serialization thread */
+	if ( !( alerts_pool = ( AI_snort_alert** ) malloc ( conf->alert_bufsize * sizeof ( AI_snort_alert* ))))
+		_dpd.fatalMsg ( "Dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+
+	for ( i=0; i < conf->alert_bufsize; i++ )
+		alerts_pool[i] = NULL;
+
+	/* Initialize the thread for managing the serialization of alerts' pool */
+	if ( pthread_create ( &alerts_pool_thread, NULL, _AI_alerts_pool_thread, NULL ) != 0 )
+		_dpd.fatalMsg ( "Failed to create the alerts' pool management thread\n" );
 
 	while ( 1 )
 	{
-#ifndef MACOS
+#ifdef LINUX
 		if (( ifd = inotify_init() ) < 0 )
 		{
 			_dpd.fatalMsg ( "Could not initialize an inotify object on the alert log file" );
@@ -197,7 +293,8 @@ AI_file_alertparser_thread ( void* arg )
 						tmp->next = alert;
 					}
 
-					/* TODO Do something!! */
+					if ( pthread_create ( &serializer_thread, NULL, _AI_serializer_thread, alert ) != 0 )
+						_dpd.fatalMsg ( "Failed to create the alerts' serializer thread\n" );
 
 					in_alert = false;
 					alert = NULL;
@@ -208,7 +305,7 @@ AI_file_alertparser_thread ( void* arg )
 
 			if ( !in_alert )
 			{
-				pthread_mutex_lock ( &mutex );
+				pthread_mutex_lock ( &alert_mutex );
 
 				if ( preg_match ( "^\\[\\*\\*\\]\\s*\\[([0-9]+):([0-9]+):([0-9]+)\\]\\s*(.*)\\s*\\[\\*\\*\\]$", line, &matches, &nmatches ) > 0 )
 				{
@@ -356,11 +453,12 @@ AI_file_alertparser_thread ( void* arg )
 			}
 		}
 
-		pthread_mutex_unlock ( &mutex );
+		pthread_mutex_unlock ( &alert_mutex );
 		/* AI_alert_serialize ( alert, conf ); */
 	}
 
-	pthread_mutex_destroy ( &mutex );
+	free ( alerts_pool );
+	pthread_mutex_destroy ( &alert_mutex );
 	pthread_exit ((void*) 0 );
 	return (void*) 0;
 }		/* -----  end of function AI_file_alertparser_thread  ----- */
@@ -406,9 +504,9 @@ AI_get_alerts ()
 {
 	AI_snort_alert *alerts_copy;
 
-	pthread_mutex_lock ( &mutex );
+	pthread_mutex_lock ( &alert_mutex );
 	alerts_copy = _AI_copy_alerts ( alerts );
-	pthread_mutex_unlock ( &mutex );
+	pthread_mutex_unlock ( &alert_mutex );
 
 	return alerts_copy;
 }		/* -----  end of function AI_get_alerts  ----- */
