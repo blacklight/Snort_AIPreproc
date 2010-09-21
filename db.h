@@ -62,7 +62,7 @@
 	DB_result 	DB_query ( const char* );
 #endif
 
-	void*      DB_init ( AI_config* );
+	void*      DB_init();
 	void       DB_close();
 
 	#endif

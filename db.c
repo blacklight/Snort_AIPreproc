@@ -30,22 +30,23 @@
  * @{ */
 
 
-PRIVATE AI_config        *config;
 PRIVATE AI_snort_alert   *alerts   = NULL;
 PRIVATE pthread_mutex_t  mutex;
 
 /**
  * \brief  Thread for parsing alerts from a database
- * \param  arg 	void* pointer to the module configuration
  */
 
 void*
 AI_db_alertparser_thread ( void *arg )
 {
-	char           query[1024];
+	unsigned int   i           = 0;
+	char           query[1024] = { 0 };
 	int            rows        = 0;
 	int            latest_cid  = 0;
 	time_t         latest_time = time ( NULL );
+	pthread_t      alerts_pool_thread;
+	pthread_t      serializer_thread;
 
 	DB_result      res, res2;
 	DB_row         row, row2;
@@ -55,20 +56,24 @@ AI_db_alertparser_thread ( void *arg )
 	AI_snort_alert  *alert = NULL;
 	AI_snort_alert  *tmp   = NULL;
 
-	if ( !arg )
-	{
-		pthread_exit ((void*) 0 );
-		return (void*) 0;
-	}
-
-	config = ( AI_config* ) arg;
 	pthread_mutex_init ( &mutex, NULL );
 
-	if ( !DB_init ( config ))
+	if ( !DB_init() )
 	{
 		_dpd.fatalMsg ( "AIPreproc: Unable to connect to the database '%s' @ '%s'\n",
 				config->dbname, config->dbhost );
 	}
+
+	/* Initialize the pool of alerts to be passed to the serialization thread */
+	if ( !( alerts_pool = ( AI_snort_alert** ) malloc ( config->alert_bufsize * sizeof ( AI_snort_alert* ))))
+		_dpd.fatalMsg ( "Dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+
+	for ( i=0; i < config->alert_bufsize; i++ )
+		alerts_pool[i] = NULL;
+
+	/* Initialize the thread for managing the serialization of alerts' pool */
+	if ( pthread_create ( &alerts_pool_thread, NULL, AI_alerts_pool_thread, NULL ) != 0 )
+		_dpd.fatalMsg ( "Failed to create the alerts' pool management thread\n" );
 
 	while ( 1 )
 	{
@@ -220,6 +225,9 @@ AI_db_alertparser_thread ( void *arg )
 		pthread_mutex_unlock ( &mutex );
 		DB_free_result ( res );
 		latest_time = time ( NULL );
+
+		if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, alert ) != 0 )
+			_dpd.fatalMsg ( "Failed to create the alerts' serializer thread\n" );
 	}
 
 	DB_close();
@@ -276,5 +284,5 @@ AI_db_get_alerts ()
 
 /** @} */
 
-#endif
+#endif  /* HAVE_DB */
 

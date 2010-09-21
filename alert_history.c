@@ -73,12 +73,11 @@ AI_alerts_hash_free ( AI_alert_event **events )
 
 /**
  * \brief  Deserialize a alerts' hash table from the binary history file
- * \param  conf Configuration of the module
  * \return A void* pointer (to be casted to AI_alert_event*) to the stored hash table
  */
 
 void*
-AI_deserialize_alerts ( AI_config *conf )
+AI_deserialize_alerts ()
 {
 	FILE                 *fp = NULL;
 	struct stat          st;
@@ -90,19 +89,19 @@ AI_deserialize_alerts ( AI_config *conf )
 				      *event_list     = NULL;
 	AI_alert_event_key   key;
 
-	if ( stat ( conf->alert_history_file, &st ) < 0 )
+	if ( stat ( config->alert_history_file, &st ) < 0 )
 		return NULL;
 
 	if ( ! S_ISREG ( st.st_mode ))
-		_dpd.fatalMsg ( "AIPreproc: '%s' is not a regular file\n", conf->alert_history_file );
+		_dpd.fatalMsg ( "AIPreproc: '%s' is not a regular file\n", config->alert_history_file );
 
-	if ( !( fp = fopen ( conf->alert_history_file, "r" )))
-		_dpd.fatalMsg ( "AIPreproc: Unable to read from the file '%s'\n", conf->alert_history_file );
+	if ( !( fp = fopen ( config->alert_history_file, "r" )))
+		_dpd.fatalMsg ( "AIPreproc: Unable to read from the file '%s'\n", config->alert_history_file );
 
 	AI_alerts_hash_free ( &alerts_hash );
 
 	if ( fread ( &lists_count, sizeof ( unsigned int ), 1, fp ) <= 0 )
-		_dpd.fatalMsg ( "AIPreproc: Malformed history file '%s'\n", conf->alert_history_file );
+		_dpd.fatalMsg ( "AIPreproc: Malformed history file '%s'\n", config->alert_history_file );
 
 	/* Fill the hash table reading from the file */
 	for ( i=0; i < lists_count; i++ )
@@ -111,7 +110,7 @@ AI_deserialize_alerts ( AI_config *conf )
 		event_prev     = NULL;
 
 		if ( fread ( &items_count, sizeof ( unsigned int ), 1, fp ) <= 0 )
-			_dpd.fatalMsg ( "AIPreproc: Malformed history file '%s'\n", conf->alert_history_file );
+			_dpd.fatalMsg ( "AIPreproc: Malformed history file '%s'\n", config->alert_history_file );
 		
 		for ( j=0; j < items_count; j++ )
 		{
@@ -131,10 +130,10 @@ AI_deserialize_alerts ( AI_config *conf )
 			event_iterator->count = items_count;
 
 			if ( fread ( &( event_iterator->key ), sizeof ( event_iterator->key ), 1, fp ) <= 0 )
-				_dpd.fatalMsg ( "AIPreproc: Malformed history file '%s'\n", conf->alert_history_file );
+				_dpd.fatalMsg ( "AIPreproc: Malformed history file '%s'\n", config->alert_history_file );
 
 			if ( fread ( &( event_iterator->timestamp ), sizeof ( event_iterator->timestamp ), 1, fp ) <= 0 )
-				_dpd.fatalMsg ( "AIPreproc: Malformed history file '%s'\n", conf->alert_history_file );
+				_dpd.fatalMsg ( "AIPreproc: Malformed history file '%s'\n", config->alert_history_file );
 
 			if ( event_prev )
 			{
@@ -157,11 +156,10 @@ AI_deserialize_alerts ( AI_config *conf )
  * \brief  Serialize a buffer of alerts to the binary history file
  * \param  alerts_pool Buffer of alerts to be serialized
  * \param  alerts_pool_count Number of alerts in the buffer
- * \param  conf Configuration of the module
  */
 
 void
-AI_serialize_alerts ( AI_snort_alert **alerts_pool, unsigned int alerts_pool_count, AI_config *conf )
+AI_serialize_alerts ( AI_snort_alert **alerts_pool, unsigned int alerts_pool_count )
 {
 	unsigned int        i,
 					hash_count      = 0,
@@ -175,7 +173,7 @@ AI_serialize_alerts ( AI_snort_alert **alerts_pool, unsigned int alerts_pool_cou
 
 	if ( !alerts_hash )
 	{
-		AI_deserialize_alerts ( conf );
+		AI_deserialize_alerts();
 	}
 
 	for ( i=0; i < alerts_pool_count; i++ )
@@ -220,8 +218,8 @@ AI_serialize_alerts ( AI_snort_alert **alerts_pool, unsigned int alerts_pool_cou
 	
 	hash_count = HASH_COUNT ( alerts_hash );
 
-	if ( !( fp = fopen ( conf->alert_history_file, "w" )))
-		_dpd.fatalMsg ( "AIPreproc: Unable to write on '%s'\n", conf->alert_history_file );
+	if ( !( fp = fopen ( config->alert_history_file, "w" )))
+		_dpd.fatalMsg ( "AIPreproc: Unable to write on '%s'\n", config->alert_history_file );
 	fwrite ( &hash_count, sizeof ( hash_count ), 1, fp );
 
 	for ( event = alerts_hash; event; event = ( AI_alert_event* ) event->hh.next )

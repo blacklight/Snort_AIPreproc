@@ -30,7 +30,7 @@
 PRIVATE PGconn   *db = NULL;
 
 void*
-postgresql_do_init ( AI_config *config )
+postgresql_do_init ()
 {
 	char *conninfo = NULL;
 	int  conninfo_max_length =

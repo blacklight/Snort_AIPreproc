@@ -92,7 +92,6 @@ _AI_stream_free ( struct pkt_info* stream )
 /**
  * \brief  Thread called for cleaning up the hash table from the traffic streams older than
  *         a certain threshold
- * \param  arg 	Pointer to the AI_config struct
  */
 
 void*
@@ -100,11 +99,10 @@ AI_hashcleanup_thread ( void* arg )
 {
 	struct pkt_info  *h, *stream;
 	time_t           max_timestamp;
-	AI_config*       conf = (AI_config*) arg;
 
 	while ( 1 )  {
 		/* Sleep for the specified number of seconds */
-		sleep ( conf->hashCleanupInterval );
+		sleep ( config->hashCleanupInterval );
 
 		/* If the hash is empty, come back to sleep */
 		if ( !hash || !HASH_COUNT(hash) )
@@ -122,7 +120,7 @@ AI_hashcleanup_thread ( void* arg )
 			}
 
 			/* If the most recent packet in the stream is older than the specified threshold, remove that stream */
-			if ( time(NULL) - max_timestamp > conf->streamExpireInterval )  {
+			if ( time(NULL) - max_timestamp > config->streamExpireInterval )  {
 				stream = h;
 
 				if ( stream )

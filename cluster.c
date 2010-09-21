@@ -51,7 +51,6 @@ typedef struct  {
 
 
 PRIVATE hierarchy_node  *h_root[CLUSTER_TYPES] = { NULL };
-PRIVATE AI_config       *_config               = NULL;
 PRIVATE AI_snort_alert  *alert_log             = NULL;
 PRIVATE pthread_mutex_t  mutex;
 
@@ -450,7 +449,7 @@ _AI_cluster_thread ( void* arg )
 	while ( 1 )
 	{
 		/* Between an execution of the thread and the next one, sleep for alert_clustering_interval seconds */
-		sleep ( _config->alertClusteringInterval );
+		sleep ( config->alertClusteringInterval );
 
 		/* Set the lock over the alert log until it's done with the clustering operation */
 		pthread_mutex_lock ( &mutex );
@@ -565,7 +564,7 @@ _AI_cluster_thread ( void* arg )
 
 		pthread_mutex_unlock ( &mutex );
 
-		if ( !( cluster_fp = fopen ( _config->clusterfile, "w" )) )
+		if ( !( cluster_fp = fopen ( config->clusterfile, "w" )) )
 		{
 			pthread_exit ((void*) 0 );
 			return (void*) 0;
@@ -610,20 +609,18 @@ _AI_check_duplicate ( hierarchy_node *node, hierarchy_node *root )
 
 /**
  * \brief  Build the clustering hierarchy trees
- * \param  conf 	Reference to the configuration of the module
  * \param  nodes 	Nodes containing the information about the clustering ranges
  * \param  n_nodes 	Number of nodes
  */
 
 void
-AI_hierarchies_build ( AI_config *conf, hierarchy_node **nodes, int n_nodes )
+AI_hierarchies_build ( hierarchy_node **nodes, int n_nodes )
 {
 	int  i, j;
 	int  min_range = 0;
 	pthread_t      cluster_thread;
 	hierarchy_node *root  = NULL;
 	hierarchy_node *cover = NULL;
-	_config = conf;
 
 	for ( i=0; i < n_nodes; i++ )
 	{

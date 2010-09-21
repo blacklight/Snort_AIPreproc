@@ -28,7 +28,7 @@
 PRIVATE MYSQL     *db  = NULL;
 
 void*
-mysql_do_init ( AI_config *config )
+mysql_do_init ()
 {
 	if ( !( db = (MYSQL*) malloc ( sizeof ( MYSQL ))))
 		return NULL;

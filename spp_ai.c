@@ -28,6 +28,7 @@
  * @{ */
 
 AI_snort_alert* (*get_alerts)(void);
+AI_config *config = NULL;
 
 tSfPolicyUserContextId ex_config = NULL;
 static void* (*alertparser_thread)(void*) = NULL;
@@ -71,8 +72,6 @@ void AI_setup(void)
 
 static void AI_init(char *args)
 {
-	AI_config *config;
-
 	pthread_t  cleanup_thread,
 			 logparse_thread,
 			 correlation_thread;
@@ -182,8 +181,6 @@ static AI_config * AI_parse(char *args)
 		has_clustering              = false,
 		has_database_log            = false,
 		has_alert_history_file      = false;
-
-	AI_config *config                = NULL;
 
 	if ( !( config = ( AI_config* ) malloc ( sizeof( AI_config )) ))
 		_dpd.fatalMsg("Could not allocate configuration struct.\n");
@@ -863,7 +860,7 @@ static AI_config * AI_parse(char *args)
 			config->alertClusteringInterval = DEFAULT_ALERT_CLUSTERING_INTERVAL;
 		}
 
-		AI_hierarchies_build ( config, hierarchy_nodes, n_hierarchy_nodes );
+		AI_hierarchies_build ( hierarchy_nodes, n_hierarchy_nodes );
 	}
 
 	if ( ! has_corr_rules_dir )
@@ -923,12 +920,12 @@ static AI_config * AI_parse(char *args)
 void AI_process(void *pkt, void *context)
 {
 	SFSnortPacket *p = (SFSnortPacket *) pkt;
-	AI_config *config;
+	AI_config *_config;
 
 	sfPolicyUserPolicySet(ex_config, _dpd.getRuntimePolicy());
-	config = (AI_config * ) sfPolicyUserDataGetCurrent (ex_config);
+	_config = (AI_config * ) sfPolicyUserDataGetCurrent (ex_config);
 
-	if (config == NULL)
+	if (_config == NULL)
 		return;
 
 	if (!p->ip4_header || p->ip4_header->proto != IPPROTO_TCP || !p->tcp_header)
@@ -943,7 +940,7 @@ void AI_process(void *pkt, void *context)
 #ifdef SNORT_RELOAD
 static void AI_reload(char *args)
 {
-	AI_config *config;
+	/* AI_config *config; */
 	tSfPolicyId policy_id = _dpd.getParserPolicy();
 
 	_dpd.logMsg("AI dynamic preprocessor configuration\n");

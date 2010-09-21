@@ -316,18 +316,29 @@ void*              AI_db_alertparser_thread ( void* );
 
 void               AI_pkt_enqueue ( SFSnortPacket* );
 void               AI_set_stream_observed ( struct pkt_key key );
-void               AI_hierarchies_build ( AI_config*, hierarchy_node**, int );
+void               AI_hierarchies_build ( hierarchy_node**, int );
 void               AI_free_alerts ( AI_snort_alert *node );
 
 struct pkt_info*   AI_get_stream_by_key ( struct pkt_key );
 AI_snort_alert*    AI_get_alerts ( void );
 AI_snort_alert*    AI_get_clustered_alerts ( void );
 
-void               AI_serialize_alerts ( AI_snort_alert**, unsigned int, AI_config* );
-void*              AI_deserialize_alerts ( AI_config* );
+void               AI_serialize_alerts ( AI_snort_alert**, unsigned int );
+void*              AI_deserialize_alerts ();
+void*              AI_alerts_pool_thread ( void *arg );
+void*              AI_serializer_thread ( void *arg );
 
 /** Function pointer to the function used for getting the alert list (from log file, db, ...) */
 extern AI_snort_alert* (*get_alerts)(void);
+
+/** Buffer containing the alerts to be serialized on the binary history file */
+extern AI_snort_alert   **alerts_pool;
+
+/** Number of alerts contained in the buffer to be serialized */
+extern unsigned int     alerts_pool_count;
+
+/** Configuration of the module */
+extern AI_config        *config;
 
 #endif  /* _SPP_AI_H */
 

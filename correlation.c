@@ -67,7 +67,6 @@ typedef struct  {
 } AI_alert_correlation;
 
 PRIVATE AI_hyperalert_info   *hyperalerts       = NULL;
-PRIVATE AI_config            *conf              = NULL;
 PRIVATE AI_snort_alert       *alerts            = NULL;
 PRIVATE AI_alert_correlation *correlation_table = NULL;
 PRIVATE pthread_mutex_t      mutex;
@@ -566,7 +565,7 @@ _AI_hyperalert_from_XML ( AI_hyperalert_key key )
 	
 	hyp->key = key;
 	snprintf ( hyperalert_file, sizeof ( hyperalert_file ), "%s/%d-%d-%d.xml",
-			conf->corr_rules_dir, key.gid, key.sid, key.rev );
+			config->corr_rules_dir, key.gid, key.sid, key.rev );
 
 	if ( stat ( hyperalert_file, &st ) < 0 )
 		return NULL;
@@ -679,7 +678,6 @@ _AI_hyperalert_from_XML ( AI_hyperalert_key key )
 
 /**
  * \brief  Thread for correlating clustered alerts
- * \param  arg 	Void pointer to module's configuration
  */
 
 void*
@@ -712,17 +710,16 @@ AI_alert_correlation_thread ( void *arg )
 	graph_t                   *g                    = NULL;
 	#endif
 
-	conf = (AI_config*) arg;
 	pthread_mutex_init ( &mutex, NULL );
 
 	while ( 1 )
 	{
-		sleep ( conf->correlationGraphInterval );
+		sleep ( config->correlationGraphInterval );
 
-		if ( stat ( conf->corr_rules_dir, &st ) < 0 )
+		if ( stat ( config->corr_rules_dir, &st ) < 0 )
 		{
 			_dpd.errMsg ( "AIPreproc: Correlation rules directory '%s' not found, the correlation thread won't be active\n",
-					conf->corr_rules_dir );
+					config->corr_rules_dir );
 			pthread_exit (( void* ) 0 );
 			return ( void* ) 0;
 		}
@@ -829,18 +826,18 @@ AI_alert_correlation_thread ( void *arg )
 			}
 
 			std_deviation = sqrt ( std_deviation / (double) HASH_COUNT ( correlation_table ));
-			corr_threshold = avg_correlation + ( conf->correlationThresholdCoefficient * std_deviation );
-			corr_strong_threshold = avg_correlation + ( 2.0 * conf->correlationThresholdCoefficient * std_deviation );
-			snprintf ( corr_dot_file, sizeof ( corr_dot_file ), "%s/correlated_alerts.dot", conf->corr_alerts_dir );
+			corr_threshold = avg_correlation + ( config->correlationThresholdCoefficient * std_deviation );
+			corr_strong_threshold = avg_correlation + ( 2.0 * config->correlationThresholdCoefficient * std_deviation );
+			snprintf ( corr_dot_file, sizeof ( corr_dot_file ), "%s/correlated_alerts.dot", config->corr_alerts_dir );
 			
-			if ( stat ( conf->corr_alerts_dir, &st ) < 0 )
+			if ( stat ( config->corr_alerts_dir, &st ) < 0 )
 			{
-				if ( mkdir ( conf->corr_alerts_dir, 0755 ) < 0 )
+				if ( mkdir ( config->corr_alerts_dir, 0755 ) < 0 )
 				{
-					_dpd.fatalMsg ( "AIPreproc: Unable to create directory '%s'\n", conf->corr_alerts_dir );
+					_dpd.fatalMsg ( "AIPreproc: Unable to create directory '%s'\n", config->corr_alerts_dir );
 				}
 			} else if ( !S_ISDIR ( st.st_mode )) {
-				_dpd.fatalMsg ( "AIPreproc: '%s' found but it's not a directory\n", conf->corr_alerts_dir );
+				_dpd.fatalMsg ( "AIPreproc: '%s' found but it's not a directory\n", config->corr_alerts_dir );
 			}
 
 			if ( !( fp = fopen ( corr_dot_file, "w" )))
@@ -873,8 +870,8 @@ AI_alert_correlation_thread ( void *arg )
 			fclose ( fp );
 
 			#ifdef HAVE_LIBGVC
-				snprintf ( corr_png_file, sizeof ( corr_png_file ), "%s/correlated_alerts.png", conf->corr_alerts_dir );
-				snprintf ( corr_ps_file , sizeof ( corr_ps_file  ), "%s/correlated_alerts.ps" , conf->corr_alerts_dir );
+				snprintf ( corr_png_file, sizeof ( corr_png_file ), "%s/correlated_alerts.png", config->corr_alerts_dir );
+				snprintf ( corr_ps_file , sizeof ( corr_ps_file  ), "%s/correlated_alerts.ps" , config->corr_alerts_dir );
 
 				if ( !( gvc = gvContext() ))
 					continue;
