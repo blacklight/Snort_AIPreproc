@@ -149,6 +149,8 @@ preprocessor ai: \
 	tcp_stream_expire_interval 300 \
 	alertfile "/your/snort/dir/log/alert" \
 	alert_history_file "/your/snort/dir/log/alert_history" \
+	alert_serialization_interval 3600 \
+	alert_bufsize 30 \
 	alert_clustering_interval 300 \
 	correlation_graph_interval 300 \
 	correlation_rules_dir "/your/snort/dir/etc/corr_rules" \
@@ -182,6 +184,17 @@ and   not  to  a  database  (default  if  not  specified:  /var/log/snort/alert)
 - alert_history_file:  The   file keeping track of the history, in binary format,
 of   all  the  alerts  received  by  the  IDS, so that the module can build some
 statistical        correlation        inferences       over       the       past
+
+- alert_serialization_interval:   The   interval   that   should  occur  from  a
+serialization  of  a  buffer  of  alerts  on  the  history file and the next one
+(default if not specified: 1 hour, as it is a quite expensive operation in terms
+of       resources      if      the     system     received     many     alerts)
+
+- alert_bufsize:  Size of the buffer containing the alerts to be sent, in group,
+to   the  serializer  thread.  The  buffer is sent when full and made empty even
+when   the  alert_serialization_interval  parameter  is  not  expired  yet,  for
+avoiding   overflows,  other  memory  problems  or  deadlocks  (default value if
+not                                 specified:                               30)
 
 - alert_clustering_interval:  The interval that should occur from the clustering
 of  the  alerts  in the log according to the provided clustering hierarchies and

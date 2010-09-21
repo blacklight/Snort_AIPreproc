@@ -65,7 +65,6 @@ _AI_serializer_thread ( void *arg )
 	if ( !arg || ( arg && alerts_pool_count >= conf->alert_bufsize ))
 	{
 		pthread_mutex_lock ( &alerts_pool_mutex );
-		_dpd.logMsg ( "**** LOCKED ****\n" );
 		AI_serialize_alerts ( alerts_pool, alerts_pool_count, conf );
 
 		for ( i=0; i < alerts_pool_count; i++ )
@@ -75,7 +74,6 @@ _AI_serializer_thread ( void *arg )
 
 		alerts_pool_count = 0;
 		pthread_mutex_unlock ( &alerts_pool_mutex );
-		_dpd.logMsg ( "**** UNLOCKED ****\n\n" );
 	}
 
 	pthread_exit ((void*) 0);
