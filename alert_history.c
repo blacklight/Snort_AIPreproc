@@ -21,26 +21,14 @@
 
 #include	<sys/stat.h>
 
-typedef struct  {
-	int gid;
-	int sid;
-	int rev;
-} AI_alert_event_key;
-
-typedef struct _AI_alert_event  {
-	AI_alert_event_key      key;
-	unsigned int            count;
-	time_t                  timestamp;
-	struct _AI_alert_event  *next;
-	UT_hash_handle          hh;
-} AI_alert_event;
+/** \defgroup alert_history Manage the serialization and deserialization of alert history to the history file
+ * @{ */
 
 
 PRIVATE AI_alert_event  *alerts_hash = NULL;
 
 
 /**
- * FUNCTION: AI_alerts_hash_free
  * \brief  Free a hash table of alert events
  * \param  events  Hash table to be freed
  */
@@ -236,4 +224,45 @@ AI_serialize_alerts ( AI_snort_alert **alerts_pool, unsigned int alerts_pool_cou
 
 	fclose ( fp );
 }		/* -----  end of function AI_serialize_alerts  ----- */
+
+/**
+ * \brief  Get the sequence of alerts saved in the history file given the ID of the alert
+ * \param  key  Key representing the Snort ID of the alert
+ * \return The flow of events of that type of alert saved in the history
+ */
+
+const AI_alert_event*
+AI_get_alert_events_by_key ( AI_alert_event_key key )
+{
+	AI_alert_event *found = NULL;
+	HASH_FIND ( hh, alerts_hash, &key, sizeof ( key ), found );
+	return found;
+}         /* -----  end of function AI_get_alert_events_by_key  ----- */
+
+
+/**
+ * \brief  Get the number of alerts saved in the history file
+ * \return The number of single alerts (not alert types) saved in the history file
+ */
+
+unsigned int
+AI_get_history_alert_number ()
+{
+	unsigned int         alert_count     = 0;
+	AI_alert_event       *event_iterator = NULL;
+
+	if ( !alerts_hash )
+	{
+		AI_deserialize_alerts();
+	}
+
+	for ( event_iterator = alerts_hash; event_iterator; event_iterator = ( AI_alert_event* ) event_iterator->hh.next )
+	{
+		alert_count += event_iterator->count;
+	}
+
+	return alert_count;
+}		/* -----  end of function AI_get_history_alert_number  ----- */
+
+/* @} */
 

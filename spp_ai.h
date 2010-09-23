@@ -69,6 +69,15 @@
 /** Default timeout in seconds between a serialization of the alerts' buffer and the next one */
 #define 	DEFAULT_ALERT_SERIALIZATION_INTERVAL 	3600
 
+/** Default interval between two alerts (a,b) for considering them correlated */
+#define 	DEFAULT_BAYESIAN_CORRELATION_INTERVAL 	1200
+
+/** Default interval of validity in seconds for an entry in the cache of correlated alerts */
+#define 	DEFAULT_BAYESIAN_CORRELATION_CACHE_VALIDITY 	600
+
+/** Cutoff y value in the exponential decay for considering two alerts not correlated */
+#define 	CUTOFF_Y_VALUE 					0.01
+
 /****************************/
 /* Database support */
 #ifdef 	HAVE_LIBMYSQLCLIENT
@@ -142,6 +151,12 @@ typedef struct
 	
 	/** Interval in seconds between a serialization of the alerts' buffer and the next one */
 	unsigned long alertSerializationInterval;
+
+	/** Interval in seconds between two alerts (a,b) for considering them correlated */
+	unsigned long  bayesianCorrelationInterval;
+
+	/** Interval in seconds for which an entry in the cache of correlated alerts is valid */
+	unsigned long  bayesianCorrelationCacheValidity;
 
 	/** Size of the alerts' buffer to be periodically sent to the serialization thread */
 	unsigned long alert_bufsize;
@@ -299,6 +314,23 @@ typedef struct _AI_snort_alert  {
 	unsigned int        n_derived_alerts;
 } AI_snort_alert;
 /*****************************************************************/
+/** Key for the AI_alert_event structure, containing the Snort ID of the alert */
+typedef struct  {
+	int gid;
+	int sid;
+	int rev;
+} AI_alert_event_key;
+/*****************************************************************/
+/** Structure representing the historical information of an alert saved in alert_history */
+typedef struct _AI_alert_event  {
+	AI_alert_event_key      key;
+	unsigned int            count;
+	time_t                  timestamp;
+	struct _AI_alert_event  *next;
+	UT_hash_handle          hh;
+} AI_alert_event;
+/*****************************************************************/
+
 
 int                preg_match ( const char*, char*, char***, int* );
 char*              str_replace ( char*, char*, char *);
@@ -323,10 +355,12 @@ struct pkt_info*   AI_get_stream_by_key ( struct pkt_key );
 AI_snort_alert*    AI_get_alerts ( void );
 AI_snort_alert*    AI_get_clustered_alerts ( void );
 
-void               AI_serialize_alerts ( AI_snort_alert**, unsigned int );
-void*              AI_deserialize_alerts ();
-void*              AI_alerts_pool_thread ( void *arg );
-void*              AI_serializer_thread ( void *arg );
+void                   AI_serialize_alerts ( AI_snort_alert**, unsigned int );
+void*                  AI_deserialize_alerts ();
+void*                  AI_alerts_pool_thread ( void *arg );
+void*                  AI_serializer_thread ( void *arg );
+const AI_alert_event*  AI_get_alert_events_by_key ( AI_alert_event_key );
+unsigned int           AI_get_history_alert_number ();
 
 /** Function pointer to the function used for getting the alert list (from log file, db, ...) */
 extern AI_snort_alert* (*get_alerts)(void);

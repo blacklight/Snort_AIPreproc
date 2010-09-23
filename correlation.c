@@ -66,10 +66,40 @@ typedef struct  {
 	UT_hash_handle            hh;
 } AI_alert_correlation;
 
-PRIVATE AI_hyperalert_info   *hyperalerts       = NULL;
-PRIVATE AI_snort_alert       *alerts            = NULL;
-PRIVATE AI_alert_correlation *correlation_table = NULL;
-PRIVATE pthread_mutex_t      mutex;
+
+/** Key for the bayesian correlation table */
+typedef struct  {
+	/** Snort ID of the first alert */
+	AI_alert_event_key a;
+
+	/** Snort ID of the second alert */
+	AI_alert_event_key b;
+} AI_bayesian_correlation_key;
+
+
+/** Bayesian alert correlation hash table */
+typedef struct  {
+	/** Key for the hash table */
+	AI_bayesian_correlation_key   key;
+
+	/** Correlation value */
+	double                        correlation;
+
+	/** Timestamp of the last acquired correlation value */
+	time_t                        latest_computation_time;
+
+	/** Make the struct 'hashable' */
+	UT_hash_handle                hh;
+} AI_bayesian_correlation;
+
+
+PRIVATE AI_bayesian_correlation  *bayesian_cache    = NULL;
+PRIVATE AI_hyperalert_info       *hyperalerts       = NULL;
+PRIVATE AI_snort_alert           *alerts            = NULL;
+PRIVATE AI_alert_correlation     *correlation_table = NULL;
+PRIVATE double                   k_exp_value        = 0.0;
+PRIVATE pthread_mutex_t          mutex;
+
 
 /**
  * \brief  Clean up the correlation hash table
@@ -92,11 +122,10 @@ _AI_correlation_table_cleanup ()
  * \brief  Recursively write a flow of correlated alerts to a .dot file, ready for being rendered as graph
  * \param  corr 	Correlated alerts
  * \param  fp       File pointer
- * \param  strong   Boolean value set if the correlation between the alerts is 'strong' (greater than avg + 2*k*deviation)
  */
 
 PRIVATE void
-_AI_print_correlated_alerts ( AI_alert_correlation *corr, FILE *fp, BOOL strong )
+_AI_print_correlated_alerts ( AI_alert_correlation *corr, FILE *fp )
 {
 	char  src_addr1[INET_ADDRSTRLEN],
 		 dst_addr1[INET_ADDRSTRLEN],
@@ -141,7 +170,7 @@ _AI_print_correlated_alerts ( AI_alert_correlation *corr, FILE *fp, BOOL strong 
 		"\"[%d.%d.%d] %s\\n"
 		"%s:%s -> %s:%s\\n"
 		"%s\\n"
-		"(%d alerts grouped)\"%s;\n",
+		"(%d alerts grouped)\";\n",
 
 		corr->key.a->gid, corr->key.a->sid, corr->key.a->rev, corr->key.a->desc,
 		src_addr1, src_port1, dst_addr1, dst_port1,
@@ -151,8 +180,7 @@ _AI_print_correlated_alerts ( AI_alert_correlation *corr, FILE *fp, BOOL strong 
 		corr->key.b->gid, corr->key.b->sid, corr->key.b->rev, corr->key.b->desc,
 		src_addr2, src_port2, dst_addr2, dst_port2,
 		timestamp2,
-		corr->key.b->grouped_alerts_count,
-		strong ? "" : "[style=dotted]"
+		corr->key.b->grouped_alerts_count
 	);
 }		/* -----  end of function _AI_correlation_flow_to_file  ----- */
 
@@ -233,14 +261,125 @@ _AI_get_function_arguments ( char *orig_stmt, int *n_args )
 }		/* -----  end of function _AI_get_function_arguments  ----- */
 
 /**
- * \brief  Compute the correlation coefficient between two alerts, as #INTERSECTION(pre(B), post(A) / #UNION(pre(B), post(A))
+ * \brief  Function used for computing the correlation probability A->B of two alerts (A,B) given their timestamps: f(ta, tb) = exp ( -(tb - ta)^2 / k )
+ * \param  ta 	Timestamp of A
+ * \param  tb 	Timestamp of B
+ * \return The correlation probability A->B
+ */
+
+PRIVATE double
+_AI_bayesian_correlation_function ( time_t ta, time_t tb )
+{
+	if ( k_exp_value == 0.0 )
+		k_exp_value = - (double) (config->bayesianCorrelationInterval * config->bayesianCorrelationInterval) / log ( CUTOFF_Y_VALUE );
+
+	return exp ( -((ta - tb) * (ta - tb)) / k_exp_value );
+}		/* -----  end of function _AI_bayesian_correlation_function  ----- */
+
+/**
+ * \brief  Compute the correlation between two alerts, A -> B: p[A|B] = p[Corr(A,B)] / P[B]
+ * \param  a  First alert
+ * \param  b  Second alert
+ * \return A real coefficient representing p[A|B] using the historical information
+ */
+
+PRIVATE double
+_AI_alert_bayesian_correlation ( AI_snort_alert *a, AI_snort_alert *b )
+{
+	double                corr         = 0.0;
+	unsigned int          corr_count   = 0,
+					  corr_count_a = 0;
+
+	BOOL                         is_a_correlated = false;
+	AI_bayesian_correlation_key  bayesian_key;
+	AI_bayesian_correlation      *found  = NULL;
+
+	AI_alert_event_key           key_a,
+					         key_b;
+
+	AI_alert_event               *events_a  = NULL,
+					         *events_b  = NULL;
+
+	AI_alert_event               *events_iterator_a,
+					         *events_iterator_b;
+
+	if ( !a || !b )
+		return 0.0;
+
+	key_a.gid = a->gid;
+	key_a.sid = a->sid;
+	key_a.rev = a->rev;
+
+	key_b.gid = b->gid;
+	key_b.sid = b->sid;
+	key_b.rev = b->rev;
+
+	/* Check if this correlation value is already in our cache */
+	bayesian_key.a = key_a;
+	bayesian_key.b = key_b;
+	HASH_FIND ( hh, bayesian_cache, &bayesian_key, sizeof ( bayesian_key ), found );
+
+	if ( found )
+	{
+		/* Ok, the abs() is not needed until the time starts running backwards, but it's better going safe... */
+		if ( abs ( time ( NULL ) - found->latest_computation_time ) <= config->bayesianCorrelationCacheValidity )
+			/* If our alert couple is there, just return it */
+			return found->correlation;
+	}
+
+	if ( !( events_a = (AI_alert_event*) AI_get_alert_events_by_key ( key_a )) ||
+			!( events_b = (AI_alert_event*) AI_get_alert_events_by_key ( key_b )))
+		return 0.0;
+
+	for ( events_iterator_a = events_a; events_iterator_a; events_iterator_a = events_iterator_a->next )
+	{
+		is_a_correlated = false;
+
+		for ( events_iterator_b = events_b; events_iterator_b; events_iterator_b = events_iterator_b->next )
+		{
+			if ( abs ( events_iterator_a->timestamp - events_iterator_b->timestamp ) <= config->bayesianCorrelationInterval )
+			{
+				is_a_correlated = true;
+				corr_count++;
+				corr += _AI_bayesian_correlation_function ( events_iterator_a->timestamp, events_iterator_b->timestamp );
+			}
+		}
+
+		if ( is_a_correlated )
+			corr_count_a++;
+	}
+
+	corr /= (double) corr_count;
+	corr -= ( events_a->count - corr_count_a ) / events_a->count;
+	/* _dpd.logMsg ( "   Number of '%s' alerts correlated to '%s': %u over %u\\n", a->desc, b->desc, corr_count_a, events_a->count ); */
+
+	if ( found )
+	{
+		found->correlation = corr;
+		found->latest_computation_time = time ( NULL );
+	} else {
+		if ( !( found = ( AI_bayesian_correlation* ) malloc ( sizeof ( AI_bayesian_correlation ))))
+			_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+
+		found->key = bayesian_key;
+		found->correlation = corr;
+		found->latest_computation_time = time ( NULL );
+	}
+
+	/* _dpd.logMsg ( "Correlation ('%s') -> ('%s'): %f\\n", a->desc, b->desc, corr ); */
+	return corr;
+}		/* -----  end of function _AI_alert_bayesian_correlation  ----- */
+
+
+/**
+ * \brief  Compute the correlation coefficient between two alerts, as #INTERSECTION(pre(B), post(A)) / #UNION(pre(B), post(A)), on the basis of preconditions and postconditions in the knowledge base's correlation rules
  * \param  a 	Alert a
  * \param  b   Alert b
  * \return The correlation coefficient between A and B as coefficient in [0,1]
  */
 
 PRIVATE double
-_AI_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
+_AI_kb_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
 {
 	unsigned int i, j, k, l,
 			   n_intersection = 0,
@@ -444,7 +583,7 @@ _AI_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
 	}
 
 	return (double) ((double) n_intersection / (double) n_union );
-}		/* -----  end of function _AI_correlation_coefficient  ----- */
+}		/* -----  end of function _AI_kb_correlation_coefficient  ----- */
 
 
 /**
@@ -691,7 +830,8 @@ AI_alert_correlation_thread ( void *arg )
 	double                    avg_correlation       = 0.0,
 						 std_deviation         = 0.0,
 						 corr_threshold        = 0.0,
-						 corr_strong_threshold = 0.0;
+						 kb_correlation        = 0.0,
+						 bayesian_correlation  = 0.0;
 
 	FILE                      *fp                   = NULL;
 
@@ -800,7 +940,16 @@ AI_alert_correlation_thread ( void *arg )
 					corr_key.b = alert_iterator2;
 
 					corr->key  = corr_key;
-					corr->correlation = _AI_correlation_coefficient ( corr_key.a, corr_key.b );
+					kb_correlation = _AI_kb_correlation_coefficient ( corr_key.a, corr_key.b );
+					bayesian_correlation = _AI_alert_bayesian_correlation ( corr_key.a, corr_key.b );
+
+					if ( bayesian_correlation == 0.0 || config->bayesianCorrelationInterval == 0 )
+						corr->correlation = kb_correlation;
+					else if ( kb_correlation == 0.0 )
+						corr->correlation = bayesian_correlation;
+					else
+						corr->correlation = ( kb_correlation + bayesian_correlation ) / 2;
+
 					HASH_ADD ( hh, correlation_table, key, sizeof ( AI_alert_correlation_key ), corr );
 				}
 			}
@@ -827,7 +976,6 @@ AI_alert_correlation_thread ( void *arg )
 
 			std_deviation = sqrt ( std_deviation / (double) HASH_COUNT ( correlation_table ));
 			corr_threshold = avg_correlation + ( config->correlationThresholdCoefficient * std_deviation );
-			corr_strong_threshold = avg_correlation + ( 2.0 * config->correlationThresholdCoefficient * std_deviation );
 			snprintf ( corr_dot_file, sizeof ( corr_dot_file ), "%s/correlated_alerts.dot", config->corr_alerts_dir );
 			
 			if ( stat ( config->corr_alerts_dir, &st ) < 0 )
@@ -862,7 +1010,7 @@ AI_alert_correlation_thread ( void *arg )
 
 					corr->key.a->derived_alerts[ corr->key.a->n_derived_alerts - 1 ] = corr->key.b;
 					corr->key.b->parent_alerts [ corr->key.b->n_parent_alerts  - 1 ] = corr->key.a;
-					_AI_print_correlated_alerts ( corr, fp, ( corr->correlation >= corr_strong_threshold ));
+					_AI_print_correlated_alerts ( corr, fp );
 				}
 			}
 

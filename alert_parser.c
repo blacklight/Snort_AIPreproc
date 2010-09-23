@@ -30,6 +30,8 @@
 #include	<sys/stat.h>
 #include 	<pthread.h>
 
+/** \defgroup alert_parser Parse the alert log into binary structures
+ * @{ */
 
 PRIVATE AI_snort_alert   *alerts           = NULL;
 PRIVATE FILE             *alert_fp         = NULL;
@@ -38,10 +40,6 @@ PRIVATE pthread_mutex_t  alerts_pool_mutex;
 
 AI_snort_alert   **alerts_pool     = NULL;
 unsigned int     alerts_pool_count = 0;
-
-
-/** \defgroup alert_parser Parse the alert log into binary structures
- * @{ */
 
 
 /**

@@ -152,6 +152,8 @@ preprocessor ai: \
 	alert_serialization_interval 3600 \
 	alert_bufsize 30 \
 	alert_clustering_interval 300 \
+	bayesian_correlation_interval 1200 \
+	bayesian_correlation_cache_validity 600 \
 	correlation_graph_interval 300 \
 	correlation_rules_dir "/your/snort/dir/etc/corr_rules" \
 	correlated_alerts_dir "/your/snort/dir/log/correlated_alerts" \
@@ -199,6 +201,18 @@ not                                 specified:                               30)
 - alert_clustering_interval:  The interval that should occur from the clustering
 of  the  alerts  in the log according to the provided clustering hierarchies and
 the     next     one     (default     if    not    specified:    300    seconds)
+
+- bayesian_correlation_interval: Interval, in seconds, that should occur between
+two  alerts  in  the  history  for  considering  them as, more or less strongly,
+correlated (default: 1200 seconds). NOTE: A value of 0 will disable the bayesian
+correlation.  This  setting  is  strongly suggested when your alert log is still
+"learning",  i.e.  when you don't have enough alerts yet. After this period, you
+can      set      the      correlation      interval      to      any     value.
+
+- bayesian_correlation_cache_validity:  interval, in seconds, for which an entry
+in  the  bayesian  correlation  hash  table  (i.e.  a  pair  of  alerts with the
+ associated   historical   bayesian   correlation)   is   considered   as  valid
+before         being         updated        (default:        600        seconds)
 
 - correlation_graph_interval:  The  interval that should occur from the building
 of  the correlation graph between the clustered alerts and the next one (default

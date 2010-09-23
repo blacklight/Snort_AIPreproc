@@ -2,16 +2,14 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
-- Add alerts' history serialization to db.c as well
 - Testing more scenarios, making more hyperalert models
-- Bayesian learning among alerts in alert log
-- libgc support
 
 =============
 LOW PRIORITY:
 =============
 
 - Managing clusters for addresses, timestamps (and more?)
+- libgc support
 
 =====
 DONE:
@@ -22,4 +20,6 @@ DONE:
 + Managing hyperalert graph connection inside the alert structure itself
 + Keeping track of all the streams and alerts even after clustered
 + Dynamic cluster_min_size algorithm
++ Add alerts' history serialization to db.c as well
++ Bayesian learning among alerts in alert log
 

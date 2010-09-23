@@ -157,18 +157,20 @@ static AI_config * AI_parse(char *args)
 	hierarchy_node **hierarchy_nodes = NULL;
 	int            n_hierarchy_nodes = 0;
 
-	unsigned long cleanup_interval             = 0,
-			    stream_expire_interval       = 0,
-			    alertfile_len                = 0,
-			    alert_history_file_len       = 0,
-			    alert_serialization_interval = 0,
-			    alert_bufsize                = 0,
-			    clusterfile_len              = 0,
-			    corr_rules_dir_len           = 0,
-			    corr_alerts_dir_len          = 0,
-			    alert_clustering_interval    = 0,
-			    database_parsing_interval    = 0,
-			    correlation_graph_interval   = 0;
+	unsigned long cleanup_interval                    = 0,
+			    stream_expire_interval              = 0,
+			    alertfile_len                       = 0,
+			    alert_history_file_len              = 0,
+			    alert_serialization_interval        = 0,
+			    alert_bufsize                       = 0,
+			    bayesian_correlation_interval       = 0,
+			    bayesian_correlation_cache_validity = 0,
+			    clusterfile_len                     = 0,
+			    corr_rules_dir_len                  = 0,
+			    corr_alerts_dir_len                 = 0,
+			    alert_clustering_interval           = 0,
+			    database_parsing_interval           = 0,
+			    correlation_graph_interval          = 0;
 
 	BOOL has_cleanup_interval        = false,
 		has_stream_expire_interval  = false,
@@ -336,10 +338,55 @@ static AI_config * AI_parse(char *args)
 		}
 
 		corr_threshold_coefficient = strtod ( arg, NULL );
-		_dpd.logMsg( "    Correlation threshold coefficient: %d\n", corr_threshold_coefficient );
+		_dpd.logMsg( "    Correlation threshold coefficient: %f\n", corr_threshold_coefficient );
 	}
 
 	config->correlationThresholdCoefficient = corr_threshold_coefficient;
+
+	/* Parsing the bayesian_correlation_interval option */
+	if (( arg = (char*) strcasestr( args, "bayesian_correlation_interval" ) ))
+	{
+		for ( arg += strlen("bayesian_correlation_interval");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			_dpd.fatalMsg("AIPreproc: bayesian_correlation_interval option used but "
+				"no value specified\n");
+		}
+
+		bayesian_correlation_interval = strtoul ( arg, NULL, 10 );
+		config->bayesianCorrelationInterval = bayesian_correlation_interval;
+	} else {
+		bayesian_correlation_interval = DEFAULT_BAYESIAN_CORRELATION_INTERVAL;
+	}
+
+	config->bayesianCorrelationInterval = bayesian_correlation_interval;
+	_dpd.logMsg( "    Bayesian correlation interval: %u\n", config->bayesianCorrelationInterval );
+
+	/* Parsing the bayesian_correlation_cache_validity option */
+	if (( arg = (char*) strcasestr( args, "bayesian_correlation_cache_validity" ) ))
+	{
+		for ( arg += strlen("bayesian_correlation_cache_validity");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			_dpd.fatalMsg("AIPreproc: bayesian_correlation_cache_validity option used but "
+				"no value specified\n");
+		}
+
+		bayesian_correlation_cache_validity = strtoul ( arg, NULL, 10 );
+		config->bayesianCorrelationCacheValidity = bayesian_correlation_cache_validity;
+	} else {
+		bayesian_correlation_cache_validity = DEFAULT_BAYESIAN_CORRELATION_CACHE_VALIDITY;
+	}
+
+	config->bayesianCorrelationCacheValidity = bayesian_correlation_cache_validity;
+	_dpd.logMsg( "    Bayesian cache validity interval: %u\n", config->bayesianCorrelationCacheValidity );
+
 
 	/* Parsing the alertfile option */
 	if (( arg = (char*) strcasestr( args, "alertfile" ) ))
