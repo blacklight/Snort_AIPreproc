@@ -18,6 +18,7 @@ include/sfPolicyUserData.c
 libsf_ai_preproc_la_SOURCES = \
 alert_history.c \
 alert_parser.c \
+bayesian.c \
 cluster.c \
 correlation.c \
 db.c \

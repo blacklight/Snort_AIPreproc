@@ -2,6 +2,12 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
+- Clustering alerts with time constraints
+- Web interface
+- Code profiling
+- Saving packet flows as .pcap
+- Neural network for computing k
+- Isolating independant subgraphs from hyperalert correlation graphs
 - Testing more scenarios, making more hyperalert models
 
 =============
@@ -9,6 +15,7 @@ LOW PRIORITY:
 =============
 
 - Managing clusters for addresses, timestamps (and more?)
+- Splitting the distinct subgraphs of the output graph
 - libgc support
 
 =====
@@ -22,4 +29,5 @@ DONE:
 + Dynamic cluster_min_size algorithm
 + Add alerts' history serialization to db.c as well
 + Bayesian learning among alerts in alert log
++ Split bayesian correlation out of correlation.c
 

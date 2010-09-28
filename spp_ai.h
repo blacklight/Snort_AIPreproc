@@ -361,6 +361,7 @@ void*                  AI_alerts_pool_thread ( void *arg );
 void*                  AI_serializer_thread ( void *arg );
 const AI_alert_event*  AI_get_alert_events_by_key ( AI_alert_event_key );
 unsigned int           AI_get_history_alert_number ();
+double                 AI_alert_bayesian_correlation ( AI_snort_alert *a, AI_snort_alert *b );
 
 /** Function pointer to the function used for getting the alert list (from log file, db, ...) */
 extern AI_snort_alert* (*get_alerts)(void);
