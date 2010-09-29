@@ -159,7 +159,6 @@ AI_alert_bayesian_correlation ( AI_snort_alert *a, AI_snort_alert *b )
 		found->latest_computation_time = time ( NULL );
 	}
 
-	/* _dpd.logMsg ( "Correlation ('%s') -> ('%s'): %f\\n", a->desc, b->desc, corr ); */
 	return corr;
 }		/* -----  end of function AI_alert_bayesian_correlation  ----- */
 

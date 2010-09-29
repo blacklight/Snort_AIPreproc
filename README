@@ -160,6 +160,7 @@ preprocessor ai: \
 	correlation_threshold_coefficient 0.5 \
 	database ( type="mysql", name="snort", user="snortusr", password="snortpass", host="dbhost" ) \
 	database_parsing_interval 30 \
+	cluster_max_alert_interval 14400 \
 	clusterfile "/your/snort/dir/log/clustered_alerts" \
 	cluster ( class="dst_port", name="privileged_ports", range="1-1023" ) \
 	cluster ( class="dst_port", name="unprivileged_ports", range="1024-65535" ) \
@@ -252,6 +253,11 @@ the alerts from database and the next one (default if not specified: 30 seconds)
 
 - clusterfile:  File  where  the  clustered  alerts  will be saved by the module
 (default       if      not      specified:      /var/log/snort/clustered_alerts)
+
+- cluster_max_alert_interval:   Maximum  time  interval,  in  seconds,  occurred
+between  two  alerts  for considering them as part of the same cluster (default:
+14400   seconds,  i.e.  4  hours).  Specify  0  for  this  option if you want to
+cluster   alerts   regardlessly   of   how   much  time  occurred  between  them
 
 - cluster:  Clustering  hierarchy  or  list  of  hierarchies  to  be applied for
 grouping     similar     alerts.     This     option     needs    to    specify:

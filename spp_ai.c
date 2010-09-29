@@ -166,6 +166,7 @@ static AI_config * AI_parse(char *args)
 			    bayesian_correlation_interval       = 0,
 			    bayesian_correlation_cache_validity = 0,
 			    clusterfile_len                     = 0,
+			    cluster_max_alert_interval          = 0,
 			    corr_rules_dir_len                  = 0,
 			    corr_alerts_dir_len                 = 0,
 			    alert_clustering_interval           = 0,
@@ -182,6 +183,7 @@ static AI_config * AI_parse(char *args)
 		has_corr_rules_dir          = false,
 		has_clustering              = false,
 		has_database_log            = false,
+		has_database_output         = false,
 		has_alert_history_file      = false;
 
 	if ( !( config = ( AI_config* ) malloc ( sizeof( AI_config )) ))
@@ -388,6 +390,27 @@ static AI_config * AI_parse(char *args)
 	_dpd.logMsg( "    Bayesian cache validity interval: %u\n", config->bayesianCorrelationCacheValidity );
 
 
+	/* Parsing the cluster_max_alert_interval option */
+	if (( arg = (char*) strcasestr( args, "cluster_max_alert_interval" ) ))
+	{
+		for ( arg += strlen("cluster_max_alert_interval");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			_dpd.fatalMsg("AIPreproc: cluster_max_alert_interval option used but "
+				"no value specified\n");
+		}
+
+		cluster_max_alert_interval = strtoul ( arg, NULL, 10 );
+	} else {
+		cluster_max_alert_interval = DEFAULT_CLUSTER_MAX_ALERT_INTERVAL;
+	}
+
+	config->clusterMaxAlertInterval = cluster_max_alert_interval;
+	_dpd.logMsg( "    Cluster alert max interval: %u\n", config->clusterMaxAlertInterval );
+
 	/* Parsing the alertfile option */
 	if (( arg = (char*) strcasestr( args, "alertfile" ) ))
 	{
@@ -550,7 +573,7 @@ static AI_config * AI_parse(char *args)
 	}
 
 	/* Parsing database option */
-	if ( preg_match ( "\\s*database\\s*\\(\\s*([^\\)]+)\\)", args, &matches, &nmatches ) > 0 )
+	if ( preg_match ( "\\s+database\\s*\\(\\s*([^\\)]+)\\)", args, &matches, &nmatches ) > 0 )
 	{
 		if ( ! has_database_log )
 			has_database_log = true;
@@ -627,7 +650,108 @@ static AI_config * AI_parse(char *args)
 		{
 			_dpd.fatalMsg ( "AIPreproc: Database option used in config, but missing configuration option (all 'host', 'type', 'name', 'user', and 'password' option must be used)\n" );
 		}
+
+		_dpd.logMsg("    Reading alerts from the database %s\n", config->dbname );
 	}
+
+
+	/* Parsing output_database option */
+	if ( preg_match ( "\\s*output_database\\s*\\(\\s*([^\\)]+)\\)", args, &matches, &nmatches ) > 0 )
+	{
+		if ( ! has_database_output )
+			has_database_output = true;
+
+		match = strdup ( matches[0] );
+
+		for ( i=0; i < nmatches; i++ )
+			free ( matches[i] );
+
+		free ( matches );
+		matches = NULL;
+
+		if ( preg_match ( "type\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
+		{
+			if ( strcasecmp ( matches[0], "mysql" ) && strcasecmp ( matches[0], "postgresql" ))
+			{
+				_dpd.fatalMsg ( "AIPreproc: Not supported database '%s' (supported types: mysql, postgresql)\n", matches[0] );
+			}
+
+			if ( !strcasecmp ( matches[0], "mysql" ))
+			{
+				#ifndef HAVE_LIBMYSQLCLIENT
+					_dpd.fatalMsg ( "AIPreproc: mysql output set in 'output_database' option but the module was not compiled through --with-mysql option\n" );
+				#else
+					config->outdbtype = mysql;
+				#endif
+			} else if ( !strcasecmp ( matches[0], "postgresql" )) {
+				#ifndef HAVE_LIBPQ
+					_dpd.fatalMsg ( "AIPreproc: postgresql output set in 'output_database' option but the module was not compiled through --with-postgresql option\n" );
+				#else
+					config->outdbtype = postgresql;
+				#endif
+			}
+
+			for ( i=0; i < nmatches; i++ )
+				free ( matches[i] );
+
+			free ( matches );
+			matches = NULL;
+		}
+
+		if ( preg_match ( "name\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
+		{
+			strncpy ( config->outdbname, matches[0], sizeof ( config->outdbname ));
+
+			for ( i=0; i < nmatches; i++ )
+				free ( matches[i] );
+
+			free ( matches );
+			matches = NULL;
+		}
+
+		if ( preg_match ( "user\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
+		{
+			strncpy ( config->outdbuser, matches[0], sizeof ( config->outdbuser ));
+
+			for ( i=0; i < nmatches; i++ )
+				free ( matches[i] );
+
+			free ( matches );
+			matches = NULL;
+		}
+
+		if ( preg_match ( "password\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
+		{
+			strncpy ( config->outdbpass, matches[0], sizeof ( config->outdbpass ));
+
+			for ( i=0; i < nmatches; i++ )
+				free ( matches[i] );
+
+			free ( matches );
+			matches = NULL;
+		}
+
+		if ( preg_match ( "host\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
+		{
+			strncpy ( config->outdbhost, matches[0], sizeof ( config->outdbhost ));
+
+			for ( i=0; i < nmatches; i++ )
+				free ( matches[i] );
+
+			free ( matches );
+			matches = NULL;
+		}
+
+		free ( match );
+
+		if ( !strlen ( config->outdbhost ) || !strlen ( config->outdbname ) || !strlen ( config->outdbpass ) || !strlen ( config->outdbuser ))
+		{
+			_dpd.fatalMsg ( "AIPreproc: Output database option used in config, but missing configuration option (all 'host', 'type', 'name', 'user', and 'password' options must be used)\n" );
+		}
+
+		_dpd.logMsg("    Saving output alerts to the database %s\n", config->outdbname );
+	}
+
 
 	/* Parsing cluster options */
 	while ( preg_match ( "\\s*(cluster\\s*\\(\\s*)([^\\)]+)\\)", args, &matches, &nmatches ) > 0 )
@@ -877,8 +1001,8 @@ static AI_config * AI_parse(char *args)
 		#ifdef 	HAVE_DB
 			alertparser_thread = AI_db_alertparser_thread;
 		#else
-		_dpd.fatalMsg ( "AIPreproc: database logging enabled in config file, but the module was not compiled "
-				"with database support (recompile, i.e., with ./configure --with-mysql or --with-postgresql)\n" );
+			_dpd.fatalMsg ( "AIPreproc: database logging enabled in config file, but the module was not compiled "
+					"with database support (recompile, i.e., with ./configure --with-mysql or --with-postgresql)\n" );
 		#endif
 	} else if ( has_alertfile ) {
 		alertparser_thread = AI_file_alertparser_thread;
@@ -924,7 +1048,7 @@ static AI_config * AI_parse(char *args)
 		}
 	}
 
-	_dpd.logMsg ( "Using correlation rules from directory %s\n", config->corr_rules_dir );
+	_dpd.logMsg ( "    Using correlation rules from directory %s\n", config->corr_rules_dir );
 
 	if ( ! has_corr_alerts_dir )
 	{
@@ -941,7 +1065,7 @@ static AI_config * AI_parse(char *args)
 		config->alert_bufsize = DEFAULT_ALERT_BUFSIZE;
 	}
 
-	_dpd.logMsg ( "Saving correlated alerts information in %s\n", config->corr_alerts_dir );
+	_dpd.logMsg ( "    Saving correlated alerts information in %s\n", config->corr_alerts_dir );
 
 	if ( has_database_log )
 	{

@@ -213,7 +213,7 @@ _AI_get_min_hierarchy_node ( int val, hierarchy_node *root )
  */
 
 PRIVATE BOOL
-_AI_equal_alarms ( AI_snort_alert *a1, AI_snort_alert *a2 )
+_AI_equal_alerts ( AI_snort_alert *a1, AI_snort_alert *a2 )
 {
 	if ( a1->gid != a2->gid || a1->sid != a2->sid || a1->rev != a2->rev )
 	{
@@ -249,7 +249,7 @@ _AI_equal_alarms ( AI_snort_alert *a1, AI_snort_alert *a2 )
 	}
 
 	return true;
-}		/* -----  end of function _AI_equal_alarms  ----- */
+}		/* -----  end of function _AI_equal_alerts  ----- */
 
 
 /**
@@ -270,26 +270,24 @@ _AI_merge_alerts ( AI_snort_alert **log )
 		{
 			if ( tmp2->next )
 			{
-				if ( !(
-						tmp->gid == tmp2->next->gid &&
-						tmp->sid == tmp2->next->sid &&
-						tmp->rev == tmp2->next->rev &&
-						tmp->timestamp == tmp2->next->timestamp &&
-						tmp->ip_src_addr == tmp2->next->ip_src_addr &&
-						tmp->ip_dst_addr == tmp2->next->ip_dst_addr &&
-						tmp->tcp_src_port == tmp2->next->tcp_src_port &&
-						tmp->tcp_dst_port == tmp2->next->tcp_dst_port ))
+				/* If the two alerts are in the same clustering time window (if a time window was defined...) */
+				if ( config->clusterMaxAlertInterval == 0 ||
+						( config->clusterMaxAlertInterval > 0 && abs ( tmp->timestamp - tmp2->next->timestamp ) <= config->clusterMaxAlertInterval ))
 				{
-					if ( _AI_equal_alarms ( tmp, tmp2->next ))
+					if ( tmp != tmp2->next )
 					{
-						if ( !( tmp->grouped_alerts = ( AI_snort_alert** ) realloc ( tmp->grouped_alerts, (++(tmp->grouped_alerts_count)) * sizeof ( AI_snort_alert* ))))
-							_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+						/* If the two alerts are equal... */
+						if ( _AI_equal_alerts ( tmp, tmp2->next ))
+						{
+							if ( !( tmp->grouped_alerts = ( AI_snort_alert** ) realloc ( tmp->grouped_alerts, (++(tmp->grouped_alerts_count)) * sizeof ( AI_snort_alert* ))))
+								_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
 
-						tmp->grouped_alerts[ tmp->grouped_alerts_count - 1 ] = tmp2->next;
-						count++;
+							tmp->grouped_alerts[ tmp->grouped_alerts_count - 1 ] = tmp2->next;
+							count++;
 
-						tmp3 = tmp2->next->next;
-						tmp2->next = tmp3;
+							tmp3 = tmp2->next->next;
+							tmp2->next = tmp3;
+						}
 					}
 				}
 

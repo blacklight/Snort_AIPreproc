@@ -75,6 +75,9 @@
 /** Default interval of validity in seconds for an entry in the cache of correlated alerts */
 #define 	DEFAULT_BAYESIAN_CORRELATION_CACHE_VALIDITY 	600
 
+/** Default maximum interval, in seconds, between two alerts for being considered in the same cluster */
+#define 	DEFAULT_CLUSTER_MAX_ALERT_INTERVAL 	14400
+
 /** Cutoff y value in the exponential decay for considering two alerts not correlated */
 #define 	CUTOFF_Y_VALUE 					0.01
 
@@ -155,6 +158,9 @@ typedef struct
 	/** Interval in seconds between two alerts (a,b) for considering them correlated */
 	unsigned long  bayesianCorrelationInterval;
 
+	/** Default maximum interval, in seconds, between two alerts for being considered in the same cluster */
+	unsigned long  clusterMaxAlertInterval;
+
 	/** Interval in seconds for which an entry in the cache of correlated alerts is valid */
 	unsigned long  bayesianCorrelationCacheValidity;
 
@@ -197,6 +203,26 @@ typedef struct
 
 	/** Database host, if database logging is used */
 	char          dbhost[256];
+
+	/** Output database type, if clustered alerts and
+	 * correlations are saved to a database as well */
+	enum          { mysql, postgresql } outdbtype;
+
+	/** Output database name, if clustered alerts and
+	 * correlations are saved to a database as well */
+	char          outdbname[256];
+
+	/** Output database user, if clustered alerts and
+	 * correlations are saved to a database as well */
+	char          outdbuser[256];
+
+	/** Output database password, if clustered alerts and
+	 * correlations are saved to a database as well */
+	char          outdbpass[256];
+
+	/** Output database host, if clustered alerts and
+	 * correlations are saved to a database as well */
+	char          outdbhost[256];
 } AI_config;
 /*****************************************************************/
 /** Data type for hierarchies used for clustering */

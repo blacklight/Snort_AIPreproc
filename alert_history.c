@@ -19,6 +19,7 @@
 
 #include	"spp_ai.h"
 
+#include	<stdio.h>
 #include	<sys/stat.h>
 
 /** \defgroup alert_history Manage the serialization and deserialization of alert history to the history file
