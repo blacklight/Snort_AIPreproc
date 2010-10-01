@@ -23,6 +23,7 @@ cluster.c \
 correlation.c \
 db.c \
 mysql.c \
+outdb.c \
 postgresql.c \
 regex.c \
 spp_ai.c \

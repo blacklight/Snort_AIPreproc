@@ -145,8 +145,10 @@ AI_file_alertparser_thread ( void* arg )
 	AI_snort_alert *alert   = NULL;
 	AI_snort_alert *tmp     = NULL;
 	BOOL           in_alert = false;
+
 	pthread_t      alerts_pool_thread;
 	pthread_t      serializer_thread;
+	pthread_t      db_thread;
 
 	/* Initialize the mutex lock, so nobody can read the alerts while we write there */
 	pthread_mutex_init ( &alert_mutex, NULL );
@@ -241,8 +243,6 @@ AI_file_alertparser_thread ( void* arg )
 		fseek ( alert_fp, 0, SEEK_END );
 #endif
 		
-		/* Set the lock flag to true until it's done with alert parsing */
-
 		while ( !feof ( alert_fp ))
 		{
 			fgets ( line, sizeof(line), alert_fp );
@@ -284,6 +284,12 @@ AI_file_alertparser_thread ( void* arg )
 
 					if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, alert ) != 0 )
 						_dpd.fatalMsg ( "Failed to create the alerts' serializer thread\n" );
+
+					if ( config->outdbtype != outdb_none )
+					{
+						if ( pthread_create ( &db_thread, NULL, AI_store_alert_to_db_thread, alert ) != 0 )
+							_dpd.fatalMsg ( "Failed to create the alert to db storing thread\n" );
+					}
 
 					in_alert = false;
 					alert = NULL;

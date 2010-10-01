@@ -206,7 +206,7 @@ typedef struct
 
 	/** Output database type, if clustered alerts and
 	 * correlations are saved to a database as well */
-	enum          { mysql, postgresql } outdbtype;
+	enum          { outdb_none, outdb_mysql, outdb_postgresql, OUTDBTYPE_NUM } outdbtype;
 
 	/** Output database name, if clustered alerts and
 	 * correlations are saved to a database as well */
@@ -338,6 +338,10 @@ typedef struct _AI_snort_alert  {
 
 	/** Number of derived alerts */
 	unsigned int        n_derived_alerts;
+
+	/** Alert ID on the database, if the alerts
+	 * are stored on a database as well */
+	unsigned long int   alert_id;
 } AI_snort_alert;
 /*****************************************************************/
 /** Key for the AI_alert_event structure, containing the Snort ID of the alert */
@@ -355,8 +359,6 @@ typedef struct _AI_alert_event  {
 	struct _AI_alert_event  *next;
 	UT_hash_handle          hh;
 } AI_alert_event;
-/*****************************************************************/
-
 
 int                preg_match ( const char*, char*, char***, int* );
 char*              str_replace ( char*, char*, char *);
@@ -388,6 +390,8 @@ void*                  AI_serializer_thread ( void *arg );
 const AI_alert_event*  AI_get_alert_events_by_key ( AI_alert_event_key );
 unsigned int           AI_get_history_alert_number ();
 double                 AI_alert_bayesian_correlation ( AI_snort_alert *a, AI_snort_alert *b );
+
+void*                  AI_store_alert_to_db_thread ( void* );
 
 /** Function pointer to the function used for getting the alert list (from log file, db, ...) */
 extern AI_snort_alert* (*get_alerts)(void);

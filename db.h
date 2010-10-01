@@ -27,14 +27,23 @@
 	typedef   MYSQL_RES* 	DB_result;
 	typedef 	MYSQL_ROW 	DB_row;
 
-	#define 	DB_init 		mysql_do_init
-	#define 	DB_query 		mysql_do_query
-	#define 	DB_num_rows 	mysql_num_rows
-	#define 	DB_fetch_row 	mysql_fetch_row
-	#define 	DB_free_result mysql_free_result
-	#define 	DB_close 		mysql_do_close
+	#define 	DB_init 			mysql_do_init
+	#define 	DB_is_init 		mysql_is_init
+	#define 	DB_query 			mysql_do_query
+	#define 	DB_num_rows 		mysql_num_rows
+	#define 	DB_fetch_row 		mysql_fetch_row
+	#define 	DB_free_result 	mysql_free_result
+	#define 	DB_escape_string 	mysql_do_escape_string
+	#define 	DB_close 			mysql_do_close
+
+	#define 	DB_out_init 			mysql_do_out_init
+	#define 	DB_is_out_init 		mysql_is_out_init
+	#define 	DB_out_query 			mysql_do_out_query
+	#define 	DB_out_escape_string 	mysql_do_out_escape_string
+	#define 	DB_out_close 			mysql_do_out_close
 
 	DB_result* DB_query ( const char* );
+	DB_result* DB_out_query ( const char* );
 #endif
 
 #ifdef 	HAVE_LIBPQ
@@ -50,20 +59,32 @@
 	typedef 	char** 		DB_row;
 
 	#define 	DB_init 		postgresql_do_init
+	#define 	DB_is_init 	postgresql_is_init
 	#define 	DB_query 		postgresql_do_query
 	#define 	DB_num_rows 	postgresql_num_rows
 	#define 	DB_fetch_row 	postgresql_fetch_row
 	#define 	DB_free_result postgresql_free_result
 	#define 	DB_close 		postgresql_do_close
 
+	#define 	DB_out_init 	postgresql_do_out_init
+	#define 	DB_is_out_init postgresql_is_out_init
+	#define 	DB_out_query 	postgresql_do_out_query
+	#define 	DB_out_close 	postgresql_do_out_close
+
 	int 			DB_num_rows ( PSQL_result *res );
 	DB_row 		DB_fetch_row ( PSQL_result *res );
 	void 		DB_free_result ( PSQL_result *res );
 	DB_result 	DB_query ( const char* );
+	DB_result 	DB_out_query ( const char* );
 #endif
 
-	void*      DB_init();
-	void       DB_close();
+	void*          DB_init();
+	unsigned long  DB_escape_string();
+	void           DB_close();
+
+	void*          DB_out_init();
+	unsigned long  DB_out_escape_string();
+	void           DB_out_close();
 
 	#endif
 #endif

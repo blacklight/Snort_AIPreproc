@@ -654,8 +654,9 @@ static AI_config * AI_parse(char *args)
 		_dpd.logMsg("    Reading alerts from the database %s\n", config->dbname );
 	}
 
-
 	/* Parsing output_database option */
+	config->outdbtype = outdb_none;
+
 	if ( preg_match ( "\\s*output_database\\s*\\(\\s*([^\\)]+)\\)", args, &matches, &nmatches ) > 0 )
 	{
 		if ( ! has_database_output )
@@ -671,24 +672,21 @@ static AI_config * AI_parse(char *args)
 
 		if ( preg_match ( "type\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
 		{
-			if ( strcasecmp ( matches[0], "mysql" ) && strcasecmp ( matches[0], "postgresql" ))
-			{
-				_dpd.fatalMsg ( "AIPreproc: Not supported database '%s' (supported types: mysql, postgresql)\n", matches[0] );
-			}
-
 			if ( !strcasecmp ( matches[0], "mysql" ))
 			{
 				#ifndef HAVE_LIBMYSQLCLIENT
 					_dpd.fatalMsg ( "AIPreproc: mysql output set in 'output_database' option but the module was not compiled through --with-mysql option\n" );
 				#else
-					config->outdbtype = mysql;
+					config->outdbtype = outdb_mysql;
 				#endif
 			} else if ( !strcasecmp ( matches[0], "postgresql" )) {
 				#ifndef HAVE_LIBPQ
 					_dpd.fatalMsg ( "AIPreproc: postgresql output set in 'output_database' option but the module was not compiled through --with-postgresql option\n" );
 				#else
-					config->outdbtype = postgresql;
+					config->outdbtype = outdb_postgresql;
 				#endif
+			} else {
+				_dpd.fatalMsg ( "AIPreproc: Not supported database '%s' (supported types: mysql, postgresql)\n", matches[0] );
 			}
 
 			for ( i=0; i < nmatches; i++ )
