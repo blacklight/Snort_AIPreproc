@@ -359,6 +359,34 @@ typedef struct _AI_alert_event  {
 	struct _AI_alert_event  *next;
 	UT_hash_handle          hh;
 } AI_alert_event;
+/*****************************************************************/
+/** Simple structure for holding a couple of alerts to be merged, to be passed to the outdb thread */
+typedef struct  {
+	AI_snort_alert *alert1;
+	AI_snort_alert *alert2;
+} AI_alerts_couple;
+/*****************************************************************/
+/** Key for the correlation hash table */
+typedef struct  {
+	/** First alert */
+	AI_snort_alert *a;
+
+	/** Second alert */
+	AI_snort_alert *b;
+} AI_alert_correlation_key;
+/*****************************************************************/
+/** Struct representing the correlation between all the couples of alerts */
+typedef struct  {
+	/** Hash key */
+	AI_alert_correlation_key  key;
+
+	/** Correlation coefficient */
+	double                    correlation;
+
+	/** Make the struct 'hashable' */
+	UT_hash_handle            hh;
+} AI_alert_correlation;
+/*****************************************************************/
 
 int                preg_match ( const char*, char*, char***, int* );
 char*              str_replace ( char*, char*, char *);
@@ -391,7 +419,10 @@ const AI_alert_event*  AI_get_alert_events_by_key ( AI_alert_event_key );
 unsigned int           AI_get_history_alert_number ();
 double                 AI_alert_bayesian_correlation ( AI_snort_alert *a, AI_snort_alert *b );
 
+void                   AI_outdb_mutex_initialize ();
 void*                  AI_store_alert_to_db_thread ( void* );
+void*                  AI_store_cluster_to_db_thread ( void* );
+void*                  AI_store_correlation_to_db_thread ( void* );
 
 /** Function pointer to the function used for getting the alert list (from log file, db, ...) */
 extern AI_snort_alert* (*get_alerts)(void);

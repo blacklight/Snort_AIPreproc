@@ -747,6 +747,7 @@ static AI_config * AI_parse(char *args)
 			_dpd.fatalMsg ( "AIPreproc: Output database option used in config, but missing configuration option (all 'host', 'type', 'name', 'user', and 'password' options must be used)\n" );
 		}
 
+		AI_outdb_mutex_initialize();
 		_dpd.logMsg("    Saving output alerts to the database %s\n", config->outdbname );
 	}
 

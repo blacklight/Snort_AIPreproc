@@ -50,7 +50,7 @@ CREATE TABLE ca_alerts (
 	timestamp      datetime,
 	ip_hdr         integer,
 	tcp_hdr        integer,
-	cluster_id     integer,
+	cluster_id     integer default 0,
 
 	primary key(alert_id),
 	foreign key(ip_hdr) references ca_ip_headers(ip_hdr_id),
@@ -71,12 +71,12 @@ CREATE TABLE ca_clustered_alerts (
 
 DROP TABLE IF EXISTS ca_correlated_alerts;
 CREATE TABLE ca_correlated_alerts (
-	cluster1          integer,
-	cluster2          integer,
+	alert1            integer,
+	alert2            integer,
 	correlation_coeff double,
 
-	primary key(cluster1, cluster2),
-	foreign key(cluster1) references ca_clustered_alerts(cluster_id),
-	foreign key(cluster2) references ca_clustered_alerts(cluster_id)
+	primary key(alert1, alert2),
+	foreign key(alert1) references ca_alerts(alert_id),
+	foreign key(alert2) references ca_alerts(alert_id)
 );
 

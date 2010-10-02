@@ -158,7 +158,8 @@ preprocessor ai: \
 	correlation_rules_dir "/your/snort/dir/etc/corr_rules" \
 	correlated_alerts_dir "/your/snort/dir/log/correlated_alerts" \
 	correlation_threshold_coefficient 0.5 \
-	database ( type="mysql", name="snort", user="snortusr", password="snortpass", host="dbhost" ) \
+	database ( type="dbtype", name="snort", user="snortusr", password="snortpass", host="dbhost" ) \
+	output_database ( type="dbtype", name="snort", user="snortusr", password="snortpass", host="dbhost" ) \
 	database_parsing_interval 30 \
 	cluster_max_alert_interval 14400 \
 	clusterfile "/your/snort/dir/log/clustered_alerts" \
@@ -173,25 +174,20 @@ preprocessor ai: \
 
 The options are the following:
 
-- hashtable_cleanup_interval: The interval that should occur from the cleanup of
-the  hashtable  of  TCP  streams and the next one (default if not specified: 300
- seconds)
-
-- tcp_stream_expire_interval:  The  interval that should occur for marking a TCP
-stream as "expired", if no more packets are received inside of that and it's not
-"marked"    as    suspicious   (default   if   not   specified:   300   seconds)
-
 - alertfile:  The file where Snort saves its alerts, if they are saved to a file
 and   not  to  a  database  (default  if  not  specified:  /var/log/snort/alert)
+
 
 - alert_history_file:  The   file keeping track of the history, in binary format,
 of   all  the  alerts  received  by  the  IDS, so that the module can build some
 statistical        correlation        inferences       over       the       past
 
+
 - alert_serialization_interval:   The   interval   that   should  occur  from  a
 serialization  of  a  buffer  of  alerts  on  the  history file and the next one
 (default if not specified: 1 hour, as it is a quite expensive operation in terms
 of       resources      if      the     system     received     many     alerts)
+
 
 - alert_bufsize:  Size of the buffer containing the alerts to be sent, in group,
 to   the  serializer  thread.  The  buffer is sent when full and made empty even
@@ -199,9 +195,11 @@ when   the  alert_serialization_interval  parameter  is  not  expired  yet,  for
 avoiding   overflows,  other  memory  problems  or  deadlocks  (default value if
 not                                 specified:                               30)
 
+
 - alert_clustering_interval:  The interval that should occur from the clustering
 of  the  alerts  in the log according to the provided clustering hierarchies and
 the     next     one     (default     if    not    specified:    300    seconds)
+
 
 - bayesian_correlation_interval: Interval, in seconds, that should occur between
 two  alerts  in  the  history  for  considering  them as, more or less strongly,
@@ -210,22 +208,27 @@ correlation.  This  setting  is  strongly suggested when your alert log is still
 "learning",  i.e.  when you don't have enough alerts yet. After this period, you
 can      set      the      correlation      interval      to      any     value.
 
+
 - bayesian_correlation_cache_validity:  interval, in seconds, for which an entry
 in  the  bayesian  correlation  hash  table  (i.e.  a  pair  of  alerts with the
  associated   historical   bayesian   correlation)   is   considered   as  valid
 before         being         updated        (default:        600        seconds)
 
+
 - correlation_graph_interval:  The  interval that should occur from the building
 of  the correlation graph between the clustered alerts and the next one (default
  if              not             specified:             300             seconds)
 
+
 - correlation_rules_dir: Directory where the correlation rules are saved, as XML
 files      (default      if      not      specified:      /etc/snort/corr_rules)
+
 
 - correlated_alerts_dir:  Directory  where  the  information  between correlated
 alerts  will  be  saved,  as  .dot  files ready to be rendered as graphs and, if
 libgraphviz  support  is  enabled, as .png and .ps files as well (default if not
  specified: /var/log/snort/clustered_alerts)
+
 
 - correlation_threshold_coefficient: The threshold the software uses for stating
 two   alerts   are   correlated   is   avg(correlation   coefficient)   +   k  *
@@ -239,25 +242,16 @@ where  no correlation exists). When the value of k raises also the threshold for
 two alerts for being considered as correlated raises. A high value of k may just
 lead           to          an          empty          correlation          graph
 
-- database:  If Snort saves its alerts to a database and the module was compiled
- with   database   support   (e.g.   --with-mysql)  this  option  specifies  the
- information   for   accessing   that   database.   The   fields   in  side  are
-	-- type: DBMS to be used (so far MySQL and PostgreSQL are supported)
-	-- name: Database name
-	-- user: Username for accessing the database
-	-- password: Password for accessing the database
-	-- host: Host holding the database
-
-- database_parsing_interval:  The  interval  that should occur between a read of
-the alerts from database and the next one (default if not specified: 30 seconds)
 
 - clusterfile:  File  where  the  clustered  alerts  will be saved by the module
 (default       if      not      specified:      /var/log/snort/clustered_alerts)
+
 
 - cluster_max_alert_interval:   Maximum  time  interval,  in  seconds,  occurred
 between  two  alerts  for considering them as part of the same cluster (default:
 14400   seconds,  i.e.  4  hours).  Specify  0  for  this  option if you want to
 cluster   alerts   regardlessly   of   how   much  time  occurred  between  them
+
 
 - cluster:  Clustering  hierarchy  or  list  of  hierarchies  to  be applied for
 grouping     similar     alerts.     This     option     needs    to    specify:
@@ -267,6 +261,41 @@ grouping     similar     alerts.     This     option     needs    to    specify:
 	-- range: Range of the clustering node. It can include a single port or IP
 			address, an IP range (specified as subnet x.x.x.x/x), or a port
 			range (specified as xxx-xxx)
+
+
+- database:  If Snort saves its alerts to a database and the module was compiled
+ with   database   support   (e.g.   --with-mysql)  this  option  specifies  the
+ information   for   accessing   that   database.   The   fields   in  side  are
+	-- type: DBMS to be used (so far MySQL and PostgreSQL are supported)
+	-- name: Database name
+	-- user: Username for accessing the database
+	-- password: Password for accessing the database
+	-- host: Host holding the database
+
+
+- database_parsing_interval:  The  interval  that should occur between a read of
+the alerts from database and the next one (default if not specified: 30 seconds)
+
+
+- hashtable_cleanup_interval: The interval that should occur from the cleanup of
+the  hashtable  of  TCP  streams and the next one (default if not specified: 300
+ seconds)
+
+
+- output_database:  Specify this option if you want to save the outputs from the
+module  (correlated  alerts,  clustered  alerts,  alerts  information  and their
+associated    packets   streams,   and  so  on)  to  a  relational  database  as
+well  (by  default  the module only saves the alerts on static plain files). The
+options    here   are   the   same   specified   for   the   'database'   option.
+The  structure  of this database can be seen in the files schemas/*.sql (replace
+to  * the name of your DBMS). If you want to initialize the tables needed by the
+module,   just   give   the   right  file  to  your  database,  e.g.  for  MySQL
+$ mysql -uusername -ppassword dbname < schemas/mysql.sql
+
+
+- tcp_stream_expire_interval:  The  interval that should occur for marking a TCP
+stream as "expired", if no more packets are received inside of that and it's not
+"marked"    as    suspicious   (default   if   not   specified:   300   seconds)
 
 
 ====================

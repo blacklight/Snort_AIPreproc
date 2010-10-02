@@ -25,6 +25,7 @@
 #include	<unistd.h>
 #include	<time.h>
 #include	<math.h>
+#include	<errno.h>
 #include	<alloca.h>
 #include	<sys/stat.h>
 #include 	<pthread.h>
@@ -44,34 +45,10 @@
 /** Enumeration for the types of XML tags */
 enum  { inHyperAlert, inSnortIdTag, inPreTag, inPostTag, TAG_NUM };
 
-/** Key for the correlation hash table */
-typedef struct  {
-	/** First alert */
-	AI_snort_alert *a;
-
-	/** Second alert */
-	AI_snort_alert *b;
-} AI_alert_correlation_key;
-
-
-/** Struct representing the correlation between all the couples of alerts */
-typedef struct  {
-	/** Hash key */
-	AI_alert_correlation_key  key;
-
-	/** Correlation coefficient */
-	double                    correlation;
-
-	/** Make the struct 'hashable' */
-	UT_hash_handle            hh;
-} AI_alert_correlation;
-
-
 PRIVATE AI_hyperalert_info       *hyperalerts       = NULL;
 PRIVATE AI_snort_alert           *alerts            = NULL;
 PRIVATE AI_alert_correlation     *correlation_table = NULL;
 PRIVATE pthread_mutex_t          mutex;
-
 
 /**
  * \brief  Clean up the correlation hash table
@@ -706,6 +683,8 @@ AI_alert_correlation_thread ( void *arg )
 	AI_snort_alert            *alert_iterator       = NULL,
 					      *alert_iterator2      = NULL;
 
+	pthread_t                 db_thread;
+
 	#ifdef                    HAVE_LIBGVC
 	char                      corr_png_file[4096]   = { 0 };
 	GVC_t                     *gvc                  = NULL;
@@ -873,6 +852,19 @@ AI_alert_correlation_thread ( void *arg )
 					corr->key.a->derived_alerts[ corr->key.a->n_derived_alerts - 1 ] = corr->key.b;
 					corr->key.b->parent_alerts [ corr->key.b->n_parent_alerts  - 1 ] = corr->key.a;
 					_AI_print_correlated_alerts ( corr, fp );
+
+					if ( config->outdbtype != outdb_none )
+					{
+						if ( pthread_create ( &db_thread, NULL, AI_store_correlation_to_db_thread, corr ) != 0 )
+						{
+							_dpd.fatalMsg ( "AIPreproc: Failed to create the correlation-to-database storing thread: %s\n", strerror ( errno ));
+						}
+
+						if ( pthread_join ( db_thread, NULL ) != 0 )
+						{
+							_dpd.fatalMsg ( "AIPreproc: Failed to join the correlation-to-database storing thread: %s\n", strerror ( errno ));
+						}
+					}
 				}
 			}
 

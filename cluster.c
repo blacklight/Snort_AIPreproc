@@ -23,6 +23,7 @@
 #include	<unistd.h>
 #include	<math.h>
 #include	<limits.h>
+#include	<errno.h>
 #include 	<pthread.h>
 
 /** \defgroup cluster Manage the clustering of alarms
@@ -262,6 +263,8 @@ PRIVATE int
 _AI_merge_alerts ( AI_snort_alert **log )
 {
 	AI_snort_alert *tmp, *tmp2, *tmp3;
+	AI_alerts_couple *alerts_couple;
+	pthread_t db_thread;
 	int count = 0;
 
 	for ( tmp = *log; tmp; tmp = tmp->next )
@@ -279,6 +282,27 @@ _AI_merge_alerts ( AI_snort_alert **log )
 						/* If the two alerts are equal... */
 						if ( _AI_equal_alerts ( tmp, tmp2->next ))
 						{
+							/* If we are storing the outputs of the module to a database, save the cluster containing the two alerts */
+							if ( config->outdbtype != outdb_none )
+							{
+								if ( !( alerts_couple = (AI_alerts_couple*) malloc ( sizeof ( AI_alerts_couple ))))
+									_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+
+								alerts_couple->alert1 = tmp;
+								alerts_couple->alert2 = tmp2->next;
+
+								if ( pthread_create ( &db_thread, NULL, AI_store_cluster_to_db_thread, alerts_couple ) != 0 )
+								{
+									_dpd.fatalMsg ( "AIPreproc: Failed to create the cluster-to-database thread: %s\n", strerror(errno) );
+								}
+
+								if ( pthread_join ( db_thread, NULL ) != 0 )
+								{
+									_dpd.fatalMsg ( "AIPreproc: Could not join the cluster-to-database thread: %s\n", strerror(errno) );
+								}
+							}
+
+							/* Merge the two alerts */
 							if ( !( tmp->grouped_alerts = ( AI_snort_alert** ) realloc ( tmp->grouped_alerts, (++(tmp->grouped_alerts_count)) * sizeof ( AI_snort_alert* ))))
 								_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
 
@@ -685,7 +709,7 @@ AI_hierarchies_build ( hierarchy_node **nodes, int n_nodes )
 
 	if ( pthread_create ( &cluster_thread, NULL, _AI_cluster_thread, NULL ) != 0 )
 	{
-		_dpd.fatalMsg ( "Failed to create the hash cleanup thread\n" );
+		_dpd.fatalMsg ( "AIPreproc: Failed to create the hash cleanup thread\n" );
 	}
 }		/* -----  end of function AI_hierarchies_build  ----- */
 

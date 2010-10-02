@@ -2,7 +2,9 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
-- Save clusters and correlations to db
+- Full PostgreSQL support for output db
+- Redefine function names
+- Errno
 - Web interface
 - Code profiling
 - Comment all the code!!!
@@ -31,4 +33,5 @@ DONE:
 + Bayesian learning among alerts in alert log
 + Split bayesian correlation out of correlation.c
 + Clustering alerts with time constraints
++ Save clusters and correlations to db
 
