@@ -197,7 +197,7 @@ _AI_get_function_arguments ( char *orig_stmt, int *n_args )
 
 	while ( tok )  {
 		if ( !( args = (char**) realloc ( args, (++(*n_args)) * sizeof ( char* ))))
-			_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+			AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 		args [ (*n_args) - 1 ] = strdup ( tok );
 		tok = (char*) strtok ( NULL, " " );
@@ -296,15 +296,15 @@ _AI_kb_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
 									if ( preg_match ( "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$", args2[k], NULL, NULL ))
 									{
 										if (( netmask = strtol ( matches[1], NULL, 10 )) > 32 )
-											_dpd.fatalMsg ( "AIPreproc: Invalid netmask value in '%s'\n", args1[k] );
+											AI_fatal_err ( "Invalid IP netmask value in configuration", __FILE__, __LINE__ );
 
 										if (( min_addr = inet_addr ( matches[0] )) == INADDR_NONE )
-											_dpd.fatalMsg ( "AIPreproc: Invalid base IP address in '%s'\n", args1[k] );
+											AI_fatal_err ( "Invalid base IP address in configuration", __FILE__, __LINE__ );
 
 										ipaddr = inet_addr ( args2[k] );
 										
 										if ( ipaddr == INADDR_NONE )
-											_dpd.fatalMsg ( "AIPreproc: Invalid base IP address in '%s'\n", args2[k] );
+											AI_fatal_err ( "Invalid base IP address in configuration", __FILE__, __LINE__ );
 
 										netmask = 1 << (( 8*sizeof ( uint32_t )) - netmask );
 										min_addr = ntohl ( min_addr ) & (~(netmask - 1));
@@ -328,15 +328,15 @@ _AI_kb_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
 									if ( preg_match ( "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$", args1[k], NULL, NULL ))
 									{
 										if (( netmask = strtol ( matches[1], NULL, 10 )) > 32 )
-											_dpd.fatalMsg ( "AIPreproc: Invalid netmask value in '%s'\n", args2[k] );
+											AI_fatal_err ( "Invalid IP netmask value in configuration", __FILE__, __LINE__ );
 
 										if (( min_addr = inet_addr ( matches[0] )) == INADDR_NONE )
-											_dpd.fatalMsg ( "AIPreproc: Invalid base IP address in '%s'\n", args2[k] );
+											AI_fatal_err ( "Invalid base IP address in configuration", __FILE__, __LINE__ );
 
 										ipaddr = inet_addr ( args1[k] );
 
 										if ( ipaddr == INADDR_NONE )
-											_dpd.fatalMsg ( "AIPreproc: Invalid base IP address in '%s'\n", args1[k] );
+											AI_fatal_err ( "Invalid base IP address in configuration", __FILE__, __LINE__ );
 
 										netmask = 1 << (( 8*sizeof ( uint32_t )) - netmask );
 										min_addr = ntohl ( min_addr ) & (~(netmask - 1));
@@ -535,7 +535,7 @@ _AI_hyperalert_from_XML ( AI_hyperalert_key key )
 
 	if ( !( hyp = ( AI_hyperalert_info* ) malloc ( sizeof ( AI_hyperalert_info ))))
 	{
-		_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 	}
 
 	memset ( hyp, 0, sizeof ( AI_hyperalert_info ));
@@ -563,59 +563,59 @@ _AI_hyperalert_from_XML ( AI_hyperalert_key key )
 			if ( !strcasecmp ((const char*) tagname, "hyperalert" ))
 			{
 				if ( xmlFlags[inHyperAlert] )
-					_dpd.fatalMsg ( "AIPreproc: Error in XML file '%s': the hyperalert tag was opened twice\n", hyperalert_file );
+					AI_fatal_err ( "Error in XML correlation rules: the hyperalert tag was opened twice", __FILE__, __LINE__ );
 				else
 					xmlFlags[inHyperAlert] = true;
 			} else if ( !strcasecmp ((const char*) tagname, "snort-id" )) {
 				if ( xmlFlags[inSnortIdTag] )
-					_dpd.fatalMsg ( "AIPreproc: Error in XML file '%s': 'snort-id' tag open inside of another 'snort-id' tag\n", hyperalert_file );
+					AI_fatal_err ( "Error in XML correlation rules: 'snort-id' tag open inside of another 'snort-id' tag", __FILE__, __LINE__ );
 				else if ( !xmlFlags[inHyperAlert] )
-					_dpd.fatalMsg ( "AIPreproc: Error in XML file '%s': 'snort-id' tag open outside of 'hyperalert' tag\n", hyperalert_file );
+					AI_fatal_err ( "Error in XML correlation rules: 'snort-id' tag open outside of 'hyperalert' tag", __FILE__, __LINE__ );
 				else
 					xmlFlags[inSnortIdTag] = true;
 			} else if ( !strcasecmp ((const char*) tagname, "pre" )) {
 				if ( xmlFlags[inPreTag] )
-					_dpd.fatalMsg ( "AIPreproc: Error in XML file '%s': 'pre' tag open inside of another 'pre' tag\n", hyperalert_file );
+					AI_fatal_err ( "Error in XML correlation rules: 'pre' tag open inside of another 'pre' tag", __FILE__, __LINE__ );
 				else if ( !xmlFlags[inHyperAlert] )
-					_dpd.fatalMsg ( "AIPreproc: Error in XML file '%s': 'pre' tag open outside of 'hyperalert' tag\n", hyperalert_file );
+					AI_fatal_err ( "Error in XML correlation rules: 'pre' tag open outside of 'hyperalert' tag", __FILE__, __LINE__ );
 				else
 					xmlFlags[inPreTag] = true;
 			} else if ( !strcasecmp ((const char*) tagname, "post" )) {
 				if ( xmlFlags[inPostTag] )
-					_dpd.fatalMsg ( "AIPreproc: Error in XML file '%s': 'post' tag open inside of another 'post' tag\n", hyperalert_file );
+					AI_fatal_err ( "Error in XML correlation rules: 'post' tag open inside of another 'post' tag", __FILE__, __LINE__ );
 				else if ( !xmlFlags[inHyperAlert] )
-					_dpd.fatalMsg ( "AIPreproc: Error in XML file '%s': 'post' tag open outside of 'hyperalert' tag\n", hyperalert_file );
+					AI_fatal_err ( "Error in XML correlation rules: 'post' tag open outside of 'hyperalert' tag", __FILE__, __LINE__ );
 				else
 					xmlFlags[inPostTag] = true;
 			} else if ( !strcasecmp ((const char*) tagname, "desc" )) {}
 			  else {
-				_dpd.fatalMsg ( "AIPreproc: Unrecognized tag '%s' in XML file '%s'\n", tagname, hyperalert_file );
+				AI_fatal_err ( "Unrecognized tag in XML correlation rules", __FILE__, __LINE__ );
 			}
 		} else if ( xmlTextReaderNodeType ( xml ) == XML_READER_TYPE_END_ELEMENT ) {
 			if ( !strcasecmp ((const char*) tagname, "hyperalert" ))
 			{
 				if ( !xmlFlags[inHyperAlert] )
-					_dpd.fatalMsg ( "AIPreproc: Error in XML file '%s': hyperalert tag closed but never opend\n", hyperalert_file );
+					AI_fatal_err ( "Error in XML correlation rules: hyperalert tag closed but never opend", __FILE__, __LINE__ );
 				else
 					xmlFlags[inHyperAlert] = false;
 			} else if ( !strcasecmp ((const char*) tagname, "snort-id" )) {
 				if ( !xmlFlags[inSnortIdTag] )
-					_dpd.fatalMsg ( "AIPreproc: Error in XML file '%s': snort-id tag closed but never opend\n", hyperalert_file );
+					AI_fatal_err ( "Error in XML correlation rules: snort-id tag closed but never opend", __FILE__, __LINE__ );
 				else
 					xmlFlags[inSnortIdTag] = false;
 			} else if ( !strcasecmp ((const char*) tagname, "pre" )) {
 				if ( !xmlFlags[inPreTag] )
-					_dpd.fatalMsg ( "AIPreproc: Error in XML file '%s': pre tag closed but never opend\n", hyperalert_file );
+					AI_fatal_err ( "Error in XML correlation rules: pre tag closed but never opend", __FILE__, __LINE__ );
 				else
 					xmlFlags[inPreTag] = false;
 			} else if ( !strcasecmp ((const char*) tagname, "post" )) {
 				if ( !xmlFlags[inPostTag] )
-					_dpd.fatalMsg ( "AIPreproc: Error in XML file '%s': post tag closed but never opend\n", hyperalert_file );
+					AI_fatal_err ( "Error in XML correlation rules: post tag closed but never opend", __FILE__, __LINE__ );
 				else
 					xmlFlags[inPostTag] = false;
 			} else if ( !strcasecmp ((const char*) tagname, "desc" )) {}
 			  else {
-				_dpd.fatalMsg ( "AIPreproc: Unrecognized tag '%s' in XML file '%s'\n", tagname, hyperalert_file );
+				AI_fatal_err ( "Unrecognized tag in XML correlation rules", __FILE__, __LINE__ );
 			}
 		} else if ( xmlTextReaderNodeType ( xml ) == XML_READER_TYPE_TEXT ) {
 			if ( !( tagvalue = xmlTextReaderConstValue ( xml )))
@@ -635,14 +635,12 @@ _AI_hyperalert_from_XML ( AI_hyperalert_key key )
 				}
 			} else if ( xmlFlags[inPreTag] ) {
 				if ( !( hyp->preconds = (char**) realloc ( hyp->preconds, (++hyp->n_preconds)*sizeof(char*) )))
-					_dpd.fatalMsg ( "AIPreproc: Fatal allocation memory error at %s:%d\n",
-						__FILE__, __LINE__ );
+					AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 				hyp->preconds[hyp->n_preconds-1] = strdup ((const char*) tagvalue );
 			} else if ( xmlFlags[inPostTag] ) {
 				if ( !( hyp->postconds = (char**) realloc ( hyp->postconds, (++hyp->n_postconds)*sizeof(char*) )))
-					_dpd.fatalMsg ( "AIPreproc: Fatal allocation memory error at %s:%d\n",
-						__FILE__, __LINE__ );
+					AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 				hyp->postconds[hyp->n_postconds-1] = strdup ((const char*) tagvalue );
 			}
@@ -741,20 +739,20 @@ AI_alert_correlation_thread ( void *arg )
 
 			/* Fill the hyper alert info for the current alert */
 			if ( !( alert_iterator->hyperalert = ( AI_hyperalert_info* ) malloc ( sizeof ( AI_hyperalert_info ))))
-				_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 			
 			alert_iterator->hyperalert->key         = hyp->key;
 			alert_iterator->hyperalert->n_preconds  = hyp->n_preconds;
 			alert_iterator->hyperalert->n_postconds = hyp->n_postconds;
 			
 			if ( !( alert_iterator->hyperalert->preconds = ( char** ) malloc ( alert_iterator->hyperalert->n_preconds * sizeof ( char* ))))
-				_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 			
 			for ( i=0; i < alert_iterator->hyperalert->n_preconds; i++ )
 				alert_iterator->hyperalert->preconds[i] = strdup ( hyp->preconds[i] );
 
 			if ( !( alert_iterator->hyperalert->postconds = ( char** ) malloc ( alert_iterator->hyperalert->n_postconds * sizeof ( char* ))))
-				_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 			
 			for ( i=0; i < alert_iterator->hyperalert->n_postconds; i++ )
 				alert_iterator->hyperalert->postconds[i] = strdup ( hyp->postconds[i] );
@@ -775,7 +773,7 @@ AI_alert_correlation_thread ( void *arg )
 					alert_iterator->rev == alert_iterator2->rev ))
 				{
 					if ( !( corr = ( AI_alert_correlation* ) malloc ( sizeof ( AI_alert_correlation ))))
-						_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+						AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 					corr_key.a = alert_iterator;
 					corr_key.b = alert_iterator2;
@@ -823,14 +821,14 @@ AI_alert_correlation_thread ( void *arg )
 			{
 				if ( mkdir ( config->corr_alerts_dir, 0755 ) < 0 )
 				{
-					_dpd.fatalMsg ( "AIPreproc: Unable to create directory '%s'\n", config->corr_alerts_dir );
+					AI_fatal_err ( "Unable to create directory the correlated alerts directory", __FILE__, __LINE__ );
 				}
 			} else if ( !S_ISDIR ( st.st_mode )) {
-				_dpd.fatalMsg ( "AIPreproc: '%s' found but it's not a directory\n", config->corr_alerts_dir );
+				AI_fatal_err ( "The specified directory for correlated alerts is not a directory", __FILE__, __LINE__ );
 			}
 
 			if ( !( fp = fopen ( corr_dot_file, "w" )))
-				_dpd.fatalMsg ( "AIPreproc: Could not write on file '%s'\n", corr_dot_file );
+				AI_fatal_err ( "Could not write on the correlated alerts .dot file", __FILE__, __LINE__ );
 			fprintf ( fp, "digraph G  {\n" );
 
 			/* Find correlated alerts */
@@ -844,10 +842,10 @@ AI_alert_correlation_thread ( void *arg )
 						corr->key.a->rev == corr->key.b->rev ))
 				{
 					if ( !( corr->key.a->derived_alerts = ( AI_snort_alert** ) realloc ( corr->key.a->derived_alerts, (++corr->key.a->n_derived_alerts) * sizeof ( AI_snort_alert* ))))
-						_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+						AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 					if ( !( corr->key.b->parent_alerts = ( AI_snort_alert** ) realloc ( corr->key.b->parent_alerts, (++corr->key.b->n_parent_alerts) * sizeof ( AI_snort_alert* ))))
-						_dpd.fatalMsg ( "AIPreproc: Fatal memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+						AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 					corr->key.a->derived_alerts[ corr->key.a->n_derived_alerts - 1 ] = corr->key.b;
 					corr->key.b->parent_alerts [ corr->key.b->n_parent_alerts  - 1 ] = corr->key.a;
@@ -857,12 +855,12 @@ AI_alert_correlation_thread ( void *arg )
 					{
 						if ( pthread_create ( &db_thread, NULL, AI_store_correlation_to_db_thread, corr ) != 0 )
 						{
-							_dpd.fatalMsg ( "AIPreproc: Failed to create the correlation-to-database storing thread: %s\n", strerror ( errno ));
+							AI_fatal_err ( "Failed to create the correlation-to-database storing thread", __FILE__, __LINE__ );
 						}
 
 						if ( pthread_join ( db_thread, NULL ) != 0 )
 						{
-							_dpd.fatalMsg ( "AIPreproc: Failed to join the correlation-to-database storing thread: %s\n", strerror ( errno ));
+							AI_fatal_err ( "Failed to join the correlation-to-database storing thread", __FILE__, __LINE__ );
 						}
 					}
 				}

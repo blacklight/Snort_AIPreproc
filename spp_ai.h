@@ -392,6 +392,7 @@ int                preg_match ( const char*, char*, char***, int* );
 char*              str_replace ( char*, char*, char *);
 char*              str_replace_all ( char*, char*, char* );
 
+void               AI_fatal_err ( const char *msg, const char *file, const int line );
 void*              AI_hashcleanup_thread ( void* );
 void*              AI_file_alertparser_thread ( void* );
 void*              AI_alert_correlation_thread ( void* );

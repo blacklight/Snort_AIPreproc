@@ -89,7 +89,7 @@ AI_store_alert_to_db_thread ( void *arg )
 	pthread_mutex_lock ( &mutex );
 
 	if ( !DB_out_init() )
-		_dpd.fatalMsg ( "AIPreproc: Unable to connect to output database '%s'\n", config->outdbname );
+		AI_fatal_err ( "Unable to connect to the specified output database", __FILE__, __LINE__ );
 
 	inet_ntop ( AF_INET, &(alert->ip_src_addr), srcip, INET_ADDRSTRLEN );
 	inet_ntop ( AF_INET, &(alert->ip_dst_addr), dstip, INET_ADDRSTRLEN );
@@ -210,7 +210,7 @@ AI_store_alert_to_db_thread ( void *arg )
 			pkt_size_offset = 0;
 
 			if ( !( pkt_data = (unsigned char*) alloca ( 2 * (pkt->pkt->pcap_header->len + pkt->pkt->payload_size) + 1 )))
-				_dpd.fatalMsg ( "AIPreproc: Fatal dynamic allocation memory at %s:%d\n", __FILE__, __LINE__ );
+				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 			DB_out_escape_string ( &pkt_data,
 					pkt->pkt->pkt_data,
@@ -273,7 +273,7 @@ AI_store_cluster_to_db_thread ( void *arg )
 
 	/* Initialize the database (it just does nothing if it is already initialized) */
 	if ( !DB_out_init() )
-		_dpd.fatalMsg ( "AIPreproc: Unable to connect to output database '%s'\n", config->outdbname );
+		AI_fatal_err ( "Unable to connect to the specified output database", __FILE__, __LINE__ );
 
 	/* If one of the two alerts has no alert_id, simply return */
 	if ( !alerts_couple->alert1->alert_id || !alerts_couple->alert2->alert_id )
@@ -334,7 +334,7 @@ AI_store_cluster_to_db_thread ( void *arg )
 	if ( cluster1 != 0 && cluster2 != 0 && cluster1 == cluster2 )
 	{
 		if ( !( found = ( AI_couples_cache* ) malloc ( sizeof ( AI_couples_cache ))))
-			_dpd.fatalMsg ( "AIPreproc: Fatal dynamic allocation memory at %s:%d\n", __FILE__, __LINE__ );
+			AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 		
 		found->alerts_couple = alerts_couple;
 		found->cluster_id = cluster1;
@@ -417,7 +417,7 @@ AI_store_cluster_to_db_thread ( void *arg )
 
 	/* Add the couple to the cache */
 	if ( !( found = ( AI_couples_cache* ) malloc ( sizeof ( AI_couples_cache ))))
-		_dpd.fatalMsg ( "AIPreproc: Fatal dynamic allocation memory at %s:%d\n", __FILE__, __LINE__ );
+		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 	found->alerts_couple = alerts_couple;
 	found->cluster_id = cluster1;
@@ -444,7 +444,7 @@ AI_store_correlation_to_db_thread ( void *arg )
 
 	/* Initialize the database (it just does nothing if it is already initialized) */
 	if ( !DB_out_init() )
-		_dpd.fatalMsg ( "AIPreproc: Unable to connect to output database '%s'\n", config->outdbname );
+		AI_fatal_err ( "Unable to connect to the specified output database", __FILE__, __LINE__ );
 
 	memset ( query, 0, sizeof ( query ));
 	snprintf ( query, sizeof ( query ),

@@ -98,7 +98,7 @@ AI_alerts_pool_thread ( void *arg )
 			continue;
 
 		if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, NULL ) != 0 )
-			_dpd.fatalMsg ( "Failed to create the alerts' serializer thread\n" );
+			AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__ );
 	}
 
 	pthread_exit ((void*) 0);
@@ -158,28 +158,28 @@ AI_file_alertparser_thread ( void* arg )
 
 	/* Initialize the pool of alerts to be passed to the serialization thread */
 	if ( !( alerts_pool = ( AI_snort_alert** ) malloc ( config->alert_bufsize * sizeof ( AI_snort_alert* ))))
-		_dpd.fatalMsg ( "Dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 	for ( i=0; i < config->alert_bufsize; i++ )
 		alerts_pool[i] = NULL;
 
 	/* Initialize the thread for managing the serialization of alerts' pool */
 	if ( pthread_create ( &alerts_pool_thread, NULL, AI_alerts_pool_thread, NULL ) != 0 )
-		_dpd.fatalMsg ( "Failed to create the alerts' pool management thread\n" );
+		AI_fatal_err ( "Failed to create the alerts' pool management thread", __FILE__, __LINE__ );
 
 	while ( 1 )
 	{
 #ifdef LINUX
 		if (( ifd = inotify_init() ) < 0 )
 		{
-			_dpd.fatalMsg ( "Could not initialize an inotify object on the alert log file" );
+			AI_fatal_err ( "Could not initialize an inotify object on the alert log file", __FILE__, __LINE__ );
 		}
 
 		if ( stat ( config->alertfile, &st ) < 0 )
 		{
 			if (( wd = inotify_add_watch ( ifd, config->alertfile, IN_CREATE )) < 0 )
 			{
-				_dpd.fatalMsg ( "Could not initialize a watch descriptor on the alert log file" );
+				AI_fatal_err ( "Could not initialize a watch descriptor on the alert log file", __FILE__, __LINE__  );
 			}
 
 			read ( ifd, line, sizeof(line) );
@@ -189,14 +189,14 @@ AI_file_alertparser_thread ( void* arg )
 			{
 				if ( ! (alert_fp = fopen ( config->alertfile, "r" )) )
 				{
-					_dpd.fatalMsg ( "Could not open alert log file for reading" );
+					AI_fatal_err ( "Could not open alert log file for reading", __FILE__, __LINE__  );
 				}
 			}
 		}
 
 		if (( wd = inotify_add_watch ( ifd, config->alertfile, IN_MODIFY )) < 0 )
 		{
-			_dpd.fatalMsg ( "Could not initialize a watch descriptor on the alert log file" );
+			AI_fatal_err ( "Could not initialize a watch descriptor on the alert log file", __FILE__, __LINE__  );
 		}
 
 		fseek ( alert_fp, 0, SEEK_END );
@@ -212,7 +212,7 @@ AI_file_alertparser_thread ( void* arg )
 		{
 			if ( ! (alert_fp = fopen ( config->alertfile, "r" )) )
 			{
-				_dpd.fatalMsg ( "Could not open alert log file for reading" );
+				AI_fatal_err ( "Could not open alert log file for reading", __FILE__, __LINE__  );
 			}
 			else if( fd == -1 ){
 				/*
@@ -283,12 +283,12 @@ AI_file_alertparser_thread ( void* arg )
 					}
 
 					if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, alert ) != 0 )
-						_dpd.fatalMsg ( "Failed to create the alerts' serializer thread\n" );
+						AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__  );
 
 					if ( config->outdbtype != outdb_none )
 					{
 						if ( pthread_create ( &db_thread, NULL, AI_store_alert_to_db_thread, alert ) != 0 )
-							_dpd.fatalMsg ( "Failed to create the alert to db storing thread\n" );
+							AI_fatal_err ( "Failed to create the alert to db storing thread", __FILE__, __LINE__ );
 					}
 
 					in_alert = false;
@@ -308,7 +308,7 @@ AI_file_alertparser_thread ( void* arg )
 
 					if ( !( alert = ( AI_snort_alert* ) malloc ( sizeof( AI_snort_alert ))))
 					{
-						_dpd.fatalMsg ( "\nDynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+						AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 					}
 
 					memset ( alert, 0, sizeof(AI_snort_alert) );
@@ -324,7 +324,7 @@ AI_file_alertparser_thread ( void* arg )
 					free ( matches );
 					matches = NULL;
 				} else {
-					_dpd.fatalMsg ( "Parse error: a line in the alert log cannot be associated to an alert block\n" );
+					AI_fatal_err ( "Parse error: a line in the alert log cannot be associated to an alert block", __FILE__, __LINE__ );
 				}
 			} else if ( preg_match ( "\\[Priority:\\s*([0-9]+)\\]", line, &matches, &nmatches) > 0 ) {
 				alert->priority = (unsigned short) strtoul ( matches[0], NULL, 10 );
@@ -480,7 +480,7 @@ _AI_copy_alerts ( AI_snort_alert *node )
 
 	if ( !( current = ( AI_snort_alert* ) malloc ( sizeof ( AI_snort_alert )) ))
 	{
-		_dpd.fatalMsg ( "Fatal dynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 	}
 
 	memcpy ( current, node, sizeof ( AI_snort_alert ));

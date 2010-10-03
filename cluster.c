@@ -91,7 +91,7 @@ _heuristic_func ( cluster_type type )
 		{
 			if ( !( value = ( attribute_value* ) malloc ( sizeof ( attribute_value )) ))
 			{
-				_dpd.fatalMsg ( "Fatal dynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+				AI_fatal_err ( "Fatal dynamic memory allocation failure", __FILE__, __LINE__ );
 			}
 
 			memset ( value, 0, sizeof ( attribute_value ));
@@ -137,7 +137,7 @@ _hierarchy_node_new ( char *label, int min_val, int max_val )
 
 	if ( !( n = ( hierarchy_node* ) malloc ( sizeof ( hierarchy_node )) ))
 	{
-		_dpd.fatalMsg ( "Dynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+		AI_fatal_err ( "Fatal dynamic memory allocation failure", __FILE__, __LINE__ );
 	}
 
 	n->min_val    = min_val;
@@ -162,7 +162,7 @@ _hierarchy_node_append ( hierarchy_node *parent, hierarchy_node *child )
 {
 	if ( !( parent->children = ( hierarchy_node** ) realloc ( parent->children, (++(parent->nchildren)) * sizeof ( hierarchy_node* )) ))
 	{
-		_dpd.fatalMsg ( "Dynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+		AI_fatal_err ( "Fatal dynamic memory allocation failure", __FILE__, __LINE__ );
 	}
 
 	parent->children[ parent->nchildren - 1 ] = child;
@@ -286,25 +286,25 @@ _AI_merge_alerts ( AI_snort_alert **log )
 							if ( config->outdbtype != outdb_none )
 							{
 								if ( !( alerts_couple = (AI_alerts_couple*) malloc ( sizeof ( AI_alerts_couple ))))
-									_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+									AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 								alerts_couple->alert1 = tmp;
 								alerts_couple->alert2 = tmp2->next;
 
 								if ( pthread_create ( &db_thread, NULL, AI_store_cluster_to_db_thread, alerts_couple ) != 0 )
 								{
-									_dpd.fatalMsg ( "AIPreproc: Failed to create the cluster-to-database thread: %s\n", strerror(errno) );
+									AI_fatal_err ( "Failed to create the cluster-to-database thread", __FILE__, __LINE__ );
 								}
 
 								if ( pthread_join ( db_thread, NULL ) != 0 )
 								{
-									_dpd.fatalMsg ( "AIPreproc: Could not join the cluster-to-database thread: %s\n", strerror(errno) );
+									AI_fatal_err ( "Could not join the cluster-to-database thread", __FILE__, __LINE__ );
 								}
 							}
 
 							/* Merge the two alerts */
 							if ( !( tmp->grouped_alerts = ( AI_snort_alert** ) realloc ( tmp->grouped_alerts, (++(tmp->grouped_alerts_count)) * sizeof ( AI_snort_alert* ))))
-								_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+								AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 							tmp->grouped_alerts[ tmp->grouped_alerts_count - 1 ] = tmp2->next;
 							count++;
@@ -354,7 +354,7 @@ _AI_get_alerts_heterogeneity ( int *alert_count )
 		if ( !found )
 		{
 			if ( !( found = (AI_alert_occurrence*) malloc ( sizeof ( AI_alert_occurrence ))))
-				_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 			found->key   = key;
 			found->count = 1;
@@ -674,7 +674,7 @@ AI_hierarchies_build ( hierarchy_node **nodes, int n_nodes )
 
 		if ( _AI_check_duplicate ( nodes[i], root ))
 		{
-			_dpd.fatalMsg ( "AIPreproc: Parse error: duplicate cluster range '%d-%d' in configuration\n", nodes[i]->min_val, nodes[i]->max_val );
+			AI_fatal_err ( "Parse error: duplicate cluster range in module configuration", __FILE__, __LINE__ );
 		}
 
 		for ( j=0; j < n_nodes; j++ )
@@ -709,7 +709,7 @@ AI_hierarchies_build ( hierarchy_node **nodes, int n_nodes )
 
 	if ( pthread_create ( &cluster_thread, NULL, _AI_cluster_thread, NULL ) != 0 )
 	{
-		_dpd.fatalMsg ( "AIPreproc: Failed to create the hash cleanup thread\n" );
+		AI_fatal_err ( "Failed to create the hash cleanup thread", __FILE__, __LINE__  );
 	}
 }		/* -----  end of function AI_hierarchies_build  ----- */
 
@@ -736,7 +736,7 @@ _AI_copy_clustered_alerts ( AI_snort_alert *node )
 
 	if ( !( current = ( AI_snort_alert* ) malloc ( sizeof ( AI_snort_alert )) ))
 	{
-		_dpd.fatalMsg ( "Fatal dynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+		AI_fatal_err ( "Fatal dynamic memory allocation failure", __FILE__, __LINE__ );
 	}
 
 	memcpy ( current, node, sizeof ( AI_snort_alert ));

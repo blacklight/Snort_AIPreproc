@@ -152,7 +152,7 @@ AI_alert_bayesian_correlation ( AI_snort_alert *a, AI_snort_alert *b )
 		found->latest_computation_time = time ( NULL );
 	} else {
 		if ( !( found = ( AI_bayesian_correlation* ) malloc ( sizeof ( AI_bayesian_correlation ))))
-			_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+			AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 		found->key = bayesian_key;
 		found->correlation = corr;

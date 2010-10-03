@@ -60,20 +60,19 @@ AI_db_alertparser_thread ( void *arg )
 
 	if ( !DB_init() )
 	{
-		_dpd.fatalMsg ( "AIPreproc: Unable to connect to the database '%s' @ '%s'\n",
-				config->dbname, config->dbhost );
+		AI_fatal_err ( "Unable to connect to the database specified in module configuration", __FILE__, __LINE__ );
 	}
 
 	/* Initialize the pool of alerts to be passed to the serialization thread */
 	if ( !( alerts_pool = ( AI_snort_alert** ) malloc ( config->alert_bufsize * sizeof ( AI_snort_alert* ))))
-		_dpd.fatalMsg ( "Dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 	for ( i=0; i < config->alert_bufsize; i++ )
 		alerts_pool[i] = NULL;
 
 	/* Initialize the thread for managing the serialization of alerts' pool */
 	if ( pthread_create ( &alerts_pool_thread, NULL, AI_alerts_pool_thread, NULL ) != 0 )
-		_dpd.fatalMsg ( "Failed to create the alerts' pool management thread\n" );
+		AI_fatal_err ( "Failed to create the alerts' pool management thread", __FILE__, __LINE__ );
 
 	while ( 1 )
 	{
@@ -87,14 +86,13 @@ AI_db_alertparser_thread ( void *arg )
 		if ( !( res = (DB_result) DB_query ( query )))
 		{
 			DB_close();
-			_dpd.fatalMsg ( "AIPreproc: Fatal error while executing a query on the database "
-					"at %s:%d: '%s'\n", __FILE__, __LINE__, query );
+			AI_fatal_err ( "Fatal error while executing a query on the database", __FILE__, __LINE__ );
 		}
 
 		if (( rows = DB_num_rows ( res )) < 0 )
 		{
 			DB_close();
-			_dpd.fatalMsg ( "AIPreproc: Could not store the query result at %s:%d\n", __FILE__, __LINE__ );
+			AI_fatal_err ( "Could not store the query result", __FILE__, __LINE__ );
 		} else if ( rows == 0 ) {
 			pthread_mutex_unlock ( &mutex );
 			continue;
@@ -104,7 +102,7 @@ AI_db_alertparser_thread ( void *arg )
 		{
 			if ( !( alert = ( AI_snort_alert* ) malloc ( sizeof ( AI_snort_alert )) ))
 			{
-				_dpd.fatalMsg ( "Fatal dynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 			}
 
 			memset ( alert, 0, sizeof ( AI_snort_alert ));
@@ -119,13 +117,12 @@ AI_db_alertparser_thread ( void *arg )
 			if ( !( res2 = (DB_result) DB_query ( query )))
 			{
 				DB_close();
-				_dpd.fatalMsg ( "AIPreproc: Fatal error while executing a query on the database "
-						"at %s:%d: '%s'\n", __FILE__, __LINE__, query );
+				AI_fatal_err ( "Fatal error while executing a query on the database", __FILE__, __LINE__ );
 			}
 
 			if (( rows = DB_num_rows ( res2 )) < 0 ) {
 				DB_close();
-				_dpd.fatalMsg ( "AIPreproc: Could not store the query result at %s:%d\n", __FILE__, __LINE__ );
+				AI_fatal_err ( "Could not store the query result", __FILE__, __LINE__ );
 			} else if ( rows > 0 ) {
 				if (( row2 = (DB_row) DB_fetch_row ( res2 )))
 				{
@@ -147,13 +144,12 @@ AI_db_alertparser_thread ( void *arg )
 			if ( !( res2 = (DB_result) DB_query ( query )))
 			{
 				DB_close();
-				_dpd.fatalMsg ( "AIPreproc: Fatal error while executing a query on the database "
-						"at %s:%d: '%s'\n", __FILE__, __LINE__, query );
+				AI_fatal_err ( "Fatal error while executing a query on the database", __FILE__, __LINE__ );
 			}
 
 			if (( rows = DB_num_rows ( res2 )) < 0 ) {
 				DB_close();
-				_dpd.fatalMsg ( "AIPreproc: Could not store the query result at %s:%d\n", __FILE__, __LINE__ );
+				AI_fatal_err ( "Could not store the query result", __FILE__, __LINE__ );
 			} else if ( rows > 0 ) {
 				if (( row2 = DB_fetch_row ( res2 )))
 				{
@@ -177,13 +173,12 @@ AI_db_alertparser_thread ( void *arg )
 			if ( !( res2 = (DB_result) DB_query ( query )))
 			{
 				DB_close();
-				_dpd.fatalMsg ( "AIPreproc: Fatal error while executing a query on the database "
-						"at %s:%d: '%s'\n", __FILE__, __LINE__, query );
+				AI_fatal_err ( "Fatal error while executing a query on the database", __FILE__, __LINE__ );
 			}
 
 			if (( rows = DB_num_rows ( res2 )) < 0 ) {
 				DB_close();
-				_dpd.fatalMsg ( "AIPreproc: Could not store the query result at %s:%d\n", __FILE__, __LINE__ );
+				AI_fatal_err ( "Could not store the query result", __FILE__, __LINE__ );
 			} else if ( rows > 0 ) {
 				if (( row2 = DB_fetch_row ( res2 )))
 				{
@@ -227,7 +222,7 @@ AI_db_alertparser_thread ( void *arg )
 		latest_time = time ( NULL );
 
 		if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, alert ) != 0 )
-			_dpd.fatalMsg ( "Failed to create the alerts' serializer thread\n" );
+			AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__ );
 	}
 
 	DB_close();
@@ -257,7 +252,7 @@ _AI_db_copy_alerts ( AI_snort_alert *node )
 
 	if ( !( current = ( AI_snort_alert* ) malloc ( sizeof ( AI_snort_alert )) ))
 	{
-		_dpd.fatalMsg ( "Fatal dynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 	}
 
 	memcpy ( current, node, sizeof ( AI_snort_alert ));

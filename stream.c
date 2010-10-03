@@ -167,9 +167,7 @@ AI_pkt_enqueue ( SFSnortPacket* pkt )
 		return;
 
 	if ( !( info = (struct pkt_info*) malloc( sizeof(struct pkt_info) )) )
-	{
-		_dpd.fatalMsg ( "\nDynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
-	}
+		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 	memset ( &key, 0, sizeof(struct pkt_key));
 	key.src_ip   = pkt->ip4_header->source.s_addr;
@@ -181,9 +179,7 @@ AI_pkt_enqueue ( SFSnortPacket* pkt )
 	info->next      = NULL;
 
 	if ( !( info->pkt = (SFSnortPacket*) malloc ( sizeof (SFSnortPacket) )) )
-	{
-		_dpd.fatalMsg ( "\nDynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
-	}
+		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 	memcpy ( info->pkt, pkt, sizeof (SFSnortPacket) );
 

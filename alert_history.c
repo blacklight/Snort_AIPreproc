@@ -82,15 +82,15 @@ AI_deserialize_alerts ()
 		return NULL;
 
 	if ( ! S_ISREG ( st.st_mode ))
-		_dpd.fatalMsg ( "AIPreproc: '%s' is not a regular file\n", config->alert_history_file );
+		AI_fatal_err ( "The specified alert history file is not a regular file", __FILE__, __LINE__ );
 
 	if ( !( fp = fopen ( config->alert_history_file, "r" )))
-		_dpd.fatalMsg ( "AIPreproc: Unable to read from the file '%s'\n", config->alert_history_file );
+		AI_fatal_err ( "Unable to read from the alert history file", __FILE__, __LINE__ );
 
 	AI_alerts_hash_free ( &alerts_hash );
 
 	if ( fread ( &lists_count, sizeof ( unsigned int ), 1, fp ) <= 0 )
-		_dpd.fatalMsg ( "AIPreproc: Malformed history file '%s'\n", config->alert_history_file );
+		AI_fatal_err ( "Malformed binary history file", __FILE__, __LINE__ );
 
 	/* Fill the hash table reading from the file */
 	for ( i=0; i < lists_count; i++ )
@@ -99,30 +99,30 @@ AI_deserialize_alerts ()
 		event_prev     = NULL;
 
 		if ( fread ( &items_count, sizeof ( unsigned int ), 1, fp ) <= 0 )
-			_dpd.fatalMsg ( "AIPreproc: Malformed history file '%s'\n", config->alert_history_file );
+			AI_fatal_err ( "Malformed history file", __FILE__, __LINE__ );
 		
 		for ( j=0; j < items_count; j++ )
 		{
 			if ( j == 0 )
 			{
 				if ( !( event_list = ( AI_alert_event* ) malloc ( sizeof ( AI_alert_event ))))
-					_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+					AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 				
 				memset ( event_list, 0, sizeof ( AI_alert_event ));
 				event_iterator = event_list;
 			} else {
 				if ( !( event_iterator = ( AI_alert_event* ) malloc ( sizeof ( AI_alert_event ))))
-					_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+					AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 				memset ( event_iterator, 0, sizeof ( AI_alert_event ));
 			}
 
 			event_iterator->count = items_count;
 
 			if ( fread ( &( event_iterator->key ), sizeof ( event_iterator->key ), 1, fp ) <= 0 )
-				_dpd.fatalMsg ( "AIPreproc: Malformed history file '%s'\n", config->alert_history_file );
+				AI_fatal_err ( "Malformed alert history file", __FILE__, __LINE__ );
 
 			if ( fread ( &( event_iterator->timestamp ), sizeof ( event_iterator->timestamp ), 1, fp ) <= 0 )
-				_dpd.fatalMsg ( "AIPreproc: Malformed history file '%s'\n", config->alert_history_file );
+				AI_fatal_err ( "Malformed alert history file", __FILE__, __LINE__ );
 
 			if ( event_prev )
 			{
@@ -168,7 +168,7 @@ AI_serialize_alerts ( AI_snort_alert **alerts_pool, unsigned int alerts_pool_cou
 	for ( i=0; i < alerts_pool_count; i++ )
 	{
 		if ( !( event = ( AI_alert_event* ) malloc ( sizeof ( AI_alert_event ))))
-			_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+			AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 		memset ( event, 0, sizeof ( AI_alert_event ));
 		key.gid = alerts_pool[i]->gid;
@@ -208,7 +208,7 @@ AI_serialize_alerts ( AI_snort_alert **alerts_pool, unsigned int alerts_pool_cou
 	hash_count = HASH_COUNT ( alerts_hash );
 
 	if ( !( fp = fopen ( config->alert_history_file, "w" )))
-		_dpd.fatalMsg ( "AIPreproc: Unable to write on '%s'\n", config->alert_history_file );
+		AI_fatal_err ( "Unable to write on the alert history file", __FILE__, __LINE__ );
 	fwrite ( &hash_count, sizeof ( hash_count ), 1, fp );
 
 	for ( event = alerts_hash; event; event = ( AI_alert_event* ) event->hh.next )

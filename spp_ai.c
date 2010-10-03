@@ -19,10 +19,12 @@
 
 #include "spp_ai.h"
 #include "sfPolicyUserData.h"
+#include "sf_preproc_info.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <errno.h>
 
 /** \defgroup spp_ai Main file for spp_ai module
  * @{ */
@@ -47,6 +49,21 @@ static void * AI_reloadSwap(void);
 static void AI_reloadSwapFree(void *);
 #endif
 
+
+/**
+ * \brief  Function called when the module experiences a fatal error
+ * \param  msg 	Error message
+ * \param  file 	File where the error occurred
+ * \param  line 	Line number where the error occurred
+ */
+
+void
+AI_fatal_err ( const char *msg, const char *file, const int line )
+{
+	_dpd.fatalMsg ( "%s: %s at %s:%d (%s)\n",
+		PREPROC_NAME, msg, file, line,
+		((errno != 0) ? strerror(errno) : ""));
+}		/* -----  end of function AI_fatal_err  ----- */
 
 /**
  * \brief  Set up the preprocessor module
@@ -84,7 +101,7 @@ static void AI_init(char *args)
 	{
 		ex_config = sfPolicyConfigCreate();
 		if (ex_config == NULL)
-			_dpd.fatalMsg ("Could not allocate configuration struct.\n");
+			AI_fatal_err ("Could not allocate configuration struct", __FILE__, __LINE__);
 	}
 
 	config = AI_parse(args);
@@ -97,7 +114,7 @@ static void AI_init(char *args)
 	{
 		if ( pthread_create ( &cleanup_thread, NULL, AI_hashcleanup_thread, config ) != 0 )
 		{
-			_dpd.fatalMsg ( "Failed to create the hash cleanup thread\n" );
+			AI_fatal_err ( "Failed to create the hash cleanup thread", __FILE__, __LINE__ );
 		}
 	}
 
@@ -107,7 +124,7 @@ static void AI_init(char *args)
 	{
 		if ( pthread_create ( &correlation_thread, NULL, AI_alert_correlation_thread, config ) != 0 )
 		{
-			_dpd.fatalMsg ( "Failed to create the alert correlation thread\n" );
+			AI_fatal_err ( "Failed to create the alert correlation thread", __FILE__, __LINE__ );
 		}
 	}
 
@@ -115,7 +132,7 @@ static void AI_init(char *args)
 	{
 		if ( pthread_create ( &logparse_thread, NULL, alertparser_thread, config ) != 0 )
 		{
-			_dpd.fatalMsg ( "Failed to create the alert parser thread\n" );
+			AI_fatal_err ( "Failed to create the alert parser thread", __FILE__, __LINE__ );
 		}
 	}
 
@@ -187,7 +204,7 @@ static AI_config * AI_parse(char *args)
 		has_alert_history_file      = false;
 
 	if ( !( config = ( AI_config* ) malloc ( sizeof( AI_config )) ))
-		_dpd.fatalMsg("Could not allocate configuration struct.\n");
+		AI_fatal_err( "Could not allocate configuration struct", __FILE__, __LINE__ );
 	memset ( config, 0, sizeof ( AI_config ));
 
 	/* Parsing the hashtable_cleanup_interval option */
@@ -201,8 +218,8 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*arg) )
 		{
-			_dpd.fatalMsg("AIPreproc: hashtable_cleanup_interval option used but "
-				"no value specified\n");
+			AI_fatal_err ( "Hashtable_cleanup_interval option used but "
+				"no value specified", __FILE__, __LINE__ );
 		}
 
 		cleanup_interval = strtoul(arg, NULL, 10);
@@ -221,8 +238,8 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*arg) )
 		{
-			_dpd.fatalMsg("AIPreproc: tcp_stream_expire_interval option used but "
-				"no value specified\n");
+			AI_fatal_err( "tcp_stream_expire_interval option used but "
+				"no value specified", __FILE__, __LINE__ );
 		}
 
 		stream_expire_interval = strtoul(arg, NULL, 10);
@@ -239,8 +256,8 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*arg) )
 		{
-			_dpd.fatalMsg("AIPreproc: alert_clustering_interval option used but "
-				"no value specified\n");
+			AI_fatal_err ( "alert_clustering_interval option used but "
+				"no value specified", __FILE__, __LINE__ );
 		}
 
 		alert_clustering_interval = strtoul(arg, NULL, 10);
@@ -259,8 +276,8 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*arg) )
 		{
-			_dpd.fatalMsg("AIPreproc: database_parsing_interval option used but "
-				"no value specified\n");
+			AI_fatal_err ( "database_parsing_interval option used but "
+				"no value specified", __FILE__, __LINE__ );
 		}
 
 		database_parsing_interval = strtoul(arg, NULL, 10);
@@ -279,8 +296,8 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*arg) )
 		{
-			_dpd.fatalMsg("AIPreproc: correlation_graph_interval option used but "
-				"no value specified\n");
+			AI_fatal_err ( "correlation_graph_interval option used but "
+				"no value specified", __FILE__, __LINE__ );
 		}
 
 		correlation_graph_interval = strtoul(arg, NULL, 10);
@@ -297,8 +314,8 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*arg) )
 		{
-			_dpd.fatalMsg("AIPreproc: alert_serialization_interval option used but "
-				"no value specified\n");
+			AI_fatal_err ( "alert_serialization_interval option used but "
+				"no value specified", __FILE__, __LINE__ );
 		}
 
 		alert_serialization_interval = strtoul(arg, NULL, 10);
@@ -315,8 +332,8 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*arg) )
 		{
-			_dpd.fatalMsg("AIPreproc: alert_bufsize option used but "
-				"no value specified\n");
+			AI_fatal_err( "alert_bufsize option used but "
+				"no value specified", __FILE__, __LINE__ );
 		}
 
 		alert_bufsize = strtoul(arg, NULL, 10);
@@ -335,8 +352,8 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*arg) )
 		{
-			_dpd.fatalMsg("AIPreproc: correlation_threshold_coefficient option used but "
-				"no value specified\n");
+			AI_fatal_err( "correlation_threshold_coefficient option used but "
+				"no value specified", __FILE__, __LINE__ );
 		}
 
 		corr_threshold_coefficient = strtod ( arg, NULL );
@@ -354,8 +371,8 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*arg) )
 		{
-			_dpd.fatalMsg("AIPreproc: bayesian_correlation_interval option used but "
-				"no value specified\n");
+			AI_fatal_err ( "bayesian_correlation_interval option used but "
+				"no value specified", __FILE__, __LINE__ );
 		}
 
 		bayesian_correlation_interval = strtoul ( arg, NULL, 10 );
@@ -376,8 +393,8 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*arg) )
 		{
-			_dpd.fatalMsg("AIPreproc: bayesian_correlation_cache_validity option used but "
-				"no value specified\n");
+			AI_fatal_err ( "bayesian_correlation_cache_validity option used but "
+				"no value specified", __FILE__, __LINE__ );
 		}
 
 		bayesian_correlation_cache_validity = strtoul ( arg, NULL, 10 );
@@ -399,8 +416,8 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*arg) )
 		{
-			_dpd.fatalMsg("AIPreproc: cluster_max_alert_interval option used but "
-				"no value specified\n");
+			AI_fatal_err ( "cluster_max_alert_interval option used but "
+				"no value specified", __FILE__, __LINE__ );
 		}
 
 		cluster_max_alert_interval = strtoul ( arg, NULL, 10 );
@@ -420,7 +437,7 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*(arg++)) )
 		{
-			_dpd.fatalMsg("AIPreproc: alertfile option used but no filename specified\n");
+			AI_fatal_err ( "alertfile option used but no filename specified", __FILE__, __LINE__ );
 		}
 
 		for ( alertfile[ (++alertfile_len)-1 ] = *arg;
@@ -431,7 +448,7 @@ static AI_config * AI_parse(char *args)
 			has_alertfile = false;
 		} else {
 			if ( alertfile_len >= 1024 )  {
-				_dpd.fatalMsg("AIPreproc: alertfile path too long ( >= 1024 )\n");
+				AI_fatal_err ( "alertfile path too long ( >= 1024 )", __FILE__, __LINE__ );
 			} else if ( strlen( alertfile ) == 0 ) {
 				has_alertfile = false;
 			} else {
@@ -453,7 +470,7 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*(arg++)) )
 		{
-			_dpd.fatalMsg("AIPreproc: alert_history_file option used but no filename specified\n");
+			AI_fatal_err ( "alert_history_file option used but no filename specified", __FILE__, __LINE__ );
 		}
 
 		for ( alert_history_file[ (++alert_history_file_len)-1 ] = *arg;
@@ -464,7 +481,7 @@ static AI_config * AI_parse(char *args)
 			has_alert_history_file = false;
 		} else {
 			if ( alert_history_file_len >= 1024 )  {
-				_dpd.fatalMsg("AIPreproc: alert_history_file path too long ( >= 1024 )\n");
+				AI_fatal_err ( "alert_history_file path too long ( >= 1024 )", __FILE__, __LINE__ );
 			} else if ( strlen( alert_history_file ) == 0 ) {
 				has_alert_history_file = false;
 			} else {
@@ -485,7 +502,7 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*(arg++)) )
 		{
-			_dpd.fatalMsg("AIPreproc: clusterfile option used but no filename specified\n");
+			AI_fatal_err ( "clusterfile option used but no filename specified", __FILE__, __LINE__ );
 		}
 
 		for ( clusterfile[ (++clusterfile_len)-1 ] = *arg;
@@ -496,7 +513,7 @@ static AI_config * AI_parse(char *args)
 			has_clusterfile = false;
 		} else {
 			if ( clusterfile_len >= 1024 )  {
-				_dpd.fatalMsg("AIPreproc: clusterfile path too long ( >= 1024 )\n");
+				AI_fatal_err ( "clusterfile path too long ( >= 1024 )", __FILE__, __LINE__ );
 			} else if ( strlen( clusterfile ) == 0 ) {
 				has_clusterfile = false;
 			} else {
@@ -517,7 +534,7 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*(arg++)) )
 		{
-			_dpd.fatalMsg("AIPreproc: correlation_rules_dir option used but no filename specified\n");
+			AI_fatal_err ( "correlation_rules_dir option used but no filename specified", __FILE__, __LINE__ );
 		}
 
 		for ( corr_rules_dir[ (++corr_rules_dir_len)-1 ] = *arg;
@@ -528,7 +545,7 @@ static AI_config * AI_parse(char *args)
 			has_corr_rules_dir = false;
 		} else {
 			if ( corr_rules_dir_len >= 1024 )  {
-				_dpd.fatalMsg("AIPreproc: corr_rules_dir path too long ( >= 1024 )\n");
+				AI_fatal_err ( "corr_rules_dir path too long ( >= 1024 )", __FILE__, __LINE__ );
 			} else if ( strlen( corr_rules_dir ) == 0 ) {
 				has_corr_rules_dir = false;
 			} else {
@@ -549,7 +566,7 @@ static AI_config * AI_parse(char *args)
 
 		if ( !(*(arg++)) )
 		{
-			_dpd.fatalMsg("AIPreproc: correlated_alerts_dir option used but no filename specified\n");
+			AI_fatal_err ( "correlated_alerts_dir option used but no filename specified", __FILE__, __LINE__ );
 		}
 
 		for ( corr_alerts_dir[ (++corr_alerts_dir_len)-1 ] = *arg;
@@ -560,7 +577,7 @@ static AI_config * AI_parse(char *args)
 			has_corr_alerts_dir = false;
 		} else {
 			if ( corr_alerts_dir_len >= 1024 )  {
-				_dpd.fatalMsg("AIPreproc: correlated_alerts_dir path too long ( >= 1024 )\n");
+				AI_fatal_err ( "correlated_alerts_dir path too long ( >= 1024 )", __FILE__, __LINE__ );
 			} else if ( strlen( corr_alerts_dir ) == 0 ) {
 				has_corr_alerts_dir = false;
 			} else {
@@ -590,7 +607,7 @@ static AI_config * AI_parse(char *args)
 		{
 			if ( strcasecmp ( matches[0], "mysql" ) && strcasecmp ( matches[0], "postgresql" ))
 			{
-				_dpd.fatalMsg ( "AIPreproc: Not supported database '%s' (supported types: mysql, postgresql)\n", matches[0] );
+				AI_fatal_err ( "Not supported database type in configuration (supported types: mysql, postgresql)", __FILE__, __LINE__ );
 			}
 
 			for ( i=0; i < nmatches; i++ )
@@ -648,7 +665,7 @@ static AI_config * AI_parse(char *args)
 
 		if ( !strlen ( config->dbhost ) || !strlen ( config->dbname ) || !strlen ( config->dbpass ) || !strlen ( config->dbuser ))
 		{
-			_dpd.fatalMsg ( "AIPreproc: Database option used in config, but missing configuration option (all 'host', 'type', 'name', 'user', and 'password' option must be used)\n" );
+			AI_fatal_err ( "Database option used in config, but missing configuration option (all 'host', 'type', 'name', 'user', and 'password' option must be used)", __FILE__, __LINE__  );
 		}
 
 		_dpd.logMsg("    Reading alerts from the database %s\n", config->dbname );
@@ -675,18 +692,18 @@ static AI_config * AI_parse(char *args)
 			if ( !strcasecmp ( matches[0], "mysql" ))
 			{
 				#ifndef HAVE_LIBMYSQLCLIENT
-					_dpd.fatalMsg ( "AIPreproc: mysql output set in 'output_database' option but the module was not compiled through --with-mysql option\n" );
+					AI_fatal_err ( "mysql output set in 'output_database' option but the module was not compiled through --with-mysql option", __FILE__, __LINE__  );
 				#else
 					config->outdbtype = outdb_mysql;
 				#endif
 			} else if ( !strcasecmp ( matches[0], "postgresql" )) {
 				#ifndef HAVE_LIBPQ
-					_dpd.fatalMsg ( "AIPreproc: postgresql output set in 'output_database' option but the module was not compiled through --with-postgresql option\n" );
+					AI_fatal_err ( "postgresql output set in 'output_database' option but the module was not compiled through --with-postgresql option", __FILE__, __LINE__  );
 				#else
 					config->outdbtype = outdb_postgresql;
 				#endif
 			} else {
-				_dpd.fatalMsg ( "AIPreproc: Not supported database '%s' (supported types: mysql, postgresql)\n", matches[0] );
+				AI_fatal_err ( "Not supported database in configuration (supported types: mysql, postgresql)", __FILE__, __LINE__  );
 			}
 
 			for ( i=0; i < nmatches; i++ )
@@ -744,7 +761,7 @@ static AI_config * AI_parse(char *args)
 
 		if ( !strlen ( config->outdbhost ) || !strlen ( config->outdbname ) || !strlen ( config->outdbpass ) || !strlen ( config->outdbuser ))
 		{
-			_dpd.fatalMsg ( "AIPreproc: Output database option used in config, but missing configuration option (all 'host', 'type', 'name', 'user', and 'password' options must be used)\n" );
+			AI_fatal_err ( "Output database option used in config, but missing configuration option (all 'host', 'type', 'name', 'user', and 'password' options must be used)", __FILE__, __LINE__  );
 		}
 
 		AI_outdb_mutex_initialize();
@@ -784,7 +801,7 @@ static AI_config * AI_parse(char *args)
 			else if ( !strcasecmp ( matches[0], "dst_addr" ))
 				type = dst_addr;
 			else
-				_dpd.fatalMsg ( "AIPreproc: Unknown class type in configuration: '%s'\n", matches[0] );
+				AI_fatal_err ( "Unknown class type in configuration", __FILE__, __LINE__  );
 
 			for ( i=0; i < nmatches; i++ )
 				free ( matches[i] );
@@ -796,8 +813,7 @@ static AI_config * AI_parse(char *args)
 		if ( preg_match ( "name\\s*=\\s*\"([^\"]+)\"", match, &matches, &nmatches ) > 0 )
 		{
 			if ( strlen( matches[0] ) > sizeof(label) )
-				_dpd.fatalMsg ( "AIPreproc: Label name too long in configuration: '%s' (maximum allowed length: %d)\n",
-						matches[0], sizeof(label) );
+				AI_fatal_err ( "Label name too long in configuration", __FILE__, __LINE__  );
 
 			strncpy ( label, matches[0], sizeof(label) );
 
@@ -829,7 +845,7 @@ static AI_config * AI_parse(char *args)
 
 						if ( min_val > max_val )
 						{
-							_dpd.fatalMsg ( "AIPreproc: Parse error in configuration: '%s', minval > maxval\n", arg );
+							AI_fatal_err ( "Parse error in configuration: minval > maxval", __FILE__, __LINE__ );
 						}
 
 						for ( i=0; i < nmatches; i++ )
@@ -847,7 +863,7 @@ static AI_config * AI_parse(char *args)
 						free ( matches );
 						matches = NULL;
 					} else {
-						_dpd.fatalMsg ( "AIPreproc: Unallowed format for a port range in configuration file: '%s'\n", arg );
+						AI_fatal_err ( "Unallowed format for a port range in configuration file", __FILE__, __LINE__ );
 					}
 
 					break;
@@ -858,7 +874,7 @@ static AI_config * AI_parse(char *args)
 					{
 						if (( min_val = inet_addr ( matches[0] )) == INADDR_NONE )
 						{
-							_dpd.fatalMsg ( "AIPreproc: Unallowed IPv4 format in configuration: '%s'\n", matches[0] );
+							AI_fatal_err ( "Unallowed IPv4 format in configuration", __FILE__, __LINE__ );
 
 							for ( i=0; i < nmatches; i++ )
 								free ( matches[i] );
@@ -877,7 +893,7 @@ static AI_config * AI_parse(char *args)
 
 						if ( netmask > 32 )
 						{
-							_dpd.fatalMsg ( "AIPreproc: The netmask number of bits should be in [0,32] in '%s'\n", arg );
+							AI_fatal_err ( "The netmask number of bits should be in [0,32] in configuration file", __FILE__, __LINE__ );
 						}
 
 						netmask = 1 << (( 8*sizeof ( uint32_t )) - netmask );
@@ -886,7 +902,7 @@ static AI_config * AI_parse(char *args)
 					} else if ( preg_match ( "^([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})$", arg, &matches, &nmatches ) > 0 ) {
 						if (( min_val = inet_addr ( matches[0] )) == INADDR_NONE )
 						{
-							_dpd.fatalMsg ( "AIPreproc: Unallowed IPv4 format in configuration: '%s'\n", matches[0] );
+							AI_fatal_err ( "Unallowed IPv4 format in configuration", __FILE__, __LINE__ );
 
 							for ( i=0; i < nmatches; i++ )
 								free ( matches[i] );
@@ -904,7 +920,7 @@ static AI_config * AI_parse(char *args)
 						min_val = ntohl ( min_val );
 						max_val = min_val;
 					} else {
-						_dpd.fatalMsg ( "AIPreproc: Invalid value for an IP address or a subnet in configuration: '%s'\n", arg );
+						AI_fatal_err ( "Invalid value for an IP address or a subnet in configuration", __FILE__, __LINE__ );
 					}
 
 					break;
@@ -935,21 +951,21 @@ static AI_config * AI_parse(char *args)
 
 		if ( min_val == -1 || max_val == -1 || type == none || strlen ( label ) == 0 )
 		{
-			_dpd.fatalMsg ( "AIPreproc: Invalid cluster in configuration: '%s'\nAll of the following fields are required: class, range, name\n", match );
+			AI_fatal_err ( "Invalid cluster in configuration\nAll of the following fields are required: class, range, name", __FILE__, __LINE__ );
 			free ( match );
 			match = NULL;
 		}
 
 		if ( !( hierarchy_nodes = ( hierarchy_node** ) realloc ( hierarchy_nodes, (++n_hierarchy_nodes) * sizeof(hierarchy_node) )) )
 		{
-			_dpd.fatalMsg ( "Fatal dynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+			AI_fatal_err ( "Fatal dynamic memory allocation failure", __FILE__, __LINE__ );
 			free ( match );
 			match = NULL;
 		}
 
 		if ( !( hierarchy_nodes[ n_hierarchy_nodes - 1 ] = ( hierarchy_node* ) malloc ( sizeof(hierarchy_node) ) ))
 		{
-			_dpd.fatalMsg ( "Fatal dynamic memory allocation failure at %s:%d\n", __FILE__, __LINE__ );
+			AI_fatal_err ( "Fatal dynamic memory allocation failure", __FILE__, __LINE__ );
 			free ( match );
 			match = NULL;
 		}
@@ -1000,8 +1016,8 @@ static AI_config * AI_parse(char *args)
 		#ifdef 	HAVE_DB
 			alertparser_thread = AI_db_alertparser_thread;
 		#else
-			_dpd.fatalMsg ( "AIPreproc: database logging enabled in config file, but the module was not compiled "
-					"with database support (recompile, i.e., with ./configure --with-mysql or --with-postgresql)\n" );
+			AI_fatal_err ( "Database logging enabled in config file, but the module was not compiled "
+					"with database support (recompile, i.e., with ./configure --with-mysql or --with-postgresql)", __FILE__, __LINE__  );
 		#endif
 	} else if ( has_alertfile ) {
 		alertparser_thread = AI_file_alertparser_thread;
@@ -1017,7 +1033,7 @@ static AI_config * AI_parse(char *args)
 	{
 		if ( ! hierarchy_nodes )
 		{
-			_dpd.fatalMsg ( "AIPreproc: cluster file specified in the configuration but no clusters were specified\n" );
+			AI_fatal_err ( "Cluster file specified in the configuration but no clusters were specified", __FILE__, __LINE__  );
 		}
 
 		if ( ! has_clusterfile )
@@ -1036,7 +1052,7 @@ static AI_config * AI_parse(char *args)
 	if ( ! has_corr_rules_dir )
 	{
 		#ifndef HAVE_CONFIG_H
-			_dpd.fatalMsg ( "AIPreproc: unable to read PREFIX from config.h\n" );
+			AI_fatal_err ( "Unable to read PREFIX from config.h", __FILE__, __LINE__  );
 		#endif
 
 		if ( !strcmp ( PREFIX, "/usr" ) || !strcmp ( PREFIX, "/usr/" ))
@@ -1071,7 +1087,7 @@ static AI_config * AI_parse(char *args)
 		#ifdef 	HAVE_DB
 			get_alerts = AI_db_get_alerts;
 		#else
-			_dpd.fatalMsg ( "AIPreproc: Using database alert log, but the module was not compiled with database support\n" );
+			AI_fatal_err ( "Using database alert log, but the module was not compiled with database support", __FILE__, __LINE__ );
 		#endif
 	} else {
 		get_alerts = AI_get_alerts;
@@ -1119,7 +1135,7 @@ static void AI_reload(char *args)
 	{
 		ex_swap_config = sfPolicyConfigCreate();
 		if (ex_swap_config == NULL)
-			_dpd.fatalMsg("Could not allocate configuration struct.\n");
+			AI_fatal_err ( "Could not allocate configuration struct", __FILE__, __LINE__ );
 	}
 
 	config = AI_parse(args);

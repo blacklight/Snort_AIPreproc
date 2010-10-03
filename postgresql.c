@@ -62,7 +62,7 @@ __postgresql_do_init ( PGconn **__DB, BOOL is_out )
 		return (void*) *__DB;
 	
 	if ( !( conninfo = (char*) alloca ( conninfo_max_length )))
-		_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 	memset ( conninfo, 0, conninfo_max_length );
 
@@ -104,7 +104,7 @@ __postgresql_do_query ( PGconn *__DB, const char *query )
 	PSQL_result *res = NULL;
 
 	if ( !( res = (PSQL_result*) malloc ( sizeof ( PSQL_result ))))
-		_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 	if ( PQresultStatus ( res->res = PQexec( __DB, query )) != PGRES_TUPLES_OK )
 	{
@@ -117,14 +117,14 @@ __postgresql_do_query ( PGconn *__DB, const char *query )
 	res->rows  = NULL;
 
 	if ( !( res->rows = ( char*** ) malloc ( ntuples * sizeof ( char** ))))
-		_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 	for ( i=0; i < ntuples; i++ )
 	{
 		nfields = PQnfields ( res->res );
 
 		if ( !( res->rows[i] = ( char** ) malloc ( nfields * sizeof ( char* ))))
-			_dpd.fatalMsg ( "AIPreproc: Fatal dynamic memory allocation error at %s:%d\n", __FILE__, __LINE__ );
+			AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 		for ( j=0; j < nfields; j++ )
 		{
