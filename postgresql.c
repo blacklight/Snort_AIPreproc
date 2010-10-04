@@ -20,9 +20,10 @@
 #include	"spp_ai.h"
 #ifdef 	HAVE_LIBPQ
 
+#include	"db.h"
+
 #include	<alloca.h>
 #include	<postgresql/libpq-fe.h>
-#include	"db.h"
 
 /** \defgroup postgresql Module for the interface with a PostgreSQL DBMS
  * @{ */
@@ -58,7 +59,7 @@ __postgresql_do_init ( PGconn **__DB, BOOL is_out )
 		  ((config->dbpass) ? strlen ( config->dbpass ) : 0) +
 		  ((config->dbname) ? strlen ( config->dbname ) : 0)) + 100;
 
-	if ( postgresql_is_init ( *__DB ))
+	if ( __postgresql_is_init ( *__DB ))
 		return (void*) *__DB;
 	
 	if ( !( conninfo = (char*) alloca ( conninfo_max_length )))
@@ -135,39 +136,6 @@ __postgresql_do_query ( PGconn *__DB, const char *query )
 	return res;
 }
 
-int
-postgresql_num_rows ( PSQL_result *res )
-{
-	return PQntuples ( res->res );
-}
-
-char**
-postgresql_fetch_row ( PSQL_result *res )
-{
-	if ( (res->index++) >= PQntuples ( res->res ))
-		return NULL;
-
-	return res->rows[ res->index - 1];
-}
-
-void
-postgresql_free_result ( PSQL_result *res )
-{
-	int i, j, ntuples;
-
-	if ( res )
-	{
-		ntuples = PQntuples ( res->res );
-
-		for ( i=0; i < ntuples; i++ )
-			free ( res->rows[i] );
-		free ( res->rows );
-
-		PQclear ( res->res );
-		free ( res );
-	}
-}
-
 PRIVATE void
 __postgresql_do_close ( PGconn **__DB )
 {
@@ -201,6 +169,14 @@ postgresql_do_query ( const char *query )
 	return __postgresql_do_query ( db, query );
 }
 
+unsigned long
+postgresql_do_escape_string ( char **to, const char *from, unsigned long length )
+{
+	size_t out_len = 0;
+	*to = (char*) PQescapeByteaConn ( db, (const unsigned char* ) from, (size_t) length, &out_len );
+	return (unsigned long) out_len;
+}
+
 void
 postgresql_do_close ()
 {
@@ -227,10 +203,53 @@ postgresql_do_out_query ( const char *query )
 	return __postgresql_do_query ( outdb, query );
 }
 
+unsigned long
+postgresql_do_out_escape_string ( char **to, const char *from, unsigned long length )
+{
+	size_t out_len = 0;
+	*to = (char*) PQescapeByteaConn ( outdb, (const unsigned char* ) from, (size_t) length, &out_len );
+	return (unsigned long) out_len;
+}
+
 void
 postgresql_do_out_close ()
 {
 	__postgresql_do_close ( &outdb );
+}
+
+/* Functions working on result sets */
+
+int
+postgresql_num_rows ( PSQL_result *res )
+{
+	return PQntuples ( res->res );
+}
+
+char**
+postgresql_fetch_row ( PSQL_result *res )
+{
+	if ( (res->index++) >= PQntuples ( res->res ))
+		return NULL;
+
+	return res->rows[ res->index - 1];
+}
+
+void
+postgresql_free_result ( PSQL_result *res )
+{
+	int i, ntuples;
+
+	if ( res )
+	{
+		ntuples = PQntuples ( res->res );
+
+		for ( i=0; i < ntuples; i++ )
+			free ( res->rows[i] );
+		free ( res->rows );
+
+		PQclear ( res->res );
+		free ( res );
+	}
 }
 
 /* End of public functions */

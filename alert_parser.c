@@ -19,16 +19,15 @@
 
 #include	"spp_ai.h"
 
+#include 	<pthread.h>
 #include	<stdio.h>
-#include	<unistd.h>
+#include	<sys/stat.h>
 #include	<time.h>
+#include	<unistd.h>
 
 #ifdef LINUX
 #include	<sys/inotify.h>
 #endif
-
-#include	<sys/stat.h>
-#include 	<pthread.h>
 
 /** \defgroup alert_parser Parse the alert log into binary structures
  * @{ */

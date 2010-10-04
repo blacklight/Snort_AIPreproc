@@ -19,12 +19,11 @@
 
 #include	"spp_ai.h"
 
+#include	<limits.h>
+#include	<math.h>
+#include 	<pthread.h>
 #include	<stdio.h>
 #include	<unistd.h>
-#include	<math.h>
-#include	<limits.h>
-#include	<errno.h>
-#include 	<pthread.h>
 
 /** \defgroup cluster Manage the clustering of alarms
  * @{ */

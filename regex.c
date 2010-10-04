@@ -17,12 +17,13 @@
  * =====================================================================================
  */
 
+#include	"uthash.h"
+
+#include	<alloca.h>
+#include	<regex.h>
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	<alloca.h>
-#include	<regex.h>
-#include	"uthash.h"
 
 /** Compiled and cached regular expression entry */
 struct regex_cache_entry {

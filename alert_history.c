@@ -28,7 +28,6 @@
 
 PRIVATE AI_alert_event  *alerts_hash = NULL;
 
-
 /**
  * \brief  Free a hash table of alert events
  * \param  events  Hash table to be freed

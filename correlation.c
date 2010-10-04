@@ -19,17 +19,16 @@
 
 #include	"spp_ai.h"
 
+#include	<alloca.h>
+#include	<libxml/xmlreader.h>
+#include	<math.h>
+#include 	<pthread.h>
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<unistd.h>
-#include	<time.h>
-#include	<math.h>
-#include	<errno.h>
-#include	<alloca.h>
 #include	<sys/stat.h>
-#include 	<pthread.h>
-#include	<libxml/xmlreader.h>
+#include	<time.h>
 
 #ifdef 	HAVE_LIBGVC
 	#include	<gvc.h>

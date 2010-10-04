@@ -28,6 +28,7 @@
 
 #include	"db.h"
 #include	"uthash.h"
+
 #include	<alloca.h>
 #include	<pthread.h>
 
@@ -212,8 +213,9 @@ AI_store_alert_to_db_thread ( void *arg )
 			if ( !( pkt_data = (unsigned char*) alloca ( 2 * (pkt->pkt->pcap_header->len + pkt->pkt->payload_size) + 1 )))
 				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
-			DB_out_escape_string ( &pkt_data,
-					pkt->pkt->pkt_data,
+			DB_out_escape_string (
+					(char**) &pkt_data,
+					(const char*) pkt->pkt->pkt_data,
 					pkt->pkt->pcap_header->len + pkt->pkt->payload_size );
 
 			memset ( query, 0, sizeof ( query ));

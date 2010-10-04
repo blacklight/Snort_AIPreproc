@@ -19,12 +19,11 @@
 
 #include 	"spp_ai.h"
 
+#include 	<pthread.h>
 #include	<stdio.h>
 #include	<stdlib.h>
-#include 	<time.h>
 #include	<unistd.h>
-#include 	<pthread.h>
-
+#include 	<time.h>
 
 PRIVATE struct pkt_info *hash = NULL;
 PRIVATE time_t start_time = 0;

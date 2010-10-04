@@ -19,8 +19,8 @@
 
 #include	"spp_ai.h"
 
-#include	<time.h>
 #include	<math.h>
+#include	<time.h>
 
 /** \defgroup correlation Module for the correlation of hyperalerts
  * @{ */

@@ -22,9 +22,9 @@
 
 #include	"db.h"
 
-#include	<unistd.h>
-#include	<time.h>
 #include 	<pthread.h>
+#include	<time.h>
+#include	<unistd.h>
 
 /** \defgroup db Manage alerts on a database
  * @{ */

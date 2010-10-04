@@ -79,11 +79,11 @@
 #endif
 
 	void*          DB_init();
-	unsigned long  DB_escape_string();
+	unsigned long  DB_escape_string ( char **to, const char *from, unsigned long length );
 	void           DB_close();
 
 	void*          DB_out_init();
-	unsigned long  DB_out_escape_string();
+	unsigned long  DB_out_escape_string ( char **to, const char *from, unsigned long length );
 	void           DB_out_close();
 
 	#endif
