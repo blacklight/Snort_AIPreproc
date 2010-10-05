@@ -9,18 +9,20 @@ CREATE TABLE ca_ipv4_headers (
 	ip_src_addr   varchar(32),
 	ip_dst_addr   varchar(32)
 );
+INSERT INTO ca_ipv4_headers ( ip_hdr_id ) VALUES ( 0 );
 
 DROP TABLE IF EXISTS ca_tcp_headers CASCADE;
 CREATE TABLE ca_tcp_headers (
 	tcp_hdr_id     serial   primary key,
 	tcp_src_port   integer,
 	tcp_dst_port   integer,
-	tcp_seq        integer,
-	tcp_ack        integer,
+	tcp_seq        bigint,
+	tcp_ack        bigint,
 	tcp_flags      integer,
 	tcp_window     integer,
 	tcp_len        integer
 );
+INSERT INTO ca_tcp_headers ( tcp_hdr_id ) VALUES ( 0 );
 
 DROP TABLE IF EXISTS ca_clustered_alerts CASCADE;
 CREATE TABLE ca_clustered_alerts (
@@ -30,6 +32,7 @@ CREATE TABLE ca_clustered_alerts (
 	clustered_srcport varchar(255) default null,
 	clustered_dstport varchar(255) default null
 );
+INSERT INTO ca_clustered_alerts ( cluster_id ) VALUES ( 0 );
 
 DROP TABLE IF EXISTS ca_alerts CASCADE;
 CREATE TABLE ca_alerts (
@@ -41,8 +44,8 @@ CREATE TABLE ca_alerts (
 	description    varchar(255),
 	classification varchar(255),
 	timestamp      timestamp,
-	ip_hdr         integer    references ca_ipv4_headers(ip_hdr_id),
-	tcp_hdr        integer    references ca_tcp_headers(tcp_hdr_id),
+	ip_hdr         integer default 0 references ca_ipv4_headers(ip_hdr_id),
+	tcp_hdr        integer default 0 references ca_tcp_headers(tcp_hdr_id),
 	cluster_id     integer default 0 references ca_clustered_alerts(cluster_id)
 );
 
@@ -52,7 +55,7 @@ CREATE TABLE ca_packet_streams (
 	alert_id       integer  references ca_alerts(alert_id),
 	pkt_len        integer,
 	timestamp      timestamp,
-	content        oid
+	content        bytea
 );
 
 DROP TABLE IF EXISTS ca_correlated_alerts CASCADE;

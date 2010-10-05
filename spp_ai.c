@@ -663,9 +663,9 @@ static AI_config * AI_parse(char *args)
 
 		free ( match );
 
-		if ( !strlen ( config->dbhost ) || !strlen ( config->dbname ) || !strlen ( config->dbpass ) || !strlen ( config->dbuser ))
+		if ( !strlen ( config->dbname ))
 		{
-			AI_fatal_err ( "Database option used in config, but missing configuration option (all 'host', 'type', 'name', 'user', and 'password' option must be used)", __FILE__, __LINE__  );
+			AI_fatal_err ( "Database option used in config, but missing configuration option (at least 'type' and 'name' options must be used)", __FILE__, __LINE__  );
 		}
 
 		_dpd.logMsg("    Reading alerts from the database %s\n", config->dbname );
@@ -759,9 +759,9 @@ static AI_config * AI_parse(char *args)
 
 		free ( match );
 
-		if ( !strlen ( config->outdbhost ) || !strlen ( config->outdbname ) || !strlen ( config->outdbpass ) || !strlen ( config->outdbuser ))
+		if ( !strlen ( config->outdbname ))
 		{
-			AI_fatal_err ( "Output database option used in config, but missing configuration option (all 'host', 'type', 'name', 'user', and 'password' options must be used)", __FILE__, __LINE__  );
+			AI_fatal_err ( "Output database option used in config, but missing configuration option (at least 'type' and 'name' options must be used)", __FILE__, __LINE__  );
 		}
 
 		AI_outdb_mutex_initialize();

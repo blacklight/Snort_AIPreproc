@@ -26,16 +26,15 @@ CREATE TABLE ca_tcp_headers (
 	primary key(tcp_hdr_id)
 );
 
-DROP TABLE IF EXISTS ca_packet_streams;
-CREATE TABLE ca_packet_streams (
-	pkt_id         integer     auto_increment,
-	alert_id       integer,
-	pkt_len        integer,
-	timestamp      datetime,
-	content        longblob,
+DROP TABLE IF EXISTS ca_clustered_alerts;
+CREATE TABLE ca_clustered_alerts (
+	cluster_id        integer      auto_increment,
+	clustered_srcip   varchar(255) default null,
+	clustered_dstip   varchar(255) default null,
+	clustered_srcport varchar(255) default null,
+	clustered_dstport varchar(255) default null,
 
-	primary key(pkt_id),
-	foreign key(alert_id) references ca_alerts(alert_id)
+	primary key(cluster_id)
 );
 
 DROP TABLE IF EXISTS ca_alerts;
@@ -48,8 +47,8 @@ CREATE TABLE ca_alerts (
 	description    varchar(255),
 	classification varchar(255),
 	timestamp      datetime,
-	ip_hdr         integer,
-	tcp_hdr        integer,
+	ip_hdr         integer default 0,
+	tcp_hdr        integer default 0,
 	cluster_id     integer default 0,
 
 	primary key(alert_id),
@@ -58,15 +57,16 @@ CREATE TABLE ca_alerts (
 	foreign key(cluster_id) references ca_clustered_alerts(cluster_id)
 );
 
-DROP TABLE IF EXISTS ca_clustered_alerts;
-CREATE TABLE ca_clustered_alerts (
-	cluster_id        integer      auto_increment,
-	clustered_srcip   varchar(255) default null,
-	clustered_dstip   varchar(255) default null,
-	clustered_srcport varchar(255) default null,
-	clustered_dstport varchar(255) default null,
+DROP TABLE IF EXISTS ca_packet_streams;
+CREATE TABLE ca_packet_streams (
+	pkt_id         integer     auto_increment,
+	alert_id       integer,
+	pkt_len        integer,
+	timestamp      datetime,
+	content        longblob,
 
-	primary key(cluster_id)
+	primary key(pkt_id),
+	foreign key(alert_id) references ca_alerts(alert_id)
 );
 
 DROP TABLE IF EXISTS ca_correlated_alerts;

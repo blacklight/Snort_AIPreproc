@@ -72,24 +72,54 @@ __postgresql_do_init ( PGconn **__DB, BOOL is_out )
 		snprintf ( conninfo, conninfo_max_length, "dbname=%s", config->outdbname );
 
 		if ( config->outdbuser )
-			sprintf ( conninfo, "%s user=%s", conninfo, config->outdbuser );
+		{
+			if ( strlen ( config->outdbuser ) != 0 )
+			{
+				sprintf ( conninfo, "%s user=%s", conninfo, config->outdbuser );
+			}
+		}
 
 		if ( config->outdbpass )
-			sprintf ( conninfo, "%s password=%s", conninfo, config->outdbpass );
+		{
+			if ( strlen ( config->outdbpass ) != 0 )
+			{
+				sprintf ( conninfo, "%s password=%s", conninfo, config->outdbpass );
+			}
+		}
 
 		if ( config->outdbhost )
-			sprintf ( conninfo, "%s hostaddr=%s", conninfo, config->outdbhost );
+		{
+			if ( strlen ( config->outdbhost ) != 0 )
+			{
+				sprintf ( conninfo, "%s hostaddr=%s", conninfo, config->outdbhost );
+			}
+		}
 	} else {
 		snprintf ( conninfo, conninfo_max_length, "dbname=%s", config->dbname );
 
 		if ( config->dbuser )
-			sprintf ( conninfo, "%s user=%s", conninfo, config->dbuser );
+		{
+			if ( strlen ( config->dbuser ) != 0 )
+			{
+				sprintf ( conninfo, "%s user=%s", conninfo, config->dbuser );
+			}
+		}
 
 		if ( config->dbpass )
-			sprintf ( conninfo, "%s password=%s", conninfo, config->dbpass );
+		{
+			if ( strlen ( config->dbpass ) != 0 )
+			{
+				sprintf ( conninfo, "%s password=%s", conninfo, config->dbpass );
+			}
+		}
 
 		if ( config->dbhost )
-			sprintf ( conninfo, "%s hostaddr=%s", conninfo, config->dbhost );
+		{
+			if ( strlen ( config->dbhost ) != 0 )
+			{
+				sprintf ( conninfo, "%s hostaddr=%s", conninfo, config->dbhost );
+			}
+		}
 	}
 
 	if ( PQstatus ( *__DB = PQconnectdb ( conninfo )) != CONNECTION_OK )
@@ -108,10 +138,7 @@ __postgresql_do_query ( PGconn *__DB, const char *query )
 		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 	if ( PQresultStatus ( res->res = PQexec( __DB, query )) != PGRES_TUPLES_OK )
-	{
-		PQfinish ( __DB );
 		return NULL;
-	}
 
 	ntuples = PQntuples ( res->res );
 	res->index = 0;

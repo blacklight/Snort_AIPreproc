@@ -58,18 +58,20 @@
 	typedef 	PSQL_result* 	DB_result;
 	typedef 	char** 		DB_row;
 
-	#define 	DB_init 		postgresql_do_init
-	#define 	DB_is_init 	postgresql_is_init
-	#define 	DB_query 		postgresql_do_query
-	#define 	DB_num_rows 	postgresql_num_rows
-	#define 	DB_fetch_row 	postgresql_fetch_row
-	#define 	DB_free_result postgresql_free_result
-	#define 	DB_close 		postgresql_do_close
+	#define 	DB_init 			postgresql_do_init
+	#define 	DB_is_init 		postgresql_is_init
+	#define 	DB_query 			postgresql_do_query
+	#define 	DB_num_rows 		postgresql_num_rows
+	#define 	DB_fetch_row 		postgresql_fetch_row
+	#define 	DB_free_result 	postgresql_free_result
+	#define 	DB_escape_string 	postgresql_do_escape_string
+	#define 	DB_close 			postgresql_do_close
 
-	#define 	DB_out_init 	postgresql_do_out_init
-	#define 	DB_is_out_init postgresql_is_out_init
-	#define 	DB_out_query 	postgresql_do_out_query
-	#define 	DB_out_close 	postgresql_do_out_close
+	#define 	DB_out_init 			postgresql_do_out_init
+	#define 	DB_is_out_init 		postgresql_is_out_init
+	#define 	DB_out_query 			postgresql_do_out_query
+	#define 	DB_out_escape_string 	postgresql_do_out_escape_string
+	#define 	DB_out_close 			postgresql_do_out_close
 
 	int 			DB_num_rows ( PSQL_result *res );
 	DB_row 		DB_fetch_row ( PSQL_result *res );

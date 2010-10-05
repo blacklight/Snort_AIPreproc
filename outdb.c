@@ -71,8 +71,10 @@ AI_outdb_mutex_initialize ()
 void*
 AI_store_alert_to_db_thread ( void *arg )
 {
-	char query[65535] = { 0 };
-	char srcip[INET_ADDRSTRLEN],
+	char query[65535]      = { 0 },
+		iphdr_id_str[20]  = { 0 },
+		tcphdr_id_str[20] = { 0 },
+		srcip[INET_ADDRSTRLEN],
 		dstip[INET_ADDRSTRLEN];
 
 	unsigned char *pkt_data = NULL;
@@ -166,10 +168,24 @@ AI_store_alert_to_db_thread ( void *arg )
 		DB_free_result ( res );
 	}
 
+	if ( latest_ip_hdr_id )
+	{
+		snprintf ( iphdr_id_str, sizeof ( iphdr_id_str ), ", %lu", latest_ip_hdr_id );
+	}
+
+	if ( latest_tcp_hdr_id && alert->ip_proto == IPPROTO_TCP )
+	{
+		snprintf ( tcphdr_id_str, sizeof ( tcphdr_id_str ), ", %lu", latest_tcp_hdr_id );
+	}
+
 	memset ( query, 0, sizeof ( query ));
-	snprintf ( query, sizeof ( query ), "INSERT INTO %s (gid, sid, rev, priority, description, classification, timestamp, ip_hdr, tcp_hdr) "
-			"VALUES (%u, %u, %u, %u, '%s', '%s', from_unixtime('%lu'), %lu, %lu)",
+
+	#ifdef 	HAVE_LIBMYSQLCLIENT
+	snprintf ( query, sizeof ( query ), "INSERT INTO %s (gid, sid, rev, priority, description, classification, timestamp%s%s) "
+			"VALUES (%u, %u, %u, %u, '%s', '%s', from_unixtime('%lu')%s%s)",
 		outdb_config[ALERTS_TABLE],
+		((latest_ip_hdr_id  != 0) ? ", ip_hdr"  : ""),
+		((latest_tcp_hdr_id != 0) ? ", tcp_hdr" : ""),
 		alert->gid,
 		alert->sid,
 		alert->rev,
@@ -177,8 +193,24 @@ AI_store_alert_to_db_thread ( void *arg )
 		((alert->desc) ? alert->desc : ""),
 		((alert->classification) ? alert->classification : ""),
 		alert->timestamp,
-		latest_ip_hdr_id,
-		((alert->ip_proto == IPPROTO_TCP || alert->ip_proto == IPPROTO_UDP) ? latest_tcp_hdr_id : 0));
+		iphdr_id_str,
+		tcphdr_id_str );
+	#elif 	HAVE_LIBPQ
+	snprintf ( query, sizeof ( query ), "INSERT INTO %s (gid, sid, rev, priority, description, classification, timestamp%s%s) "
+			"VALUES (%u, %u, %u, %u, '%s', '%s', timestamp with time zone 'epoch' + %lu * interval '1 second'%s%s)",
+		outdb_config[ALERTS_TABLE],
+		((latest_ip_hdr_id  != 0) ? ", ip_hdr"  : ""),
+		((latest_tcp_hdr_id != 0) ? ", tcp_hdr" : ""),
+		alert->gid,
+		alert->sid,
+		alert->rev,
+		alert->priority,
+		((alert->desc) ? alert->desc : ""),
+		((alert->classification) ? alert->classification : ""),
+		alert->timestamp,
+		iphdr_id_str,
+		tcphdr_id_str );
+	#endif
 
 	DB_free_result ((DB_result) DB_out_query ( query ));
 
@@ -219,6 +251,8 @@ AI_store_alert_to_db_thread ( void *arg )
 					pkt->pkt->pcap_header->len + pkt->pkt->payload_size );
 
 			memset ( query, 0, sizeof ( query ));
+
+			#ifdef 	HAVE_LIBMYSQLCLIENT
 			snprintf ( query, sizeof ( query ), "INSERT INTO %s (alert_id, pkt_len, timestamp, content) "
 					"VALUES (%lu, %u, from_unixtime('%lu'), '%s')",
 				outdb_config[PACKET_STREAMS_TABLE],
@@ -226,6 +260,15 @@ AI_store_alert_to_db_thread ( void *arg )
 				pkt->pkt->pcap_header->len + pkt->pkt->payload_size,
 				pkt->timestamp,
 				pkt_data );
+			#elif 	HAVE_LIBPQ
+			snprintf ( query, sizeof ( query ), "INSERT INTO %s (alert_id, pkt_len, timestamp, content) "
+					"VALUES (%lu, %u, timestamp with time zone 'epoch' + %lu * interval '1 second', '%s')",
+				outdb_config[PACKET_STREAMS_TABLE],
+				latest_alert_id,
+				pkt->pkt->pcap_header->len + pkt->pkt->payload_size,
+				pkt->timestamp,
+				pkt_data );
+			#endif
 
 			DB_free_result ((DB_result) DB_out_query ( query ));
 		}
