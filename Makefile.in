@@ -41,7 +41,10 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
 	TODO config.guess config.sub install-sh ltmain.sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -81,7 +84,8 @@ am_libsf_ai_preproc_la_OBJECTS = libsf_ai_preproc_la-alert_history.lo \
 	libsf_ai_preproc_la-correlation.lo libsf_ai_preproc_la-db.lo \
 	libsf_ai_preproc_la-mysql.lo libsf_ai_preproc_la-outdb.lo \
 	libsf_ai_preproc_la-postgresql.lo libsf_ai_preproc_la-regex.lo \
-	libsf_ai_preproc_la-spp_ai.lo libsf_ai_preproc_la-stream.lo
+	libsf_ai_preproc_la-spp_ai.lo libsf_ai_preproc_la-stream.lo \
+	libsf_ai_preproc_la-webserv.lo
 nodist_libsf_ai_preproc_la_OBJECTS =  \
 	libsf_ai_preproc_la-sf_dynamic_preproc_lib.lo \
 	libsf_ai_preproc_la-sfPolicyUserData.lo
@@ -262,7 +266,8 @@ outdb.c \
 postgresql.c \
 regex.c \
 spp_ai.c \
-stream.c
+stream.c \
+webserv.c
 
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = README INSTALL ChangeLog AUTHORS COPYING Doxyfile NEWS TODO doc etc include uthash corr_rules *.h
@@ -410,6 +415,9 @@ libsf_ai_preproc_la-spp_ai.lo: spp_ai.c
 
 libsf_ai_preproc_la-stream.lo: stream.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-stream.lo `test -f 'stream.c' || echo '$(srcdir)/'`stream.c
+
+libsf_ai_preproc_la-webserv.lo: webserv.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-webserv.lo `test -f 'webserv.c' || echo '$(srcdir)/'`webserv.c
 
 libsf_ai_preproc_la-sf_dynamic_preproc_lib.lo: include/sf_dynamic_preproc_lib.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-sf_dynamic_preproc_lib.lo `test -f 'include/sf_dynamic_preproc_lib.c' || echo '$(srcdir)/'`include/sf_dynamic_preproc_lib.c

@@ -78,6 +78,12 @@
 /** Default maximum interval, in seconds, between two alerts for being considered in the same cluster */
 #define 	DEFAULT_CLUSTER_MAX_ALERT_INTERVAL 	14400
 
+/** Default web server port */
+#define 	DEFAULT_WEBSERV_PORT 				7654
+
+/** Default web server banner */
+#define 	DEFAULT_WEBSERV_BANNER 				"Snort AIPreprocessor module"
+
 /** Cutoff y value in the exponential decay for considering two alerts not correlated */
 #define 	CUTOFF_Y_VALUE 					0.01
 
@@ -176,6 +182,17 @@ typedef struct
 	 * defined. Be careful, defining a correlation coefficient > or >> 1 no correlation
 	 * may occur at all! */
 	double        correlationThresholdCoefficient;
+
+	/** Port where the webserver providing the web interface for the correlation graph
+	 * will listen onto */
+	unsigned short webserv_port;
+
+	/** (Absolute) path to the directory containing the HTML files for the web interface */
+	char          webserv_dir[1024];
+
+	/** Banner string of the web server (this will be placed in the 'Server' HTTP header
+	 * and in the footer of error pages */
+	char          webserv_banner[1024];
 
 	/** Alert file */
 	char          alertfile[1024];
@@ -396,6 +413,7 @@ void               AI_fatal_err ( const char *msg, const char *file, const int l
 void*              AI_hashcleanup_thread ( void* );
 void*              AI_file_alertparser_thread ( void* );
 void*              AI_alert_correlation_thread ( void* );
+void*              AI_webserv_thread ( void* );
 
 #ifdef 	HAVE_DB
 AI_snort_alert*    AI_db_get_alerts ( void );

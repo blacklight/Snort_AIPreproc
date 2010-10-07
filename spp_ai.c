@@ -91,6 +91,7 @@ static void AI_init(char *args)
 {
 	pthread_t  cleanup_thread,
 			 logparse_thread,
+			 webserv_thread,
 			 correlation_thread;
 
 	tSfPolicyId policy_id = _dpd.getParserPolicy();
@@ -136,6 +137,15 @@ static void AI_init(char *args)
 		}
 	}
 
+	/* If webserv_port is != 0, start the web server */
+	if ( config->webserv_port != 0 )
+	{
+		if ( pthread_create ( &webserv_thread, NULL, AI_webserv_thread, NULL ) != 0 )
+		{
+			AI_fatal_err ( "Failed to create the web server thread", __FILE__, __LINE__ );
+		}
+	}
+
 	/* Register the preprocessor function, Transport layer, ID 10000 */
 	_dpd.addPreproc(AI_process, PRIORITY_TRANSPORT, 10000, PROTO_BIT__TCP | PROTO_BIT__UDP);
 	DEBUG_WRAP(_dpd.debugMsg(DEBUG_PLUGIN, "Preprocessor: AI is initialized\n"););
@@ -151,11 +161,13 @@ static AI_config * AI_parse(char *args)
 {
 	char *arg;
 	char *match;
-	char alertfile[1024]          = { 0 };
-	char clusterfile[1024]        = { 0 };
-	char corr_rules_dir[1024]     = { 0 };
-	char corr_alerts_dir[1024]    = { 0 };
-	char alert_history_file[1024] = { 0 };
+	char alertfile[1024]          = { 0 },
+		clusterfile[1024]        = { 0 },
+		corr_rules_dir[1024]     = { 0 },
+		corr_alerts_dir[1024]    = { 0 },
+		alert_history_file[1024] = { 0 },
+		webserv_dir[1024]        = { 0 },
+		webserv_banner[1024]     = { 0 };
 
 	char **matches       = NULL;
 	int  nmatches        = 0;
@@ -174,27 +186,32 @@ static AI_config * AI_parse(char *args)
 	hierarchy_node **hierarchy_nodes = NULL;
 	int            n_hierarchy_nodes = 0;
 
-	unsigned long cleanup_interval                    = 0,
-			    stream_expire_interval              = 0,
-			    alertfile_len                       = 0,
-			    alert_history_file_len              = 0,
-			    alert_serialization_interval        = 0,
-			    alert_bufsize                       = 0,
-			    bayesian_correlation_interval       = 0,
-			    bayesian_correlation_cache_validity = 0,
-			    clusterfile_len                     = 0,
-			    cluster_max_alert_interval          = 0,
-			    corr_rules_dir_len                  = 0,
-			    corr_alerts_dir_len                 = 0,
-			    alert_clustering_interval           = 0,
-			    database_parsing_interval           = 0,
-			    correlation_graph_interval          = 0;
+	unsigned short webserv_port                        = 0;
+	unsigned long  cleanup_interval                    = 0,
+			     stream_expire_interval              = 0,
+			     alertfile_len                       = 0,
+			     alert_history_file_len              = 0,
+			     alert_serialization_interval        = 0,
+			     alert_bufsize                       = 0,
+			     bayesian_correlation_interval       = 0,
+			     bayesian_correlation_cache_validity = 0,
+			     clusterfile_len                     = 0,
+			     cluster_max_alert_interval          = 0,
+			     corr_rules_dir_len                  = 0,
+			     corr_alerts_dir_len                 = 0,
+				webserv_dir_len                     = 0,
+				webserv_banner_len                  = 0,
+			     alert_clustering_interval           = 0,
+			     database_parsing_interval           = 0,
+			     correlation_graph_interval          = 0;
 
 	BOOL has_cleanup_interval        = false,
 		has_stream_expire_interval  = false,
 		has_correlation_interval    = false,
 		has_corr_alerts_dir         = false,
 		has_database_interval       = false,
+		has_webserv_dir             = false,
+		has_webserv_banner          = false,
 		has_alertfile               = false,
 		has_clusterfile             = false,
 		has_corr_rules_dir          = false,
@@ -341,11 +358,30 @@ static AI_config * AI_parse(char *args)
 		_dpd.logMsg("    Alert buffer size: %d\n", config->alert_bufsize );
 	}
 
+	/* Parsing the webserv_port option */
+	if (( arg = (char*) strcasestr( args, "webserv_port" ) ))
+	{
+		for ( arg += strlen("webserv_port");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			AI_fatal_err( "webserv_port option used but "
+				"no value specified", __FILE__, __LINE__ );
+		}
+
+		webserv_port = (unsigned short) strtoul(arg, NULL, 10);
+		config->webserv_port= webserv_port;
+	} else {
+		config->webserv_port = DEFAULT_WEBSERV_PORT;
+	}
+
+	_dpd.logMsg("    Web server port: %d\n", config->webserv_port );
+
 	/* Parsing the correlation_threshold_coefficient option */
 	if (( arg = (char*) strcasestr( args, "correlation_threshold_coefficient" ) ))
 	{
-		/* has_stream_expire_interval = true; */
-
 		for ( arg += strlen("correlation_threshold_coefficient");
 				*arg && (*arg < '0' || *arg > '9');
 				arg++ );
@@ -357,10 +393,10 @@ static AI_config * AI_parse(char *args)
 		}
 
 		corr_threshold_coefficient = strtod ( arg, NULL );
-		_dpd.logMsg( "    Correlation threshold coefficient: %f\n", corr_threshold_coefficient );
 	}
 
 	config->correlationThresholdCoefficient = corr_threshold_coefficient;
+	_dpd.logMsg( "    Correlation threshold coefficient: %f\n", corr_threshold_coefficient );
 
 	/* Parsing the bayesian_correlation_interval option */
 	if (( arg = (char*) strcasestr( args, "bayesian_correlation_interval" ) ))
@@ -588,6 +624,90 @@ static AI_config * AI_parse(char *args)
 			}
 		}
 	}
+
+	/* Parsing the webserv_dir option */
+	if (( arg = (char*) strcasestr( args, "webserv_dir" ) ))
+	{
+		for ( arg += strlen("webserv_dir");
+				*arg && *arg != '"';
+				arg++ );
+
+		if ( !(*(arg++)) )
+		{
+			AI_fatal_err ( "webserv_dir option used but no filename specified", __FILE__, __LINE__ );
+		}
+
+		for ( webserv_dir[ (++webserv_dir_len)-1 ] = *arg;
+				*arg && *arg != '"' && webserv_dir_len < sizeof ( webserv_dir );
+				arg++, webserv_dir[ (++webserv_dir_len)-1 ] = *arg );
+
+		if ( webserv_dir[0] == 0 || webserv_dir_len <= 1 )  {
+			has_webserv_dir = false;
+		} else {
+			if ( webserv_dir_len >= sizeof ( webserv_dir ))  {
+				AI_fatal_err ( "webserv_dir path too long ( >= 1024 )", __FILE__, __LINE__ );
+			} else if ( strlen( webserv_dir ) == 0 ) {
+				has_webserv_dir = false;
+			} else {
+				has_webserv_dir = true;
+				webserv_dir[ webserv_dir_len-1 ] = 0;
+				strncpy ( config->webserv_dir, webserv_dir, webserv_dir_len );
+			}
+		}
+	}
+
+	if ( ! has_webserv_dir )
+	{
+		#ifndef HAVE_CONFIG_H
+			AI_fatal_err ( "Unable to read PREFIX from config.h", __FILE__, __LINE__  );
+		#endif
+
+		snprintf ( config->webserv_dir, sizeof ( config->webserv_dir ), "%s/share/snort_ai_preprocessor/htdocs", PREFIX );
+	}
+
+	/* Remove unnecessary '/' at the end of the web server directory */
+	for ( i = strlen ( config->webserv_dir ) - 1; i >= 0 && config->webserv_dir[i] == '/'; i-- )
+		config->webserv_dir[i] = 0;
+
+	_dpd.logMsg("    webserv_dir: %s\n", config->webserv_dir);
+
+	/* Parsing the webserv_banner option */
+	if (( arg = (char*) strcasestr( args, "webserv_banner" ) ))
+	{
+		for ( arg += strlen("webserv_banner");
+				*arg && *arg != '"';
+				arg++ );
+
+		if ( !(*(arg++)) )
+		{
+			AI_fatal_err ( "webserv_banner option used but no value specified", __FILE__, __LINE__ );
+		}
+
+		for ( webserv_banner[ (++webserv_banner_len)-1 ] = *arg;
+				*arg && *arg != '"' && webserv_banner_len < sizeof ( webserv_banner );
+				arg++, webserv_banner[ (++webserv_banner_len)-1 ] = *arg );
+
+		if ( webserv_banner[0] == 0 || webserv_banner_len <= 1 )  {
+			has_webserv_banner = false;
+		} else {
+			if ( webserv_banner_len >= sizeof ( webserv_banner ))  {
+				AI_fatal_err ( "webserv_banner path too long ( >= 1024 )", __FILE__, __LINE__ );
+			} else if ( strlen( webserv_banner ) == 0 ) {
+				has_webserv_banner = false;
+			} else {
+				has_webserv_banner = true;
+				webserv_banner[ webserv_banner_len-1 ] = 0;
+				strncpy ( config->webserv_banner, webserv_banner, webserv_banner_len );
+			}
+		}
+	}
+
+	if ( ! has_webserv_banner )
+	{
+		strncpy ( config->webserv_banner, DEFAULT_WEBSERV_BANNER, webserv_banner_len );
+	}
+
+	_dpd.logMsg("    webserv_banner: %s\n", config->webserv_banner);
 
 	/* Parsing database option */
 	if ( preg_match ( "\\s+database\\s*\\(\\s*([^\\)]+)\\)", args, &matches, &nmatches ) > 0 )

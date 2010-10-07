@@ -179,7 +179,7 @@ AC_CHECK_TYPES([ptrdiff_t])
 AC_FUNC_MALLOC
 AC_FUNC_MKTIME
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([memmove memset regcomp strcasecmp strdup strstr strtol strtoul],,AC_MSG_ERROR(At least one of the required functions was not found))
+AC_CHECK_FUNCS([memmove memset regcomp strcasecmp strdup strstr strtol strtoul socket bind listen accept connect],,AC_MSG_ERROR(At least one of the required functions was not found))
 
 AC_DEFINE([VERSION], ["0.1.0"], [Module version])
 AC_DEFINE([PACKAGE], ["sf_ai_preprocessor"], [Package name])

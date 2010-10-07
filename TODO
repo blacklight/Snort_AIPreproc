@@ -2,8 +2,9 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
-- Full PostgreSQL support for output db
 - Web interface
+- Bayesian network
+- Modules for correlation coefficients
 - Code profiling
 - Comment all the code!!!
 - Saving packet flows as .pcap
@@ -33,4 +34,5 @@ DONE:
 + Clustering alerts with time constraints
 + Save clusters and correlations to db
 + Uniformed error messages format
++ Full PostgreSQL support for output db
 

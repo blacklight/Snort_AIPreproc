@@ -27,7 +27,8 @@ outdb.c \
 postgresql.c \
 regex.c \
 spp_ai.c \
-stream.c
+stream.c \
+webserv.c
 
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = README INSTALL ChangeLog AUTHORS COPYING Doxyfile NEWS TODO doc etc include uthash corr_rules *.h

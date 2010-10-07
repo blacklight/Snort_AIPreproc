@@ -17,6 +17,7 @@
  * =====================================================================================
  */
 
+#include	"spp_ai.h"
 #include	"uthash.h"
 
 #include	<alloca.h>
@@ -24,6 +25,9 @@
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
+
+/** \defgroup regex Regex management
+ * @{ */
 
 /** Compiled and cached regular expression entry */
 struct regex_cache_entry {
@@ -34,14 +38,12 @@ struct regex_cache_entry {
 	/** Make the struct 'hashable' */
 	UT_hash_handle hh;
 };
+
 /** 
  * Regular expression cache container 
  * TODO: Free the cache at the end of program execution.
  */
 static struct regex_cache_entry *reg_cache = NULL;
-
-/** \defgroup regex Regex management
- * @{ */
 
 /**
  * \brief  Check if a string matches a regular expression
@@ -67,13 +69,13 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
 	 * Search for a compiled regex in the cache.
 	 */
 	HASH_FIND_STR( reg_cache, expr, cached_regex );
+
 	if( cached_regex != NULL ){
 		/*
 		 * Yeppa!
 		 */
 		regex = cached_regex->compiled;
-	}
-	else {
+	} else {
 		/*
 		 * Not found, create a new structure, compile the regexp and add it to the cache
 		 * for latter use.
@@ -154,6 +156,7 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
  * \param  rep 	Replacement for 'orig'
  * \return The string with the replacement
  */
+
 char*
 str_replace ( char *str, char *orig, char *rep )
 {
@@ -164,7 +167,7 @@ str_replace ( char *str, char *orig, char *rep )
 	if ( !( pos = (int) strstr ( str, orig )))
 		return str;
 
-	new_len = strlen(str) - strlen(orig) + strlen(rep) + 1;
+	new_len = strlen(str) - strlen(orig) + ((rep) ? strlen(rep) : 0) + 1;
 
 	if ( !( new_s = (char*) malloc ( new_len )))
 		return NULL;
@@ -193,6 +196,7 @@ str_replace ( char *str, char *orig, char *rep )
  * \param  rep 	Replacement for 'orig'
  * \return The string with the replacement
  */
+
 char*
 str_replace_all ( char *str, char *orig, char *rep )
 {
@@ -205,7 +209,7 @@ str_replace_all ( char *str, char *orig, char *rep )
 			free ( tmp );
 
 		tmp = buf;
-		buf = str_replace ( str, orig, rep );
+		buf = str_replace ( buf, orig, rep );
 	}
 
 	return buf;
