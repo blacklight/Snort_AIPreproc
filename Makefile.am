@@ -50,3 +50,14 @@ doc-install:
 	cp -r doc/* "${DOC_PREFIX}"; \
 fi
 
+install-data-hook:
+	mkdir -p "${SHARE_PREFIX}/htdocs"
+	mkdir -p "${SHARE_PREFIX}/htdocs/js"
+	install -m 0644 "${PWD}/htdocs/index.html" "${SHARE_PREFIX}/htdocs"
+	install -m 0755 "${PWD}/htdocs/test.cgi" "${SHARE_PREFIX}/htdocs"
+	install -m 0644 "${PWD}/htdocs/js/Curry-1.0.1.js" "${SHARE_PREFIX}/htdocs/js"
+	install -m 0644 "${PWD}/htdocs/js/dracula_algorithms.js" "${SHARE_PREFIX}/htdocs/js"
+	install -m 0644 "${PWD}/htdocs/js/dracula_graffle.js" "${SHARE_PREFIX}/htdocs/js"
+	install -m 0644 "${PWD}/htdocs/js/dracula_graph.js" "${SHARE_PREFIX}/htdocs/js"
+	install -m 0644 "${PWD}/htdocs/js/raphael-min.js" "${SHARE_PREFIX}/htdocs/js"
+	install -m 0644 "${PWD}/htdocs/js/seedrandom.js" "${SHARE_PREFIX}/htdocs/js"
