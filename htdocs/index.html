@@ -29,7 +29,7 @@ window.onload = function() {
 			window.innerHeight- 50 : 50;
 	}
 
-	req.open ( 'GET', 'http://localhost:7654/correlation_graph.json', true );
+	req.open ( 'GET', 'http://' + window.location.host + '/correlation_graph.json', true );
 	req.onreadystatechange = function()  {
 		if ( req.readyState == 4 && req.status == 200 )
 		{
