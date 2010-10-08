@@ -3,6 +3,7 @@ AVERAGE/HIGH PRIORITY:
 ======================
 
 - Web interface
+- Function names (private functions with _ or __ ?)
 - Bayesian network
 - Modules for correlation coefficients
 - Code profiling

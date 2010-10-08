@@ -36,6 +36,11 @@
 								"Content-Type: %s\r\n" \
 								"Content-Length: %u\r\n\r\n"
 
+#define 	HTTP_CGI_RESPONSE_HEADERS_FORMAT 	"%s %d %s\r\n" \
+									"Date: %s\r\n" \
+									"Server: %s\r\n" \
+									"Content-Length: %u\r\n"
+
 #define 	HTTP_ERR_RESPONSE_FORMAT 	"<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n" \
 								"<html><head>\n" \
 								"<title>%u %s</title>\n" \
@@ -45,6 +50,11 @@
 								"<hr>\n" \
 								"<i>%s</i>\n" \
 								"</body></html>\n\n"
+
+typedef struct  {
+	int sd;
+	struct sockaddr_in client;
+} conn_info;
 
 /**
  * \brief  Escape a string to be used or included in an URL
@@ -173,20 +183,28 @@ __AI_webservlet_thread ( void *arg )
 {
 	time_t ltime     = time ( NULL );
 	struct stat st;
+	BOOL   is_cgi    = false;
 
 	FILE *sock = NULL,
-		*fp   = NULL;
+		*fp   = NULL,
+		*pipe = NULL;
 
 	int  i,
-		*sd = (int*) arg,
+		http_response_len = 0,
+		sd = ((conn_info*) arg)->sd,
 		nlines   = 0,
 		nmatches = 0,
 		max_content_length = 0,
 		max_headers_length = 0,
 		req_file_absolute_path_size = 0;
 
-	char *line          = NULL,
+	char ch,
+		client_addr[INET_ADDRSTRLEN] = { 0 },
+		client_port[10] = { 0 },
+		*line          = NULL,
 		*unescaped     = NULL,
+		*cgi_cmd       = NULL,
+		*query_string  = NULL,
 		*http_response = NULL,
 		*http_headers  = NULL,
 		*strtime       = NULL,
@@ -200,6 +218,16 @@ __AI_webservlet_thread ( void *arg )
 	max_content_length = strlen ( HTTP_ERR_RESPONSE_FORMAT ) + strlen ( config->webserv_banner ) + 1000;
 	max_headers_length = strlen ( HTTP_RESPONSE_HEADERS_FORMAT ) + strlen ( config->webserv_banner ) + 1000;
 
+	/* Setting environment variables */
+	inet_ntop ( AF_INET, &(((conn_info*) arg)->client.sin_addr.s_addr), client_addr, INET_ADDRSTRLEN );
+	snprintf ( client_port, sizeof ( client_port ), "%d", htons (((conn_info*) arg)->client.sin_port) );
+
+	setenv ( "CLIENT_PROTOCOL", "HTTP", 1 );
+	setenv ( "DOCUMENT_ROOT", config->webserv_dir, 1 );
+	setenv ( "GATEWAY_INTERFACE", "CGI/1.1", 1 );
+	setenv ( "REMOTE_ADDR", client_addr, 1 );
+	setenv ( "REMOTE_PORT", client_port, 1 );
+
 	if ( !( http_response = (char*) alloca ( max_content_length )))
 	{
 		pthread_exit ((void*) 0);
@@ -212,7 +240,7 @@ __AI_webservlet_thread ( void *arg )
 		return (void*) 0;
 	}
 
-	if ( !( sock = fdopen ( *sd, "r+" )))
+	if ( !( sock = fdopen ( sd, "r+" )))
 	{
 		pthread_exit ((void*) 0);
 		return (void*) 0;
@@ -228,22 +256,41 @@ __AI_webservlet_thread ( void *arg )
 
 	for ( nlines=0; ( line = __AI_getline ( sock )); nlines++ )
 	{
-		if ( preg_match ( "^\\s*GET\\s+(/[^ ]*)\\s*(HTTP/[0-9]\\.[0-9])?", line, &matches, &nmatches ) > 0 )
+		if ( preg_match ( "^\\s*(GET|POST|HEAD)\\s+(/[^ \\?#]*)(\\?|#)?([^ ]+)?\\s*(HTTP/[0-9]\\.[0-9])?", line, &matches, &nmatches ) > 0 )
 		{
-			if ( strlen ( matches[1] ) > 0 )
+			setenv ( "REQUEST_METHOD", matches[0], 1 );
+
+			if ( !strcmp ( matches[2], "?" ))
 			{
-				strncpy ( http_ver, matches[1], sizeof ( http_ver ));
+				if ( strlen ( matches[3] ) > 0 )
+				{
+					query_string = strdup ( matches[3] );
+					setenv ( "QUERY_STRING", query_string, 1 );
+				}
+			}
+
+			if ( strlen ( matches[4] ) > 0 )
+			{
+				strncpy ( http_ver, matches[4], sizeof ( http_ver ));
 			} else {
 				strncpy ( http_ver, "HTTP/1.0", sizeof ( http_ver ));
 			}
 
-			if ( !strcmp ( matches[0], "/" ))
+			setenv ( "SERVER_PROTOCOL", http_ver, 1 );
+
+			if ( !strcmp ( matches[1], "/" ))
 			{
-				free ( matches[0] );
-				matches[0] = strdup ( "/index.html" );
+				free ( matches[1] );
+				matches[1] = strdup ( "/index.html" );
 			}
 
-			snprintf ( req_file_absolute_path, req_file_absolute_path_size, "%s%s", config->webserv_dir, matches[0] );
+			setenv ( "DOCUMENT_URI", matches[1], 1 );
+			setenv ( "DOCUMENT_URL", matches[1], 1 );
+			setenv ( "REQUEST_URI", matches[1], 1 );
+			setenv ( "URI", matches[1], 1 );
+			setenv ( "URL", matches[1], 1 );
+
+			snprintf ( req_file_absolute_path, req_file_absolute_path_size, "%s%s", config->webserv_dir, matches[1] );
 
 			if ( strcmp ( http_ver, "HTTP/1.0" ) && strcmp ( http_ver, "HTTP/1.1" ))
 			{
@@ -332,14 +379,62 @@ __AI_webservlet_thread ( void *arg )
 			if ( !strcasecmp ( extension, "html" ))
 			{
 				strncpy ( content_type, "text/html", sizeof ( content_type ));
-			} else if ( !strcasecmp ( extension, "css" ))
-			{
+			} else if ( !strcasecmp ( extension, "css" )) {
 				strncpy ( content_type, "text/css", sizeof ( content_type ));
-			} else if ( !strcasecmp ( extension, "js" ))
-			{
+			} else if ( !strcasecmp ( extension, "js" )) {
 				strncpy ( content_type, "application/x-javascript", sizeof ( content_type ));
+			} else if ( !strcasecmp ( extension, "json" )) {
+				strncpy ( content_type, "application/json", sizeof ( content_type ));
 			} else if ( !strcasecmp ( extension, "jpg" ) || !strcasecmp ( extension, "jpeg" )) {
 				strncpy ( content_type, "image/jpeg", sizeof ( content_type ));
+			} else if ( !strcasecmp ( extension, "cgi" )) {
+				/* If it's not executable, it's not a CGI */
+				if ( !( st.st_mode & S_IXOTH ))
+					strncpy ( content_type, "text/plain", sizeof ( content_type ));
+				else {
+					is_cgi = true;
+					http_response = NULL;
+					http_response_len = 1;
+
+					if ( !( cgi_cmd = (char*) alloca ( strlen ( req_file_absolute_path ) + 20 )))
+					{
+						pthread_exit ((void*) 0);
+						return (void*) 0;
+					}
+
+					sprintf ( cgi_cmd, "/bin/sh -c %s", req_file_absolute_path );
+
+					if ( !( pipe = popen ( cgi_cmd, "r" )))
+					{
+						pthread_exit ((void*) 0);
+						return (void*) 0;
+					}
+
+					while ( fread ( &ch, 1, 1, pipe ) > 0 )
+					{
+						if ( !( http_response = (char*) realloc ( http_response, ++http_response_len )))
+						{
+							pthread_exit ((void*) 0);
+							return (void*) 0;
+						}
+
+						http_response [ http_response_len - 2 ] = ch;
+					}
+
+					http_response [ http_response_len - 1 ] = 0;
+					pclose ( pipe );
+
+					if ( !http_response )
+					{
+						if ( !( http_response = (char*) malloc ( 2 )))
+						{
+							pthread_exit ((void*) 0);
+							return (void*) 0;
+						}
+
+						http_response[0] = 0;
+					}
+				}
 			} else if ( !strcasecmp ( extension, "gif" ) || !strcasecmp ( extension, "png" ) ||
 					!strcasecmp ( extension, "bmp" ) || !strcasecmp ( extension, "tif" ) ||
 					!strcasecmp ( extension, "ppm" ))  {
@@ -349,42 +444,144 @@ __AI_webservlet_thread ( void *arg )
 				strncpy ( content_type, "text/plain", sizeof ( content_type ));
 			}
 
-			if ( !( http_response = (char*) alloca ( st.st_size + 2 )))
+			if ( !is_cgi )
 			{
-				pthread_exit ((void*) 0);
-				return (void*) 0;
+				if ( !( http_response = (char*) alloca ( st.st_size + 2 )))
+				{
+					pthread_exit ((void*) 0);
+					return (void*) 0;
+				}
+
+				memset ( http_response, 0, st.st_size + 2 );
+				fread ( http_response, st.st_size, 1, fp );
+				fclose ( fp );
 			}
 
-			memset ( http_response, 0, st.st_size + 2 );
-			fread ( http_response, st.st_size, 1, fp );
-			fclose ( fp );
-
 			ltime = time ( NULL );
 			strtime = strdup ( ctime ( &ltime ));
 			strtime [ strlen(strtime) - 1 ] = 0;
-			snprintf ( http_headers, max_headers_length, HTTP_RESPONSE_HEADERS_FORMAT,
-					http_ver, 200, "Found", strtime, config->webserv_banner,
-					content_type, strlen ( http_response ));
+
+			if ( is_cgi )
+			{
+				snprintf ( http_headers, max_headers_length, HTTP_CGI_RESPONSE_HEADERS_FORMAT,
+						http_ver, 200, "Found", strtime, config->webserv_banner, strlen ( http_response ));
+			} else {
+				snprintf ( http_headers, max_headers_length, HTTP_RESPONSE_HEADERS_FORMAT,
+						http_ver, 200, "Found", strtime, config->webserv_banner,
+						content_type, strlen ( http_response ));
+			}
+
 			free ( strtime );
 			free ( line );
 			line = NULL;
 			continue;
-		} else if ( nlines == 0 ) {
-			snprintf ( http_response, max_content_length, HTTP_ERR_RESPONSE_FORMAT,
-					405, "Method Not Allowed", "Method Not Allowed",
-					"The requested HTTP method is not allowed",
-					config->webserv_banner );
+		} else {
+			if ( nlines == 0 )
+			{
+				snprintf ( http_response, max_content_length, HTTP_ERR_RESPONSE_FORMAT,
+						405, "Method Not Allowed", "Method Not Allowed",
+						"The requested HTTP method is not allowed",
+						config->webserv_banner );
 
-			ltime = time ( NULL );
-			strtime = strdup ( ctime ( &ltime ));
-			strtime [ strlen(strtime) - 1 ] = 0;
-			snprintf ( http_headers, max_headers_length, HTTP_RESPONSE_HEADERS_FORMAT,
-					"HTTP/1.1", 405, "Method Not Allowed", strtime, "text/html",
-					config->webserv_banner, strlen ( http_response ));
-			free ( strtime );
-			free ( line );
-			line = NULL;
-			continue;
+				ltime = time ( NULL );
+				strtime = strdup ( ctime ( &ltime ));
+				strtime [ strlen(strtime) - 1 ] = 0;
+				snprintf ( http_headers, max_headers_length, HTTP_RESPONSE_HEADERS_FORMAT,
+						"HTTP/1.1", 405, "Method Not Allowed", strtime, "text/html",
+						config->webserv_banner, strlen ( http_response ));
+				free ( strtime );
+				free ( line );
+				line = NULL;
+				continue;
+			} else if ( preg_match ( "\\s*Content-Length\\s*:\\s*([0-9]+)", line, &matches, &nmatches ) > 0 ) {
+				setenv ( "CONTENT_LENGTH", matches[0], 1 );
+
+				for ( i=0; i < nmatches; i++ )
+					free ( matches[i] );
+
+				free ( matches );
+				matches = NULL;
+			} else if ( preg_match ( "\\s*Content-Type\\s*:\\s*(.+?)\r?\n?$", line, &matches, &nmatches ) > 0 ) {
+				setenv ( "CONTENT_TYPE", matches[0], 1 );
+
+				for ( i=0; i < nmatches; i++ )
+					free ( matches[i] );
+
+				free ( matches );
+				matches = NULL;
+			} else if ( preg_match ( "\\s*Accept\\s*:\\s*(.+?)\r?\n?$", line, &matches, &nmatches ) > 0 ) {
+				setenv ( "HTTP_ACCEPT", matches[0], 1 );
+
+				for ( i=0; i < nmatches; i++ )
+					free ( matches[i] );
+
+				free ( matches );
+				matches = NULL;
+			} else if ( preg_match ( "\\s*Accept-Charset\\s*:\\s*(.+?)\r?\n?$", line, &matches, &nmatches ) > 0 ) {
+				setenv ( "HTTP_ACCEPT_CHARSET", matches[0], 1 );
+
+				for ( i=0; i < nmatches; i++ )
+					free ( matches[i] );
+
+				free ( matches );
+				matches = NULL;
+			} else if ( preg_match ( "\\s*Accept-Encoding\\s*:\\s*(.+?)\r?\n?$", line, &matches, &nmatches ) > 0 ) {
+				setenv ( "HTTP_ACCEPT_ENCODING", matches[0], 1 );
+
+				for ( i=0; i < nmatches; i++ )
+					free ( matches[i] );
+
+				free ( matches );
+				matches = NULL;
+			} else if ( preg_match ( "\\s*Accept-Language\\s*:\\s*(.+?)\r?\n?$", line, &matches, &nmatches ) > 0 ) {
+				setenv ( "HTTP_ACCEPT_LANGUAGE", matches[0], 1 );
+
+				for ( i=0; i < nmatches; i++ )
+					free ( matches[i] );
+
+				free ( matches );
+				matches = NULL;
+			} else if ( preg_match ( "\\s*Connection\\s*:\\s*(.+?)\r?\n?$", line, &matches, &nmatches ) > 0 ) {
+				setenv ( "HTTP_CONNECTION", matches[0], 1 );
+
+				for ( i=0; i < nmatches; i++ )
+					free ( matches[i] );
+
+				free ( matches );
+				matches = NULL;
+			} else if ( preg_match ( "\\s*Cookie\\s*:\\s*(.+?)\r?\n?$", line, &matches, &nmatches ) > 0 ) {
+				setenv ( "HTTP_COOKIE", matches[0], 1 );
+
+				for ( i=0; i < nmatches; i++ )
+					free ( matches[i] );
+
+				free ( matches );
+				matches = NULL;
+			} else if ( preg_match ( "\\s*Reason\\s*:\\s*(.+?)\r?\n?$", line, &matches, &nmatches ) > 0 ) {
+				setenv ( "HTTP_REASON", matches[0], 1 );
+
+				for ( i=0; i < nmatches; i++ )
+					free ( matches[i] );
+
+				free ( matches );
+				matches = NULL;
+			} else if ( preg_match ( "\\s*User-Agent\\s*:\\s*(.+?)\r?\n?$", line, &matches, &nmatches ) > 0 ) {
+				setenv ( "HTTP_USER_AGENT", matches[0], 1 );
+
+				for ( i=0; i < nmatches; i++ )
+					free ( matches[i] );
+
+				free ( matches );
+				matches = NULL;
+			} else if ( preg_match ( "\\s*Referrer\\s*:\\s*(.+?)\r?\n?$", line, &matches, &nmatches ) > 0 ) {
+				setenv ( "HTTP_REFERRER", matches[0], 1 );
+
+				for ( i=0; i < nmatches; i++ )
+					free ( matches[i] );
+
+				free ( matches );
+				matches = NULL;
+			}
 		}
 
 		free ( line );
@@ -393,8 +590,17 @@ __AI_webservlet_thread ( void *arg )
 
 	fprintf ( sock, "%s%s", http_headers, http_response );
 	fclose ( sock );
-	close ( *sd );
+	close ( sd );
+	free ( arg );
+
+	if ( query_string )
+		free ( query_string );
+
+	if ( is_cgi )
+		free ( http_response );
+
 	pthread_exit ( 0 );
+	return (void*) 0;
 }		/* -----  end of function __AI_webservlet_thread  ----- */
 
 /**
@@ -406,11 +612,12 @@ AI_webserv_thread ( void *arg )
 {
 	int on = 1,
 	    sd,
-	    client_sd;
+	    sockaddr_size;
 
 	struct sockaddr_in addr;
 	pthread_t servlet_thread;
 	pthread_attr_t attr;
+	conn_info *conn;
 
 	if (( sd = socket ( AF_INET, SOCK_STREAM, 0 )) < 0 )
 	{
@@ -432,7 +639,7 @@ AI_webserv_thread ( void *arg )
 		AI_fatal_err ( "Error while binding socket", __FILE__, __LINE__ );
 	}
 
-	if ( listen ( sd, 10 ) < 0 )
+	if ( listen ( sd, 100 ) < 0 )
 	{
 		AI_fatal_err ( "Error while setting the socket in listen mode", __FILE__, __LINE__ );
 	}
@@ -442,10 +649,15 @@ AI_webserv_thread ( void *arg )
 
 	while ( 1 )
 	{
-		if (( client_sd = accept ( sd, NULL, NULL )) < 0 )
+		if ( !( conn = (conn_info*) malloc ( sizeof ( conn_info ))))
 			continue;
 
-		if ( pthread_create ( &servlet_thread, &attr, __AI_webservlet_thread, (void*) &client_sd ) != 0 )
+		memset ( conn, 0, sizeof ( conn ));
+
+		if (( conn->sd = accept ( sd, (struct sockaddr*) &(conn->client), (socklen_t*) &sockaddr_size )) < 0 )
+			continue;
+
+		if ( pthread_create ( &servlet_thread, &attr, __AI_webservlet_thread, (void*) conn ) != 0 )
 		{
 			AI_fatal_err ( "Error while creating the webservlet thread", __FILE__, __LINE__ );
 		}

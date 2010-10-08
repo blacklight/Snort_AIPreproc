@@ -1,0 +1,85 @@
+<html>
+<head>
+    <script type="text/javascript" src="js/raphael-min.js"></script>
+    <script type="text/javascript" src="js/dracula_graffle.js"></script>
+    <script type="text/javascript" src="js/dracula_graph.js"></script>
+    <script type="text/javascript">
+<!--
+
+var redraw;
+var width;
+var height;
+var layouter = null;
+var renderer = null;
+var json = [];
+
+window.onload = function() {
+	var req = new XMLHttpRequest();
+
+	if ( navigator.appName.indexOf('Microsoft') != -1 )
+	{
+		width  = (document.body.offsetWidth > 50) ?
+			document.body.offsetWidth - 50 : 50;
+		height = (document.body.offsetHeight > 50 ) ?
+			document.body.offsetHeight - 50 : 50;
+	} else {
+		width  = (window.innerWidth > 50) ?
+			window.innerWidth - 50 : 50;
+		height = (window.innerHeight > 50) ?
+			window.innerHeight- 50 : 50;
+	}
+
+	req.open ( 'GET', 'http://localhost:7654/correlation_graph.json', true );
+	req.onreadystatechange = function()  {
+		if ( req.readyState == 4 && req.status == 200 )
+		{
+			var g = new Graph();
+			var connections = [];
+			json = JSON.parse ( req.responseText );
+
+			for ( var i=0; i < json.length; i++ )
+			{
+				g.addNode ( json[i].id, { label: json[i].label });
+
+				if ( json[i].connectedTo )
+				{
+					for ( var j=0; j < json[i].connectedTo.length; j++ )
+					{
+						connections.push ({
+							"from": json[i].id,
+							"to"  : json[i].connectedTo[j].id
+						});
+					}
+				}
+			}
+
+			for ( var i=0; i < connections.length; i++ )
+			{
+				g.addEdge ( connections[i].from, connections[i].to, { directed: true });
+			}
+
+			var layouter = new Graph.Layout.Spring ( g );
+			layouter.layout();
+
+			var renderer = new Graph.Renderer.Raphael ( 'canvas', g, width, height );
+			renderer.draw();
+
+			redraw = function() {
+				layouter.layout();
+				renderer.draw();
+			};
+		}
+	};
+
+	req.send ( null );
+};
+
+-->
+    </script>
+</head>
+<body>
+<div id="canvas" style="border: 1px"></div>
+<button id="redraw" onclick="redraw();">redraw</button>
+</body>
+</html>
+

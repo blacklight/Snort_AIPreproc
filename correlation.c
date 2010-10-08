@@ -73,7 +73,7 @@ _AI_correlation_table_cleanup ()
  */
 
 PRIVATE void
-_AI_print_correlated_alerts ( AI_alert_correlation *corr, FILE *fp )
+_AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 {
 	char  src_addr1[INET_ADDRSTRLEN],
 		 dst_addr1[INET_ADDRSTRLEN],
@@ -130,8 +130,65 @@ _AI_print_correlated_alerts ( AI_alert_correlation *corr, FILE *fp )
 		timestamp2,
 		corr->key.b->grouped_alerts_count
 	);
-}		/* -----  end of function _AI_correlation_flow_to_file  ----- */
+}		/* -----  end of function _AI_correlated_alerts_to_dot  ----- */
 
+/**
+ * \brief  Recursively write the flow of correlated alerts to a .json file, ready for being rendered in the web interface
+ */
+
+PRIVATE void
+_AI_correlated_alerts_to_json ()
+{
+	unsigned int i = 0;
+	char json_file[1040] = { 0 };
+	FILE *fp;
+	AI_snort_alert *alert_iterator = NULL;
+
+	/* If there is no directory configured for the web interface, just exit */
+	if ( strlen ( config->webserv_dir ) == 0 )
+		return;
+
+	snprintf ( json_file, sizeof ( json_file ), "%s/correlation_graph.json", config->webserv_dir );
+
+	if ( !( fp = fopen ( json_file, "w" )))
+	{
+		AI_fatal_err ( "Unable to write on correlated_graph.json in htdocs directory", __FILE__, __LINE__ );
+	}
+
+	fprintf ( fp, "[\n" );
+
+	for ( alert_iterator = alerts; alert_iterator; alert_iterator = alert_iterator->next )
+	{
+		fprintf ( fp, "{\n"
+			"\t\"id\": %lu,\n"
+			"\t\"label\": \"%s\"",
+			alert_iterator->alert_id, alert_iterator->desc );
+
+		for ( i=0; i < alert_iterator->n_derived_alerts; i++ )
+		{
+			if ( i == 0 )
+			{
+				fprintf ( fp, ",\n\t\"connectedTo\": [\n" );
+			}
+
+			fprintf ( fp, "\t\t{ \"id\": %lu }%s\n",
+				alert_iterator->derived_alerts[i]->alert_id,
+				((i < alert_iterator->n_derived_alerts - 1) ? "," : ""));
+
+			if ( i == alert_iterator->n_derived_alerts - 1 )
+			{
+				fprintf ( fp, "\t]" );
+			}
+		}
+
+		fprintf ( fp, "\n}%s\n",
+			(alert_iterator->next ? "," : ""));
+	}
+
+	fprintf ( fp, "]\n" );
+	fclose ( fp );
+	chmod ( json_file, 0644 );
+}		/* -----  end of function _AI_correlated_alerts_to_json  ----- */
 
 /**
  * \brief  Get the name of the function called by a pre-condition or post-condition predicate
@@ -848,7 +905,7 @@ AI_alert_correlation_thread ( void *arg )
 
 					corr->key.a->derived_alerts[ corr->key.a->n_derived_alerts - 1 ] = corr->key.b;
 					corr->key.b->parent_alerts [ corr->key.b->n_parent_alerts  - 1 ] = corr->key.a;
-					_AI_print_correlated_alerts ( corr, fp );
+					_AI_correlated_alerts_to_dot ( corr, fp );
 
 					if ( config->outdbtype != outdb_none )
 					{
@@ -889,6 +946,16 @@ AI_alert_correlation_thread ( void *arg )
 				agclose ( g );
 				fclose ( fp );
 			#endif
+
+			/* If no database output is defined, then the alerts have no alert_id, so we cannot use the
+			 * web interface for correlating them, as they have no unique identifier */
+			if ( config->outdbtype != outdb_none )
+			{
+				if ( strlen ( config->webserv_dir ) != 0 )
+				{
+					_AI_correlated_alerts_to_json ();
+				}
+			}
 		}
 
 		pthread_mutex_unlock ( &mutex );
