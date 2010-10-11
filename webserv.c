@@ -668,7 +668,7 @@ AI_webserv_thread ( void *arg )
 		if ( !( conn = (conn_info*) malloc ( sizeof ( conn_info ))))
 			continue;
 
-		memset ( conn, 0, sizeof ( conn ));
+		memset ( conn, 0, sizeof ( conn_info ));
 
 		if (( conn->sd = accept ( sd, (struct sockaddr*) &(conn->client), (socklen_t*) &sockaddr_size )) < 0 )
 			continue;
