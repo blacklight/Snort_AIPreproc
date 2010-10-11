@@ -2,8 +2,6 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
-- Web interface
-- Function names (private functions with _ or __ ?)
 - Bayesian network
 - Modules for correlation coefficients
 - Code profiling
@@ -36,4 +34,6 @@ DONE:
 + Save clusters and correlations to db
 + Uniformed error messages format
 + Full PostgreSQL support for output db
++ Web interface
++ Function names (private functions with _ or __ ?)
 

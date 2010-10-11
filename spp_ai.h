@@ -408,6 +408,8 @@ typedef struct  {
 int                preg_match ( const char*, char*, char***, int* );
 char*              str_replace ( char*, char*, char *);
 char*              str_replace_all ( char*, char*, char* );
+void               base64_encode ( const char*, size_t, char** );
+void               base64_decode ( const char*, char** );
 
 void               AI_fatal_err ( const char *msg, const char *file, const int line );
 void*              AI_hashcleanup_thread ( void* );

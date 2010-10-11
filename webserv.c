@@ -196,6 +196,7 @@ __AI_webservlet_thread ( void *arg )
 		nmatches = 0,
 		max_content_length = 0,
 		max_headers_length = 0,
+		read_bytes = 0,
 		req_file_absolute_path_size = 0;
 
 	char ch,
@@ -419,9 +420,14 @@ __AI_webservlet_thread ( void *arg )
 						}
 
 						http_response [ http_response_len - 2 ] = ch;
+						read_bytes++;
 					}
 
-					http_response [ http_response_len - 1 ] = 0;
+					if ( http_response )
+					{
+						http_response [ http_response_len - 1 ] = 0;
+					}
+
 					pclose ( pipe );
 
 					if ( !http_response )
@@ -440,8 +446,10 @@ __AI_webservlet_thread ( void *arg )
 					!strcasecmp ( extension, "ppm" ))  {
 				snprintf ( content_type, sizeof ( content_type ),
 						"image/%s", extension );
-			} else {
+			} else if ( strlen ( extension ) == 0 || !strcasecmp ( extension, "txt" )) {
 				strncpy ( content_type, "text/plain", sizeof ( content_type ));
+			} else {
+				snprintf ( content_type, sizeof ( content_type ), "application/%s", extension );
 			}
 
 			if ( !is_cgi )
@@ -464,11 +472,17 @@ __AI_webservlet_thread ( void *arg )
 			if ( is_cgi )
 			{
 				snprintf ( http_headers, max_headers_length, HTTP_CGI_RESPONSE_HEADERS_FORMAT,
-						http_ver, 200, "Found", strtime, config->webserv_banner, strlen ( http_response ));
+						http_ver, 200, "Found", strtime, config->webserv_banner,
+						/* strlen ( http_response )); */
+					    read_bytes );
 			} else {
+				read_bytes = (unsigned int) st.st_size;
+
 				snprintf ( http_headers, max_headers_length, HTTP_RESPONSE_HEADERS_FORMAT,
 						http_ver, 200, "Found", strtime, config->webserv_banner,
-						content_type, strlen ( http_response ));
+						content_type,
+						/* strlen ( http_response )); */
+					     read_bytes );
 			}
 
 			free ( strtime );
@@ -588,7 +602,9 @@ __AI_webservlet_thread ( void *arg )
 		line = NULL;
 	}
 
-	fprintf ( sock, "%s%s", http_headers, http_response );
+	/* fprintf ( sock, "%s%s", http_headers, http_response ); */
+	fprintf ( sock, "%s", http_headers );
+	fwrite  ( http_response, read_bytes, 1, sock );
 	fclose ( sock );
 	close ( sd );
 	free ( arg );

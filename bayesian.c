@@ -61,13 +61,13 @@ PRIVATE double                   k_exp_value        = 0.0;
  */
 
 PRIVATE double
-_AI_bayesian_correlation_function ( time_t ta, time_t tb )
+__AI_bayesian_correlation_function ( time_t ta, time_t tb )
 {
 	if ( k_exp_value == 0.0 )
 		k_exp_value = - (double) (config->bayesianCorrelationInterval * config->bayesianCorrelationInterval) / log ( CUTOFF_Y_VALUE );
 
 	return exp ( -((ta - tb) * (ta - tb)) / k_exp_value );
-}		/* -----  end of function _AI_bayesian_correlation_function  ----- */
+}		/* -----  end of function __AI_bayesian_correlation_function  ----- */
 
 /**
  * \brief  Compute the correlation between two alerts, A -> B: p[A|B] = p[Corr(A,B)] / P[B]
@@ -134,7 +134,7 @@ AI_alert_bayesian_correlation ( AI_snort_alert *a, AI_snort_alert *b )
 			{
 				is_a_correlated = true;
 				corr_count++;
-				corr += _AI_bayesian_correlation_function ( events_iterator_a->timestamp, events_iterator_b->timestamp );
+				corr += __AI_bayesian_correlation_function ( events_iterator_a->timestamp, events_iterator_b->timestamp );
 			}
 		}
 

@@ -54,7 +54,7 @@ PRIVATE pthread_mutex_t          mutex;
  */
 
 PRIVATE void
-_AI_correlation_table_cleanup ()
+__AI_correlation_table_cleanup ()
 {
 	AI_alert_correlation *current;
 
@@ -64,7 +64,7 @@ _AI_correlation_table_cleanup ()
 		HASH_DEL ( correlation_table, current );
 		free ( current );
 	}
-}		/* -----  end of function _AI_correlation_table_cleanup  ----- */
+}		/* -----  end of function __AI_correlation_table_cleanup  ----- */
 
 /**
  * \brief  Recursively write a flow of correlated alerts to a .dot file, ready for being rendered as graph
@@ -73,7 +73,7 @@ _AI_correlation_table_cleanup ()
  */
 
 PRIVATE void
-_AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
+__AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 {
 	char  src_addr1[INET_ADDRSTRLEN],
 		 dst_addr1[INET_ADDRSTRLEN],
@@ -130,19 +130,29 @@ _AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 		timestamp2,
 		corr->key.b->grouped_alerts_count
 	);
-}		/* -----  end of function _AI_correlated_alerts_to_dot  ----- */
+}		/* -----  end of function __AI_correlated_alerts_to_dot  ----- */
 
 /**
  * \brief  Recursively write the flow of correlated alerts to a .json file, ready for being rendered in the web interface
  */
 
 PRIVATE void
-_AI_correlated_alerts_to_json ()
+__AI_correlated_alerts_to_json ()
 {
-	unsigned int i = 0;
-	char json_file[1040] = { 0 };
+	AI_snort_alert  *alert_iterator = NULL;
+	struct pkt_info *pkt_iterator   = NULL;
 	FILE *fp;
-	AI_snort_alert *alert_iterator = NULL;
+
+	unsigned int i = 0,
+			   pkt_len = 0;
+
+	char *strtime = NULL,
+		*encoded_pkt = NULL,
+		json_file[1040] = { 0 },
+		srcip[INET_ADDRSTRLEN] = { 0 },
+		dstip[INET_ADDRSTRLEN] = { 0 },
+		srcport[10] = { 0 },
+		dstport[10] = { 0 };
 
 	/* If there is no directory configured for the web interface, just exit */
 	if ( strlen ( config->webserv_dir ) == 0 )
@@ -159,10 +169,136 @@ _AI_correlated_alerts_to_json ()
 
 	for ( alert_iterator = alerts; alert_iterator; alert_iterator = alert_iterator->next )
 	{
+		strtime = ctime ( &(alert_iterator->timestamp ));
+		strtime[ strlen(strtime) - 1 ] = 0;
+		inet_ntop ( AF_INET, &(alert_iterator->ip_src_addr), srcip, INET_ADDRSTRLEN );
+		inet_ntop ( AF_INET, &(alert_iterator->ip_dst_addr), dstip, INET_ADDRSTRLEN );
+		snprintf ( srcport, sizeof ( srcport ), "%d", htons ( alert_iterator->tcp_src_port ));
+		snprintf ( dstport, sizeof ( dstport ), "%d", htons ( alert_iterator->tcp_dst_port ));
+
 		fprintf ( fp, "{\n"
 			"\t\"id\": %lu,\n"
-			"\t\"label\": \"%s\"",
-			alert_iterator->alert_id, alert_iterator->desc );
+			"\t\"label\": \"%s\",\n"
+			"\t\"date\": \"%s\",\n"
+			"\t\"clusteredAlertsCount\": %u,\n"
+			"\t\"from\": \"%s:%s\",\n"
+			"\t\"to\": \"%s:%s\"",
+			alert_iterator->alert_id,
+			alert_iterator->desc,
+			strtime,
+			alert_iterator->grouped_alerts_count,
+			srcip, srcport, dstip, dstport
+		);
+
+		if ( alert_iterator->stream )
+		{
+			fprintf ( fp, ",\n"
+					"\t\"packets\": [\n" );
+
+			for ( pkt_iterator = alert_iterator->stream; pkt_iterator; pkt_iterator = pkt_iterator->next )
+			{
+				pkt_len = pkt_iterator->pkt->pcap_header->len + pkt_iterator->pkt->payload_size;
+
+				if ( !( encoded_pkt = (char*) malloc ( 4*pkt_len + 1 )))
+				{
+					AI_fatal_err ( "Fatal dynamic memory allocation", __FILE__, __LINE__ );
+				}
+
+				memset ( encoded_pkt, 0, 4*pkt_len + 1  );
+
+				base64_encode (
+					(const char*) pkt_iterator->pkt->pkt_data,
+					pkt_len,
+					&encoded_pkt
+				);
+
+				fprintf ( fp, "\t\t\"%s\"%s\n",
+						encoded_pkt, ((pkt_iterator->next) ? "," : ""));
+
+				free ( encoded_pkt );
+				encoded_pkt = NULL;
+			}
+
+			fprintf ( fp, "\t]" );
+		}
+
+		for ( i=1; i < alert_iterator->grouped_alerts_count; i++ )
+		{
+			if ( i == 1 )
+			{
+				fprintf ( fp, ",\n\t\"clusteredAlerts\": [\n" );
+			}
+
+			if ( alert_iterator->grouped_alerts )
+			{
+				if ( alert_iterator->grouped_alerts[i] )
+				{
+					strtime = ctime ( &(alert_iterator->grouped_alerts[i]->timestamp ));
+					strtime[ strlen ( strtime ) - 1 ] = 0;
+					inet_ntop ( AF_INET, &(alert_iterator->grouped_alerts[i]->ip_src_addr), srcip, INET_ADDRSTRLEN );
+					inet_ntop ( AF_INET, &(alert_iterator->grouped_alerts[i]->ip_dst_addr), dstip, INET_ADDRSTRLEN );
+					snprintf ( srcport, sizeof ( srcport ), "%d", htons ( alert_iterator->grouped_alerts[i]->tcp_src_port ));
+					snprintf ( dstport, sizeof ( dstport ), "%d", htons ( alert_iterator->grouped_alerts[i]->tcp_dst_port ));
+
+					fprintf ( fp, "\t\t{\n"
+						"\t\t\t\"id\": %lu,\n"
+						"\t\t\t\"label\": \"%s\",\n"
+						"\t\t\t\"date\": \"%s\",\n"
+						"\t\t\t\"from\": \"%s:%s\",\n"
+						"\t\t\t\"to\": \"%s:%s\"%s",
+						alert_iterator->grouped_alerts[i]->alert_id,
+						alert_iterator->grouped_alerts[i]->desc,
+						strtime,
+						srcip, srcport, dstip, dstport,
+						(( alert_iterator->grouped_alerts[i]->stream ) ? ",\n" : "\n" )
+					);
+
+					if ( alert_iterator->grouped_alerts[i]->stream )
+					{
+						fprintf ( fp, "\t\t\t\"packets\": [\n" );
+
+						for ( pkt_iterator = alert_iterator->grouped_alerts[i]->stream; pkt_iterator; pkt_iterator = pkt_iterator->next )
+						{
+							if ( !pkt_iterator->pkt->ip4_header )
+							{
+								pkt_len = pkt_iterator->pkt->pcap_header->len +
+									pkt_iterator->pkt->tcp_options_length +
+									pkt_iterator->pkt->payload_size;
+							} else {
+								pkt_len = pkt_iterator->pkt->ip4_header->data_length;
+							}
+
+							if ( !( encoded_pkt = (char*) malloc ( 4*pkt_len + 1 )))
+							{
+								AI_fatal_err ( "Fatal dynamic memory allocation", __FILE__, __LINE__ );
+							}
+
+							memset ( encoded_pkt, 0, 4*pkt_len + 1  );
+
+							base64_encode (
+								(const char*) pkt_iterator->pkt->pkt_data,
+								pkt_len,
+								&encoded_pkt
+							);
+
+							fprintf ( fp, "\t\t\t\t\"%s\"%s\n",
+									encoded_pkt, ((pkt_iterator->next) ? "," : ""));
+						}
+
+						fprintf ( fp, "\t\t\t]\n" );
+					}
+
+					fprintf ( fp,
+						"\t\t}%s\n",
+						(( i < alert_iterator->grouped_alerts_count - 1 ) ? "," : "" ));
+				}
+			}
+
+			if ( i == alert_iterator->grouped_alerts_count - 1 )
+			{
+				fprintf ( fp, "\t]" );
+			}
+		}
 
 		for ( i=0; i < alert_iterator->n_derived_alerts; i++ )
 		{
@@ -188,7 +324,7 @@ _AI_correlated_alerts_to_json ()
 	fprintf ( fp, "]\n" );
 	fclose ( fp );
 	chmod ( json_file, 0644 );
-}		/* -----  end of function _AI_correlated_alerts_to_json  ----- */
+}		/* -----  end of function __AI_correlated_alerts_to_json  ----- */
 
 /**
  * \brief  Get the name of the function called by a pre-condition or post-condition predicate
@@ -197,7 +333,7 @@ _AI_correlated_alerts_to_json ()
  */
 
 PRIVATE char*
-_AI_get_function_name ( const char *orig_stmt )
+__AI_get_function_name ( const char *orig_stmt )
 {
 	int parenthesis_pos, function_name_len;
 	char function_name[4096];
@@ -217,7 +353,7 @@ _AI_get_function_name ( const char *orig_stmt )
 	strncpy ( function_name, stmt, function_name_len );
 
 	return strdup(function_name);
-}		/* -----  end of function _AI_get_function_name  ----- */
+}		/* -----  end of function __AI_get_function_name  ----- */
 
 
 /**
@@ -228,7 +364,7 @@ _AI_get_function_name ( const char *orig_stmt )
  */
 
 PRIVATE char**
-_AI_get_function_arguments ( char *orig_stmt, int *n_args )
+__AI_get_function_arguments ( char *orig_stmt, int *n_args )
 {
 	char **args  = NULL;
 	char *tok    = NULL;
@@ -263,7 +399,7 @@ _AI_get_function_arguments ( char *orig_stmt, int *n_args )
 		return NULL;
 
 	return args;
-}		/* -----  end of function _AI_get_function_arguments  ----- */
+}		/* -----  end of function __AI_get_function_arguments  ----- */
 
 
 /**
@@ -274,7 +410,7 @@ _AI_get_function_arguments ( char *orig_stmt, int *n_args )
  */
 
 PRIVATE double
-_AI_kb_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
+__AI_kb_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
 {
 	unsigned int i, j, k, l,
 			   n_intersection = 0,
@@ -314,13 +450,13 @@ _AI_kb_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
 			} else {
 				/* Check if the predicates are the same, have the same number of arguments, and
 				 * substitute possible occurrencies of +ANY_ADDR+ and +ANY_PORT+ or IP netmasks */
-				function_name1 = _AI_get_function_name ( a->hyperalert->postconds[i] );
-				function_name2 = _AI_get_function_name ( b->hyperalert->preconds[j] );
+				function_name1 = __AI_get_function_name ( a->hyperalert->postconds[i] );
+				function_name2 = __AI_get_function_name ( b->hyperalert->preconds[j] );
 
 				if ( !strcasecmp ( function_name1, function_name2 ))
 				{
-					args1 = _AI_get_function_arguments ( a->hyperalert->postconds[i], &n_args1 );
-					args2 = _AI_get_function_arguments ( b->hyperalert->preconds[j] , &n_args2 );
+					args1 = __AI_get_function_arguments ( a->hyperalert->postconds[i], &n_args1 );
+					args2 = __AI_get_function_arguments ( b->hyperalert->preconds[j] , &n_args2 );
 
 					if ( args1 && args2 )
 					{
@@ -478,7 +614,7 @@ _AI_kb_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
 	}
 
 	return (double) ((double) n_intersection / (double) n_union );
-}		/* -----  end of function _AI_kb_correlation_coefficient  ----- */
+}		/* -----  end of function __AI_kb_correlation_coefficient  ----- */
 
 
 /**
@@ -487,7 +623,7 @@ _AI_kb_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
  */
 
 PRIVATE void
-_AI_macro_subst ( AI_snort_alert **alert )
+__AI_macro_subst ( AI_snort_alert **alert )
 {
 	/*
 	 * Recognized macros:
@@ -570,7 +706,7 @@ _AI_macro_subst ( AI_snort_alert **alert )
 			free ( tmp );
 		}
 	}
-}		/* -----  end of function _AI_macro_subst  ----- */
+}		/* -----  end of function __AI_macro_subst  ----- */
 
 /**
  * \brief  Parse info about a hyperalert from a correlation XML file, if it exists
@@ -579,7 +715,7 @@ _AI_macro_subst ( AI_snort_alert **alert )
  */
 
 PRIVATE AI_hyperalert_info*
-_AI_hyperalert_from_XML ( AI_hyperalert_key key )
+__AI_hyperalert_from_XML ( AI_hyperalert_key key )
 {
 	char                  hyperalert_file[1024] = {0};
 	char                  snort_id[1024]        = {0};
@@ -706,7 +842,7 @@ _AI_hyperalert_from_XML ( AI_hyperalert_key key )
 	xmlFreeTextReader ( xml );
 	xmlCleanupParser();
 	return hyp;
-}		/* -----  end of function _AI_hyperalert_from_XML  ----- */
+}		/* -----  end of function __AI_hyperalert_from_XML  ----- */
 
 /**
  * \brief  Thread for correlating clustered alerts
@@ -786,7 +922,7 @@ AI_alert_correlation_thread ( void *arg )
 			if ( !hyp )
 			{
 				/* If there is no hyperalert knowledge on XML for this alert, ignore it and get the next one */
-				if ( !( hyp = _AI_hyperalert_from_XML ( key )))
+				if ( !( hyp = __AI_hyperalert_from_XML ( key )))
 					continue;
 
 				/* If the XML file exists and it's valid, add the hypertalert to the hash table */
@@ -813,10 +949,10 @@ AI_alert_correlation_thread ( void *arg )
 			for ( i=0; i < alert_iterator->hyperalert->n_postconds; i++ )
 				alert_iterator->hyperalert->postconds[i] = strdup ( hyp->postconds[i] );
 
-			_AI_macro_subst ( &alert_iterator );
+			__AI_macro_subst ( &alert_iterator );
 		}
 
-		_AI_correlation_table_cleanup();
+		__AI_correlation_table_cleanup();
 		correlation_table = NULL;
 
 		for ( alert_iterator = alerts; alert_iterator; alert_iterator = alert_iterator->next )
@@ -835,7 +971,7 @@ AI_alert_correlation_thread ( void *arg )
 					corr_key.b = alert_iterator2;
 
 					corr->key  = corr_key;
-					kb_correlation = _AI_kb_correlation_coefficient ( corr_key.a, corr_key.b );
+					kb_correlation = __AI_kb_correlation_coefficient ( corr_key.a, corr_key.b );
 					bayesian_correlation = AI_alert_bayesian_correlation ( corr_key.a, corr_key.b );
 
 					if ( bayesian_correlation == 0.0 || config->bayesianCorrelationInterval == 0 )
@@ -905,7 +1041,7 @@ AI_alert_correlation_thread ( void *arg )
 
 					corr->key.a->derived_alerts[ corr->key.a->n_derived_alerts - 1 ] = corr->key.b;
 					corr->key.b->parent_alerts [ corr->key.b->n_parent_alerts  - 1 ] = corr->key.a;
-					_AI_correlated_alerts_to_dot ( corr, fp );
+					__AI_correlated_alerts_to_dot ( corr, fp );
 
 					if ( config->outdbtype != outdb_none )
 					{
@@ -953,7 +1089,7 @@ AI_alert_correlation_thread ( void *arg )
 			{
 				if ( strlen ( config->webserv_dir ) != 0 )
 				{
-					_AI_correlated_alerts_to_json ();
+					__AI_correlated_alerts_to_json ();
 				}
 			}
 		}

@@ -80,7 +80,9 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libsf_ai_preproc_la_LIBADD =
 am_libsf_ai_preproc_la_OBJECTS = libsf_ai_preproc_la-alert_history.lo \
 	libsf_ai_preproc_la-alert_parser.lo \
-	libsf_ai_preproc_la-bayesian.lo libsf_ai_preproc_la-cluster.lo \
+	libsf_ai_preproc_la-base64.lo libsf_ai_preproc_la-cdecode.lo \
+	libsf_ai_preproc_la-cencode.lo libsf_ai_preproc_la-bayesian.lo \
+	libsf_ai_preproc_la-cluster.lo \
 	libsf_ai_preproc_la-correlation.lo libsf_ai_preproc_la-db.lo \
 	libsf_ai_preproc_la-mysql.lo libsf_ai_preproc_la-outdb.lo \
 	libsf_ai_preproc_la-postgresql.lo libsf_ai_preproc_la-regex.lo \
@@ -244,7 +246,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign no-dependencies
 lib_LTLIBRARIES = libsf_ai_preproc.la
-libsf_ai_preproc_la_CFLAGS = -I./uthash -I./include ${LIBXML2_INCLUDES} ${LIBGRAPH_INCLUDES} -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -pedantic -pedantic-errors -std=c99 -fstack-protector
+libsf_ai_preproc_la_CFLAGS = -I./uthash -I./base64 -I./include ${LIBXML2_INCLUDES} ${LIBGRAPH_INCLUDES} -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -pedantic -pedantic-errors -std=c99 -fstack-protector
 libsf_ai_preproc_la_LDFLAGS = -module -export-dynamic
 BUILT_SOURCES = \
 include/sf_dynamic_preproc_lib.c \
@@ -257,6 +259,9 @@ include/sfPolicyUserData.c
 libsf_ai_preproc_la_SOURCES = \
 alert_history.c \
 alert_parser.c \
+base64/base64.c \
+base64/cdecode.c \
+base64/cencode.c \
 bayesian.c \
 cluster.c \
 correlation.c \
@@ -385,6 +390,15 @@ libsf_ai_preproc_la-alert_history.lo: alert_history.c
 
 libsf_ai_preproc_la-alert_parser.lo: alert_parser.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-alert_parser.lo `test -f 'alert_parser.c' || echo '$(srcdir)/'`alert_parser.c
+
+libsf_ai_preproc_la-base64.lo: base64/base64.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-base64.lo `test -f 'base64/base64.c' || echo '$(srcdir)/'`base64/base64.c
+
+libsf_ai_preproc_la-cdecode.lo: base64/cdecode.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-cdecode.lo `test -f 'base64/cdecode.c' || echo '$(srcdir)/'`base64/cdecode.c
+
+libsf_ai_preproc_la-cencode.lo: base64/cencode.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-cencode.lo `test -f 'base64/cencode.c' || echo '$(srcdir)/'`base64/cencode.c
 
 libsf_ai_preproc_la-bayesian.lo: bayesian.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-bayesian.lo `test -f 'bayesian.c' || echo '$(srcdir)/'`bayesian.c
@@ -819,12 +833,12 @@ install-data-hook:
 	mkdir -p "${SHARE_PREFIX}/htdocs"
 	mkdir -p "${SHARE_PREFIX}/htdocs/js"
 	install -m 0644 "${PWD}/htdocs/index.html" "${SHARE_PREFIX}/htdocs"
-	install -m 0755 "${PWD}/htdocs/test.cgi" "${SHARE_PREFIX}/htdocs"
+	install -m 0755 "${PWD}/htdocs/pcap.cgi" "${SHARE_PREFIX}/htdocs"
 	install -m 0644 "${PWD}/htdocs/js/Curry-1.0.1.js" "${SHARE_PREFIX}/htdocs/js"
 	install -m 0644 "${PWD}/htdocs/js/dracula_algorithms.js" "${SHARE_PREFIX}/htdocs/js"
 	install -m 0644 "${PWD}/htdocs/js/dracula_graffle.js" "${SHARE_PREFIX}/htdocs/js"
 	install -m 0644 "${PWD}/htdocs/js/dracula_graph.js" "${SHARE_PREFIX}/htdocs/js"
-	install -m 0644 "${PWD}/htdocs/js/raphael-min.js" "${SHARE_PREFIX}/htdocs/js"
+	install -m 0644 "${PWD}/htdocs/js/raphael.js" "${SHARE_PREFIX}/htdocs/js"
 	install -m 0644 "${PWD}/htdocs/js/seedrandom.js" "${SHARE_PREFIX}/htdocs/js"
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

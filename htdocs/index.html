@@ -1,32 +1,62 @@
 <html>
 <head>
-    <script type="text/javascript" src="js/raphael-min.js"></script>
-    <script type="text/javascript" src="js/dracula_graffle.js"></script>
-    <script type="text/javascript" src="js/dracula_graph.js"></script>
-    <script type="text/javascript">
+	<style rel="stylesheet" type="text/css">
+	#popupAlert  {
+		z-index : 100;
+		display : none;
+		position : absolute;
+		border : 1px solid #000;
+		background-color : #89ffa7;
+		color : #000;
+		opacity : 0.6;
+		padding : 5px;
+	}
+
+	#alertInfo  {
+		display : none;
+		border  : 1px solid #888;
+		padding : 3px;
+		height  : 150px;
+	}
+
+	#alertInfoTable  {
+		font : Fixed;
+		font-size : 12px;
+		width : 100%;
+	}
+
+	a  {
+		color : #22dd22;
+	}
+	</style>
+
+	<script type="text/javascript" src="js/raphael.js"></script>
+	<script type="text/javascript" src="js/dracula_graffle.js"></script>
+	<script type="text/javascript" src="js/dracula_graph.js"></script>
+	<script type="text/javascript">
 <!--
 
-var redraw;
-var width;
-var height;
-var layouter = null;
-var renderer = null;
-var json = [];
+redraw = null;
+width = 0;
+height = 0;
+layouter = null;
+renderer = null;
+json = [];
 
-window.onload = function() {
+window.onload = function()  {
 	var req = new XMLHttpRequest();
 
 	if ( navigator.appName.indexOf('Microsoft') != -1 )
 	{
-		width  = (document.body.offsetWidth > 50) ?
-			document.body.offsetWidth - 50 : 50;
-		height = (document.body.offsetHeight > 50 ) ?
-			document.body.offsetHeight - 50 : 50;
+		width  = (document.body.offsetWidth > 20) ?
+			document.body.offsetWidth - 20 : 20;
+		height = (document.body.offsetHeight > 200 ) ?
+			document.body.offsetHeight - 200 : 200;
 	} else {
-		width  = (window.innerWidth > 50) ?
-			window.innerWidth - 50 : 50;
-		height = (window.innerHeight > 50) ?
-			window.innerHeight- 50 : 50;
+		width  = (window.innerWidth > 20) ?
+			window.innerWidth - 20 : 20;
+		height = (window.innerHeight > 200) ?
+			window.innerHeight - 200 : 200;
 	}
 
 	req.open ( 'GET', 'http://' + window.location.host + '/correlation_graph.json', true );
@@ -58,6 +88,10 @@ window.onload = function() {
 				g.addEdge ( connections[i].from, connections[i].to, { directed: true });
 			}
 
+			var canvas = document.getElementById ( 'canvas' );
+			canvas.style.width = width;
+			canvas.style.height = height;
+
 			var layouter = new Graph.Layout.Spring ( g );
 			layouter.layout();
 
@@ -68,6 +102,154 @@ window.onload = function() {
 				layouter.layout();
 				renderer.draw();
 			};
+
+			for ( var i=0; i < json.length; i++ )
+			{
+				var node = document.getElementById ( 'alert' + json[i].id );
+
+				if ( node )
+				{
+					node.onclick = function()  {
+						var div = document.getElementById ( 'alertInfo' );
+
+						if ( div )
+						{
+							var id = this.id.replace ( /^alert/, "" );
+							var json_element = null;
+
+							for ( var i=0; i < json.length; i++ )
+							{
+								if ( json[i].id == id )
+								{
+									json_element = json[i];
+									break;
+								}
+							}
+
+							div.style.display = 'block';
+							var content =
+								'<table id="alertInfoTable" cellspacing="5"><tr style="background-color:#99ff99">' +
+								'<td><b>Type</b></td><td><b>From</b></td>' +
+								'<td><b>To</b></td><td><b>Date</b></td></tr>' +
+								'<tr><td>' + json_element.label;
+
+							if ( json_element.packets )
+							{
+								content += ' (<a href="http://' + window.location.host + '/pcap.cgi?packets=' +
+									json_element.packets.length;
+
+								for ( var j=0; j < json_element.packets.length; j++ )
+								{
+									json_element.packets[j].match ( /^.*(=*)$/ );
+									var pad = RegExp.$1;
+									var len = parseInt ( json_element.packets[j].length * 3 / 4 ) - pad.length;
+									json_element.date.match ( /[a-zA-Z]+\s+([a-zA-Z]+)\s+([0-9]+)\s+([0-9]+):([0-9]+):([0-9]+)\s+([0-9]+)/ );
+									var month = RegExp.$1;
+									var day   = RegExp.$2;
+									var hour  = RegExp.$3;
+									var min   = RegExp.$4;
+									var sec   = RegExp.$5;
+									var year  = RegExp.$6;
+
+									switch ( month )
+									{
+										case 'Jan': month =  1; break;
+										case 'Feb': month =  2; break;
+										case 'Mar': month =  3; break;
+										case 'Apr': month =  4; break;
+										case 'May': month =  5; break;
+										case 'Jun': month =  6; break;
+										case 'Jul': month =  7; break;
+										case 'Ago': month =  8; break;
+										case 'Sep': month =  9; break;
+										case 'Oct': month = 10; break;
+										case 'Nov': month = 11; break;
+										case 'Dec': month = 12; break;
+										default   : month =  1; break;
+									}
+
+									var timestamp = new Date ( year, month, day, hour, min, sec).getTime().toString();
+									timestamp = timestamp.replace ( /0{3}$/, "" );
+
+									content += '&packet_len' + j + '=' + len +
+									'&time' + j + '=' + timestamp +
+									'&packet' + j + '=' + escape ( json_element.packets[j] );
+								}
+									
+								content += '">save as pcap file</a>)';
+							}
+							
+							content += '</td><td>' +
+								json_element.from + '</td><td>' + json_element.to + '</td>' +
+								'<td>' + json_element.date + '</td></tr>';
+
+							if ( json_element.clusteredAlerts )
+							{
+								for ( var j=0; j < json_element.clusteredAlerts.length; j++ )
+								{
+									content +=
+										'<tr><td>' + json_element.clusteredAlerts[j].label;
+
+									if ( json_element.clusteredAlerts[j].packets )
+									{
+										content += ' (<a href="http://' + window.location.host + '/pcap.cgi?packets=' +
+												json_element.clusteredAlerts[j].packets.length;
+												
+										for ( var k=0; k < json_element.clusteredAlerts[j].packets.length; k++ )
+										{
+											var unescaped = unescape ( json_element.clusteredAlerts[j].packets[k] );
+											unescaped.match ( /(=+)/ );
+											var pad = RegExp.$1;
+											var len = parseInt ( json_element.clusteredAlerts[j].packets[k].length * 3 / 4 ) - pad.length;
+											json_element.clusteredAlerts[j].date.match ( /[a-zA-Z]+\s+([a-zA-Z]+)\s+([0-9]+)\s+([0-9]+):([0-9]+):([0-9]+)\s+([0-9]+)/ );
+											var month = RegExp.$1;
+											var day   = RegExp.$2;
+											var hour  = RegExp.$3;
+											var min   = RegExp.$4;
+											var sec   = RegExp.$5;
+											var year  = RegExp.$6;
+
+											switch ( month )
+											{
+												case 'Jan': month =  1; break;
+												case 'Feb': month =  2; break;
+												case 'Mar': month =  3; break;
+												case 'Apr': month =  4; break;
+												case 'May': month =  5; break;
+												case 'Jun': month =  6; break;
+												case 'Jul': month =  7; break;
+												case 'Ago': month =  8; break;
+												case 'Sep': month =  9; break;
+												case 'Oct': month = 10; break;
+												case 'Nov': month = 11; break;
+												case 'Dec': month = 12; break;
+												default   : month =  1; break;
+											}
+
+											var timestamp = new Date ( year, month, day, hour, min, sec).getTime().toString();
+											timestamp = timestamp.replace ( /0{3}$/, "" );
+
+											content += '&packet_len' + k + '=' + len +
+												'&time' + k + '=' + timestamp +
+												'&packet' + k + '=' + escape ( json_element.clusteredAlerts[j].packets[k] );
+										}
+
+										content += '">save as pcap file</a>)';
+									}
+									
+									content += '</td>' +
+										'<td>' + json_element.clusteredAlerts[j].from + '</td>' +
+										'<td>' + json_element.clusteredAlerts[j].to + '</td>' +
+										'<td>' + json_element.clusteredAlerts[j].date + '</td></tr>';
+								}
+							}
+
+							content += '</table>';
+							div.innerHTML = content;
+						}
+					};
+				}
+			}
 		}
 	};
 
@@ -78,8 +260,11 @@ window.onload = function() {
     </script>
 </head>
 <body>
-<div id="canvas" style="border: 1px"></div>
-<button id="redraw" onclick="redraw();">redraw</button>
+<div id="canvas" style="border: 1px solid #000"></div>
+<button id="redraw" onclick="redraw();">Redraw</button>
+<div id="popupAlert"></div>
+<div id="alertInfo"></div>
+
 </body>
 </html>
 

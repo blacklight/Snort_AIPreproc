@@ -463,7 +463,7 @@ AI_file_alertparser_thread ( void* arg )
  * \return A copy of the alert log linked list
  */
 PRIVATE AI_snort_alert*
-_AI_copy_alerts ( AI_snort_alert *node )
+__AI_copy_alerts ( AI_snort_alert *node )
 {
 	AI_snort_alert *current = NULL, *next = NULL;
 
@@ -474,7 +474,7 @@ _AI_copy_alerts ( AI_snort_alert *node )
 
 	if ( node->next )
 	{
-		next = _AI_copy_alerts ( node->next );
+		next = __AI_copy_alerts ( node->next );
 	}
 
 	if ( !( current = ( AI_snort_alert* ) malloc ( sizeof ( AI_snort_alert )) ))
@@ -485,7 +485,7 @@ _AI_copy_alerts ( AI_snort_alert *node )
 	memcpy ( current, node, sizeof ( AI_snort_alert ));
 	current->next = next;
 	return current;
-}		/* -----  end of function _AI_copy_alerts  ----- */
+}		/* -----  end of function __AI_copy_alerts  ----- */
 
 
 /**
@@ -498,7 +498,7 @@ AI_get_alerts ()
 	AI_snort_alert *alerts_copy;
 
 	pthread_mutex_lock ( &alert_mutex );
-	alerts_copy = _AI_copy_alerts ( alerts );
+	alerts_copy = __AI_copy_alerts ( alerts );
 	pthread_mutex_unlock ( &alert_mutex );
 
 	return alerts_copy;

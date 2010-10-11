@@ -61,7 +61,7 @@ PRIVATE pthread_mutex_t  mutex;
  */
 
 PRIVATE int
-_heuristic_func ( cluster_type type )
+__AI_heuristic_func ( cluster_type type )
 {
 	AI_snort_alert  *alert_iterator;
 	attribute_key   key;
@@ -119,7 +119,7 @@ _heuristic_func ( cluster_type type )
 	}
 
 	return max;
-}		/* -----  end of function _heuristic_func  ----- */
+}		/* -----  end of function __AI_heuristic_func  ----- */
 
 /**
  * \brief  Create a new clustering hierarchy node
@@ -130,7 +130,7 @@ _heuristic_func ( cluster_type type )
  */
 
 PRIVATE hierarchy_node*
-_hierarchy_node_new ( char *label, int min_val, int max_val )
+__AI_hierarchy_node_new ( char *label, int min_val, int max_val )
 {
 	hierarchy_node *n = NULL;
 
@@ -147,7 +147,7 @@ _hierarchy_node_new ( char *label, int min_val, int max_val )
 	strncpy ( n->label, label, sizeof ( n->label ));
 
 	return n;
-}		/* -----  end of function _hierarchy_node_new  ----- */
+}		/* -----  end of function __AI_hierarchy_node_new  ----- */
 
 
 /**
@@ -157,7 +157,7 @@ _hierarchy_node_new ( char *label, int min_val, int max_val )
  */
 
 PRIVATE void
-_hierarchy_node_append ( hierarchy_node *parent, hierarchy_node *child )
+__AI_hierarchy_node_append ( hierarchy_node *parent, hierarchy_node *child )
 {
 	if ( !( parent->children = ( hierarchy_node** ) realloc ( parent->children, (++(parent->nchildren)) * sizeof ( hierarchy_node* )) ))
 	{
@@ -166,7 +166,7 @@ _hierarchy_node_append ( hierarchy_node *parent, hierarchy_node *child )
 
 	parent->children[ parent->nchildren - 1 ] = child;
 	child->parent = parent;
-}		/* -----  end of function _hierarchy_node_append  ----- */
+}		/* -----  end of function __AI_hierarchy_node_append  ----- */
 
 
 /**
@@ -176,7 +176,7 @@ _hierarchy_node_append ( hierarchy_node *parent, hierarchy_node *child )
  * \return The minimum node that matches the value if any, NULL otherwise
  */
 PRIVATE hierarchy_node*
-_AI_get_min_hierarchy_node ( int val, hierarchy_node *root )
+__AI_get_min_hierarchy_node ( int val, hierarchy_node *root )
 {
 	int i;
 	hierarchy_node *next = NULL;
@@ -202,8 +202,8 @@ _AI_get_min_hierarchy_node ( int val, hierarchy_node *root )
 	if ( !next )
 		return root;
 	
-	return _AI_get_min_hierarchy_node ( val, next );
-}		/* -----  end of function _AI_get_min_hierarchy_node  ----- */
+	return __AI_get_min_hierarchy_node ( val, next );
+}		/* -----  end of function __AI_get_min_hierarchy_node  ----- */
 
 /**
  * \brief  Check if two alerts are semantically equal
@@ -213,7 +213,7 @@ _AI_get_min_hierarchy_node ( int val, hierarchy_node *root )
  */
 
 PRIVATE BOOL
-_AI_equal_alerts ( AI_snort_alert *a1, AI_snort_alert *a2 )
+__AI_equal_alerts ( AI_snort_alert *a1, AI_snort_alert *a2 )
 {
 	if ( a1->gid != a2->gid || a1->sid != a2->sid || a1->rev != a2->rev )
 	{
@@ -249,7 +249,7 @@ _AI_equal_alerts ( AI_snort_alert *a1, AI_snort_alert *a2 )
 	}
 
 	return true;
-}		/* -----  end of function _AI_equal_alerts  ----- */
+}		/* -----  end of function __AI_equal_alerts  ----- */
 
 
 /**
@@ -259,7 +259,7 @@ _AI_equal_alerts ( AI_snort_alert *a1, AI_snort_alert *a2 )
  */
 
 PRIVATE int
-_AI_merge_alerts ( AI_snort_alert **log )
+__AI_merge_alerts ( AI_snort_alert **log )
 {
 	AI_snort_alert *tmp, *tmp2, *tmp3;
 	AI_alerts_couple *alerts_couple;
@@ -279,7 +279,7 @@ _AI_merge_alerts ( AI_snort_alert **log )
 					if ( tmp != tmp2->next )
 					{
 						/* If the two alerts are equal... */
-						if ( _AI_equal_alerts ( tmp, tmp2->next ))
+						if ( __AI_equal_alerts ( tmp, tmp2->next ))
 						{
 							/* If we are storing the outputs of the module to a database, save the cluster containing the two alerts */
 							if ( config->outdbtype != outdb_none )
@@ -321,7 +321,7 @@ _AI_merge_alerts ( AI_snort_alert **log )
 	}
 
 	return count;
-}		/* -----  end of function _AI_merge_alerts  ----- */
+}		/* -----  end of function __AI_merge_alerts  ----- */
 
 /**
  * \brief  Get the average heterogeneity coefficient of the set of alerts
@@ -329,7 +329,7 @@ _AI_merge_alerts ( AI_snort_alert **log )
  */
 
 double
-_AI_get_alerts_heterogeneity ( int *alert_count )
+__AI_get_alerts_heterogeneity ( int *alert_count )
 {
 	double       heterogeneity  = 0.0;
 	int          distinct_count = 0;
@@ -379,7 +379,7 @@ _AI_get_alerts_heterogeneity ( int *alert_count )
 	}
 
 	return heterogeneity;
-}		/* -----  end of function _AI_get_alerts_heterogeneity  ----- */
+}		/* -----  end of function __AI_get_alerts_heterogeneity  ----- */
 
 /**
  * \brief  Print the clustered alerts to a log file
@@ -388,7 +388,7 @@ _AI_get_alerts_heterogeneity ( int *alert_count )
  */
 
 PRIVATE void
-_AI_print_clustered_alerts ( AI_snort_alert *log, FILE *fp )
+__AI_print_clustered_alerts ( AI_snort_alert *log, FILE *fp )
 {
 	AI_snort_alert *tmp;
 	char ip[INET_ADDRSTRLEN];
@@ -440,14 +440,14 @@ _AI_print_clustered_alerts ( AI_snort_alert *log, FILE *fp )
 
 		fprintf ( fp, "\n" );
 	}
-}		/* -----  end of function _AI_print_clustered_alerts  ----- */
+}		/* -----  end of function __AI_print_clustered_alerts  ----- */
 
 
 /**
  * \brief  Thread for periodically clustering the log information
  */
 PRIVATE void*
-_AI_cluster_thread ( void* arg )
+__AI_cluster_thread ( void* arg )
 {
 	AI_snort_alert *tmp;
 	hierarchy_node *node, *child;
@@ -523,14 +523,14 @@ _AI_cluster_thread ( void* arg )
 							return (void*) 0;
 					}
 
-					node = _AI_get_min_hierarchy_node ( hostval, h_root[type] );
+					node = __AI_get_min_hierarchy_node ( hostval, h_root[type] );
 
 					if ( node )
 					{
 						if ( node->min_val < node->max_val )
 						{
-							child = _hierarchy_node_new ( label, hostval, hostval);
-							_hierarchy_node_append ( node, child );
+							child = __AI_hierarchy_node_new ( label, hostval, hostval);
+							__AI_hierarchy_node_append ( node, child );
 							node = child;
 						}
 
@@ -540,8 +540,8 @@ _AI_cluster_thread ( void* arg )
 			}
 		}
 
-		alert_count -= _AI_merge_alerts ( &alert_log );
-		heterogeneity = _AI_get_alerts_heterogeneity( &single_alerts_count );
+		alert_count -= __AI_merge_alerts ( &alert_log );
+		heterogeneity = __AI_get_alerts_heterogeneity ( &single_alerts_count );
 
 		/* Get the minimum size for the clusters in function of the heterogeneity of alerts' set */
 		if ( heterogeneity > 0 )
@@ -560,7 +560,7 @@ _AI_cluster_thread ( void* arg )
 			{
 				if ( type != none && h_root[type] )
 				{
-					if (( heuristic_val = _heuristic_func ( type )) > 0 && heuristic_val < minval )
+					if (( heuristic_val = __AI_heuristic_func ( type )) > 0 && heuristic_val < minval )
 					{
 						minval = heuristic_val;
 						best_type = type;
@@ -580,7 +580,7 @@ _AI_cluster_thread ( void* arg )
 				}
 			}
 
-			alert_count -= _AI_merge_alerts ( &alert_log );
+			alert_count -= __AI_merge_alerts ( &alert_log );
 		} while ( old_alert_count != alert_count );
 
 		pthread_mutex_unlock ( &mutex );
@@ -591,7 +591,7 @@ _AI_cluster_thread ( void* arg )
 			return (void*) 0;
 		}
 
-		_AI_print_clustered_alerts ( alert_log, cluster_fp );
+		__AI_print_clustered_alerts ( alert_log, cluster_fp );
 		fclose ( cluster_fp );
 	}
 
@@ -608,7 +608,7 @@ _AI_cluster_thread ( void* arg )
  */
 
 PRIVATE BOOL
-_AI_check_duplicate ( hierarchy_node *node, hierarchy_node *root )
+__AI_check_duplicate ( hierarchy_node *node, hierarchy_node *root )
 {
 	int i;
 	
@@ -620,7 +620,7 @@ _AI_check_duplicate ( hierarchy_node *node, hierarchy_node *root )
 
 	for ( i=0; i < root->nchildren; i++ )
 	{
-		if ( _AI_check_duplicate ( node, root->children[i] ))
+		if ( __AI_check_duplicate ( node, root->children[i] ))
 			return true;
 	}
 
@@ -650,7 +650,7 @@ AI_hierarchies_build ( hierarchy_node **nodes, int n_nodes )
 			case src_port:
 			case dst_port:
 				if ( !h_root[ nodes[i]->type ] )
-					h_root[ nodes[i]->type ] = _hierarchy_node_new ( "1-65535", 1, 65535 );
+					h_root[ nodes[i]->type ] = __AI_hierarchy_node_new ( "1-65535", 1, 65535 );
 
 				min_range = 65534;
 				break;
@@ -658,7 +658,7 @@ AI_hierarchies_build ( hierarchy_node **nodes, int n_nodes )
 			case src_addr:
 			case dst_addr:
 				if ( !h_root[ nodes[i]->type ] )
-					h_root[ nodes[i]->type ] = _hierarchy_node_new ( "0.0.0.0/0", 0x0, 0xffffffff );
+					h_root[ nodes[i]->type ] = __AI_hierarchy_node_new ( "0.0.0.0/0", 0x0, 0xffffffff );
 				
 				min_range = 0xffffffff;
 				break;
@@ -671,7 +671,7 @@ AI_hierarchies_build ( hierarchy_node **nodes, int n_nodes )
 		root = h_root[ nodes[i]->type ];
 		cover = NULL;
 
-		if ( _AI_check_duplicate ( nodes[i], root ))
+		if ( __AI_check_duplicate ( nodes[i], root ))
 		{
 			AI_fatal_err ( "Parse error: duplicate cluster range in module configuration", __FILE__, __LINE__ );
 		}
@@ -696,17 +696,17 @@ AI_hierarchies_build ( hierarchy_node **nodes, int n_nodes )
 
 		if ( cover )
 		{
-			_hierarchy_node_append ( cover, nodes[i] );
+			__AI_hierarchy_node_append ( cover, nodes[i] );
 		} else {
 			if ( (unsigned) nodes[i]->min_val >= (unsigned) root->min_val && (unsigned) nodes[i]->max_val <= (unsigned) root->max_val &&
 					( (unsigned) nodes[i]->min_val != (unsigned) root->min_val || (unsigned) nodes[i]->max_val != (unsigned) root->max_val ))
 			{
-				_hierarchy_node_append ( root, nodes[i] );
+				__AI_hierarchy_node_append ( root, nodes[i] );
 			}
 		}
 	}
 
-	if ( pthread_create ( &cluster_thread, NULL, _AI_cluster_thread, NULL ) != 0 )
+	if ( pthread_create ( &cluster_thread, NULL, __AI_cluster_thread, NULL ) != 0 )
 	{
 		AI_fatal_err ( "Failed to create the hash cleanup thread", __FILE__, __LINE__  );
 	}
@@ -719,7 +719,7 @@ AI_hierarchies_build ( hierarchy_node **nodes, int n_nodes )
  */
 
 PRIVATE AI_snort_alert*
-_AI_copy_clustered_alerts ( AI_snort_alert *node )
+__AI_copy_clustered_alerts ( AI_snort_alert *node )
 {
 	AI_snort_alert *current = NULL, *next = NULL;
 
@@ -730,7 +730,7 @@ _AI_copy_clustered_alerts ( AI_snort_alert *node )
 
 	if ( node->next )
 	{
-		next = _AI_copy_clustered_alerts ( node->next );
+		next = __AI_copy_clustered_alerts ( node->next );
 	}
 
 	if ( !( current = ( AI_snort_alert* ) malloc ( sizeof ( AI_snort_alert )) ))
@@ -741,7 +741,7 @@ _AI_copy_clustered_alerts ( AI_snort_alert *node )
 	memcpy ( current, node, sizeof ( AI_snort_alert ));
 	current->next = next;
 	return current;
-}		/* -----  end of function _AI_copy_clustered_alerts  ----- */
+}		/* -----  end of function __AI_copy_clustered_alerts  ----- */
 
 
 /**
@@ -755,7 +755,7 @@ AI_get_clustered_alerts ()
 	AI_snort_alert *alerts_copy;
 
 	pthread_mutex_lock ( &mutex );
-	alerts_copy = _AI_copy_clustered_alerts ( alert_log );
+	alerts_copy = __AI_copy_clustered_alerts ( alert_log );
 	pthread_mutex_unlock ( &mutex );
 
 	return alerts_copy;

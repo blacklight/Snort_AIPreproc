@@ -40,7 +40,7 @@ PRIVATE pthread_mutex_t hash_mutex = PTHREAD_MUTEX_INITIALIZER;
  */
 
 PRIVATE void
-_AI_stream_free ( struct pkt_info* stream )
+__AI_stream_free ( struct pkt_info* stream )
 {
 	struct pkt_info *tmp = NULL;
 	char ip [ INET_ADDRSTRLEN ];
@@ -85,7 +85,7 @@ _AI_stream_free ( struct pkt_info* stream )
 	}
 
 	stream = NULL;
-} 		/* -----  end of function _AI_stream_free  ----- */
+} 		/* -----  end of function __AI_stream_free  ----- */
 
 
 /**
@@ -131,7 +131,7 @@ AI_hashcleanup_thread ( void* arg )
 					 * I won't find an answer to these enigmatic questions, I will leave
 					 * this code commented, so if a certain stream goes timeout it won't
 					 * be removed. I'm sorry but it's not my fault. Ask the karma about this */
-					/* _AI_stream_free ( stream ); */
+					/* __AI_stream_free ( stream ); */
 				}
 			}
 		}
@@ -199,7 +199,7 @@ AI_pkt_enqueue ( SFSnortPacket* pkt )
 
 			if ( found )  {
 				if ( !found->observed )  {
-					_AI_stream_free ( found );
+					__AI_stream_free ( found );
 				}
 			}
 		} else {
@@ -233,7 +233,7 @@ AI_pkt_enqueue ( SFSnortPacket* pkt )
 
 					if ( found )  {
 						if ( !found->observed )  {
-							_AI_stream_free ( found );
+							__AI_stream_free ( found );
 						}
 					}
 				}

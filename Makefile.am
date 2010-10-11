@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS=foreign no-dependencies
 
 libdir = ${exec_prefix}/lib/snort_dynamicpreprocessor
 lib_LTLIBRARIES = libsf_ai_preproc.la
-libsf_ai_preproc_la_CFLAGS   = -I./uthash -I./include ${LIBXML2_INCLUDES} ${LIBGRAPH_INCLUDES} -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -pedantic -pedantic-errors -std=c99 -fstack-protector
+libsf_ai_preproc_la_CFLAGS   = -I./uthash -I./base64 -I./include ${LIBXML2_INCLUDES} ${LIBGRAPH_INCLUDES} -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -pedantic -pedantic-errors -std=c99 -fstack-protector
 libsf_ai_preproc_la_LDFLAGS  = -module -export-dynamic
 
 BUILT_SOURCES = \
@@ -18,6 +18,9 @@ include/sfPolicyUserData.c
 libsf_ai_preproc_la_SOURCES = \
 alert_history.c \
 alert_parser.c \
+base64/base64.c \
+base64/cdecode.c \
+base64/cencode.c \
 bayesian.c \
 cluster.c \
 correlation.c \
@@ -54,10 +57,10 @@ install-data-hook:
 	mkdir -p "${SHARE_PREFIX}/htdocs"
 	mkdir -p "${SHARE_PREFIX}/htdocs/js"
 	install -m 0644 "${PWD}/htdocs/index.html" "${SHARE_PREFIX}/htdocs"
-	install -m 0755 "${PWD}/htdocs/test.cgi" "${SHARE_PREFIX}/htdocs"
+	install -m 0755 "${PWD}/htdocs/pcap.cgi" "${SHARE_PREFIX}/htdocs"
 	install -m 0644 "${PWD}/htdocs/js/Curry-1.0.1.js" "${SHARE_PREFIX}/htdocs/js"
 	install -m 0644 "${PWD}/htdocs/js/dracula_algorithms.js" "${SHARE_PREFIX}/htdocs/js"
 	install -m 0644 "${PWD}/htdocs/js/dracula_graffle.js" "${SHARE_PREFIX}/htdocs/js"
 	install -m 0644 "${PWD}/htdocs/js/dracula_graph.js" "${SHARE_PREFIX}/htdocs/js"
-	install -m 0644 "${PWD}/htdocs/js/raphael-min.js" "${SHARE_PREFIX}/htdocs/js"
+	install -m 0644 "${PWD}/htdocs/js/raphael.js" "${SHARE_PREFIX}/htdocs/js"
 	install -m 0644 "${PWD}/htdocs/js/seedrandom.js" "${SHARE_PREFIX}/htdocs/js"

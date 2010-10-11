@@ -239,16 +239,25 @@ AI_store_alert_to_db_thread ( void *arg )
 		for ( pkt = alert->stream; pkt; pkt = pkt->next )
 		{
 			pkt_data = NULL;
-			pkt_size = pkt->pkt->pcap_cap_len;
+
+			if ( !pkt->pkt->ip4_header )
+			{
+				pkt_size = pkt->pkt->pcap_header->len +
+					pkt->pkt->tcp_options_length +
+					pkt->pkt->payload_size;
+			} else {
+				pkt_size = pkt->pkt->ip4_header->data_length;
+			}
+
 			pkt_size_offset = 0;
 
-			if ( !( pkt_data = (unsigned char*) alloca ( 2 * (pkt->pkt->pcap_header->len + pkt->pkt->payload_size) + 1 )))
+			if ( !( pkt_data = (unsigned char*) alloca ( 2 * ( pkt_size ) + 1 )))
 				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 			DB_out_escape_string (
 					(char**) &pkt_data,
 					(const char*) pkt->pkt->pkt_data,
-					pkt->pkt->pcap_header->len + pkt->pkt->payload_size );
+					pkt_size );
 
 			memset ( query, 0, sizeof ( query ));
 

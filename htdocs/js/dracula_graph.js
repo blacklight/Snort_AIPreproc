@@ -208,7 +208,9 @@ Graph.Renderer.Raphael.prototype = {
         } else {
             var color = Raphael.getColor();
             shape = this.r.set().
-                push(this.r.ellipse(point[0], point[1], 30, 20).attr({fill: color, stroke: color, "stroke-width": 2})).
+                push(this.r.ellipse(point[0], point[1], 30, 20).attr({fill: color, stroke: color, "stroke-width": 2, 
+						 /* Added by BlackLight */
+						 "id": "alert" + node.id})).
                 push(this.r.text(point[0], point[1] + 30, node.label || node.id));
         }
         shape.attr({"fill-opacity": .6});
