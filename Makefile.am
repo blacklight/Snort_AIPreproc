@@ -47,15 +47,14 @@ doc:
 	doxygen; \
 fi
 
-doc-install:
-	if test ! -z "${DOC_PREFIX}"; then \
-	mkdir -p "${DOC_PREFIX}"; \
-	cp -r doc/* "${DOC_PREFIX}"; \
-fi
-
 install-data-hook:
+	if test ! -z "${PWD}/doc"; then \
+	mkdir -p "${SHARE_PREFIX}/doc"; \
+	cp -r "${PWD}/doc/"* "${SHARE_PREFIX}/doc"; \
+fi
 	mkdir -p "${SHARE_PREFIX}/htdocs"
 	mkdir -p "${SHARE_PREFIX}/htdocs/js"
+	mkdir -p "${SHARE_PREFIX}/schemas"
 	install -m 0644 "${PWD}/htdocs/index.html" "${SHARE_PREFIX}/htdocs"
 	install -m 0755 "${PWD}/htdocs/pcap.cgi" "${SHARE_PREFIX}/htdocs"
 	install -m 0644 "${PWD}/htdocs/js/Curry-1.0.1.js" "${SHARE_PREFIX}/htdocs/js"
@@ -64,3 +63,6 @@ install-data-hook:
 	install -m 0644 "${PWD}/htdocs/js/dracula_graph.js" "${SHARE_PREFIX}/htdocs/js"
 	install -m 0644 "${PWD}/htdocs/js/raphael.js" "${SHARE_PREFIX}/htdocs/js"
 	install -m 0644 "${PWD}/htdocs/js/seedrandom.js" "${SHARE_PREFIX}/htdocs/js"
+	install -m 0644 "${PWD}/schemas/mysql.sql" "${SHARE_PREFIX}/schemas"
+	install -m 0644 "${PWD}/schemas/postgresql.sql" "${SHARE_PREFIX}/schemas"
+	install -m 0644 "${PWD}/schemas/database_ER.png" "${SHARE_PREFIX}/schemas"

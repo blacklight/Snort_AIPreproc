@@ -6,9 +6,9 @@ AVERAGE/HIGH PRIORITY:
 - Modules for correlation coefficients
 - Code profiling
 - Comment all the code!!!
-- Saving packet flows as .pcap
 - Neural network for computing k
 - Testing more scenarios, making more hyperalert models
+- Manual alert correlation from the web interface
 
 =============
 LOW PRIORITY:
@@ -36,4 +36,5 @@ DONE:
 + Full PostgreSQL support for output db
 + Web interface
 + Function names (private functions with _ or __ ?)
++ Saving packet flows as .pcap
 
