@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE correlations[
+	<!ELEMENT correlations 	(correlation)*>
+	<!ELEMENT correlation 	(from, to)>
+
+	<!ATTLIST from
+		sid 	CDATA 		#REQUIRED
+		gid 	CDATA 		#REQUIRED
+		rev 	CDATA 		#REQUIRED
+	>
+
+	<!ATTLIST to
+		sid 	CDATA 		#REQUIRED
+		gid 	CDATA 		#REQUIRED
+		rev 	CDATA 		#REQUIRED
+	>
+]>
+

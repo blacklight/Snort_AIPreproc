@@ -2,13 +2,14 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
+- XML::Simple dependancy
+- Manual alert correlation from the web interface
 - Bayesian network
 - Modules for correlation coefficients
 - Code profiling
 - Comment all the code!!!
 - Neural network for computing k
 - Testing more scenarios, making more hyperalert models
-- Manual alert correlation from the web interface
 
 =============
 LOW PRIORITY:

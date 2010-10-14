@@ -347,20 +347,20 @@ AI_file_alertparser_thread ( void* arg )
 			} else if ( preg_match ( "^([0-9]{2})/([0-9]{2})-([0-9]{2}):([0-9]{2}):([0-9]{2})\\.[0-9]+\\s+([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}):([0-9]{1,5})\\s*"
 						"->\\s*([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}):([0-9]{1,5})",
 						line, &matches, &nmatches ) > 0 ) {
-				stamp = time(NULL);
+				stamp = time (NULL);
 				_tm = localtime ( &stamp );
 
 				ltime.year  = (unsigned short) _tm->tm_year + 1900;
-				ltime.day   = (unsigned short) strtoul ( matches[0], NULL, 10 );
-				ltime.month = (unsigned short) strtoul ( matches[1], NULL, 10 );
+				ltime.day   = (unsigned short) strtoul ( matches[1], NULL, 10 );
+				ltime.month = (unsigned short) strtoul ( matches[0], NULL, 10 );
 				ltime.hour  = (unsigned short) strtoul ( matches[2], NULL, 10 );
 				ltime.min   = (unsigned short) strtoul ( matches[3], NULL, 10 );
 				ltime.sec   = (unsigned short) strtoul ( matches[4], NULL, 10 );
 
 				snprintf ( strtime, sizeof(strtime), "%02hu/%02hu/%04hu, %02hu:%02hu:%02hu",
-					ltime.day, ltime.month, ltime.year, ltime.hour, ltime.min, ltime.sec );
+					ltime.month, ltime.day, ltime.year, ltime.hour, ltime.min, ltime.sec );
 
-				strptime ( strtime, "%d/%m/%Y, %H:%M:%S", _tm );
+				strptime ( strtime, "%m/%d/%Y, %H:%M:%S", _tm );
 				alert->timestamp = mktime ( _tm );
 
 				alert->ip_src_addr  = inet_addr ( matches[5] );
@@ -376,20 +376,20 @@ AI_file_alertparser_thread ( void* arg )
 			} else if ( preg_match ( "^([0-9]{2})/([0-9]{2})-([0-9]{2}):([0-9]{2}):([0-9]{2})\\.[0-9]+\\s+([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})\\s*"
 						"->\\s*([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})",
 						line, &matches, &nmatches ) > 0 ) {
-				stamp = time(NULL);
+				stamp = time (NULL);
 				_tm = localtime ( &stamp );
 
 				ltime.year  = (unsigned short) _tm->tm_year + 1900;
-				ltime.day   = (unsigned short) strtoul ( matches[0], NULL, 10 );
-				ltime.month = (unsigned short) strtoul ( matches[1], NULL, 10 );
+				ltime.day   = (unsigned short) strtoul ( matches[1], NULL, 10 );
+				ltime.month = (unsigned short) strtoul ( matches[0], NULL, 10 );
 				ltime.hour  = (unsigned short) strtoul ( matches[2], NULL, 10 );
 				ltime.min   = (unsigned short) strtoul ( matches[3], NULL, 10 );
 				ltime.sec   = (unsigned short) strtoul ( matches[4], NULL, 10 );
 
 				snprintf ( strtime, sizeof(strtime), "%02hu/%02hu/%04hu, %02hu:%02hu:%02hu",
-					ltime.day, ltime.month, ltime.year, ltime.hour, ltime.min, ltime.sec );
+					ltime.month, ltime.day, ltime.year, ltime.hour, ltime.min, ltime.sec );
 
-				strptime ( strtime, "%d/%m/%Y, %H:%M:%S", _tm );
+				strptime ( strtime, "%m/%d/%Y, %H:%M:%S", _tm );
 				alert->timestamp = mktime ( _tm );
 
 				alert->ip_src_addr = inet_addr ( matches[5] );

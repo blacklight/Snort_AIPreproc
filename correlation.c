@@ -41,12 +41,32 @@
 #error 	"libxml2 reader not enabled\n"
 #endif
 
-/** Enumeration for the types of XML tags */
-enum  { inHyperAlert, inSnortIdTag, inPreTag, inPostTag, TAG_NUM };
+/** Enumeration for the types of hyperalert XML tags */
+enum  { inHyperAlert, inSnortIdTag, inPreTag, inPostTag, HYP_TAG_NUM };
 
-PRIVATE AI_hyperalert_info       *hyperalerts       = NULL;
-PRIVATE AI_snort_alert           *alerts            = NULL;
-PRIVATE AI_alert_correlation     *correlation_table = NULL;
+/** Enumeration for the types of manual correlations XML tags */
+enum  { inCorrelation, inCorrelations, inFromTag, inToTag, MAN_TAG_NUM };
+
+typedef struct  {
+	int from_gid;
+	int from_sid;
+	int from_rev;
+	int to_gid;
+	int to_sid;
+	int to_rev;
+} AI_alert_type_pair_key;
+
+typedef struct  {
+	AI_alert_type_pair_key   key;
+	enum  { manuallyNone, manuallyCorrelated, manuallyNotCorrelated } corr_type;
+	UT_hash_handle             hh;
+} AI_alert_type_pair;
+
+PRIVATE AI_hyperalert_info       *hyperalerts           = NULL;
+PRIVATE AI_snort_alert           *alerts                = NULL;
+PRIVATE AI_alert_correlation     *correlation_table     = NULL;
+PRIVATE AI_alert_type_pair       *manual_correlations   = NULL;
+PRIVATE AI_alert_type_pair       *manual_uncorrelations = NULL;
 PRIVATE pthread_mutex_t          mutex;
 
 /**
@@ -83,10 +103,8 @@ __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 		 dst_port1[10],
 		 src_port2[10],
 		 dst_port2[10],
-		 timestamp1[40],
-		 timestamp2[40];
-
-	struct tm *t1, *t2;
+		 *timestamp1,
+		 *timestamp2;
 
 	if ( !corr )
 		return;
@@ -97,8 +115,8 @@ __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 	snprintf ( src_port1, sizeof ( src_port1 ), "%d", ntohs ( corr->key.a->tcp_src_port ));
 	snprintf ( dst_port1, sizeof ( dst_port1 ), "%d", ntohs ( corr->key.a->tcp_dst_port ));
 
-	t1 = localtime ( &(corr->key.a->timestamp ));
-	strftime ( timestamp1, sizeof ( timestamp1 ), "%a %b %d %Y, %H:%M:%S", t1 );
+	timestamp1 = ctime ( &(corr->key.a->timestamp ) );
+	timestamp1 [ strlen ( timestamp1 ) - 1 ] = 0;
 
 	inet_ntop ( AF_INET, &(corr->key.b->ip_src_addr), src_addr2, INET_ADDRSTRLEN );
 	inet_ntop ( AF_INET, &(corr->key.b->ip_dst_addr), dst_addr2, INET_ADDRSTRLEN );
@@ -106,8 +124,8 @@ __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 	snprintf ( src_port2, sizeof ( src_port2 ), "%d", ntohs ( corr->key.b->tcp_src_port ));
 	snprintf ( dst_port2, sizeof ( dst_port2 ), "%d", ntohs ( corr->key.b->tcp_dst_port ));
 
-	t2 = localtime ( &(corr->key.b->timestamp ));
-	strftime ( timestamp2, sizeof ( timestamp2 ), "%a %b %d %Y, %H:%M:%S", t2 );
+	timestamp2 = ctime ( &(corr->key.b->timestamp ) );
+	timestamp2 [ strlen ( timestamp2 ) - 1 ] = 0;
 
 	fprintf ( fp,
 		"\t\"[%d.%d.%d] %s\\n"
@@ -178,12 +196,18 @@ __AI_correlated_alerts_to_json ()
 
 		fprintf ( fp, "{\n"
 			"\t\"id\": %lu,\n"
+			"\t\"snortSID\": \"%u\",\n"
+			"\t\"snortGID\": \"%u\",\n"
+			"\t\"snortREV\": \"%u\",\n"
 			"\t\"label\": \"%s\",\n"
 			"\t\"date\": \"%s\",\n"
 			"\t\"clusteredAlertsCount\": %u,\n"
 			"\t\"from\": \"%s:%s\",\n"
 			"\t\"to\": \"%s:%s\"",
 			alert_iterator->alert_id,
+			alert_iterator->sid,
+			alert_iterator->gid,
+			alert_iterator->rev,
 			alert_iterator->desc,
 			strtime,
 			alert_iterator->grouped_alerts_count,
@@ -204,7 +228,7 @@ __AI_correlated_alerts_to_json ()
 					AI_fatal_err ( "Fatal dynamic memory allocation", __FILE__, __LINE__ );
 				}
 
-				memset ( encoded_pkt, 0, 4*pkt_len + 1  );
+				memset ( encoded_pkt, 0, 4*pkt_len + 1 );
 
 				base64_encode (
 					(const char*) pkt_iterator->pkt->pkt_data,
@@ -618,6 +642,348 @@ __AI_kb_correlation_coefficient ( AI_snort_alert *a, AI_snort_alert *b )
 
 
 /**
+ * \brief  Parse the manual specified correlations from XML file(s) and fills the hash table
+ */
+
+PRIVATE void*
+__AI_manual_correlations_parsing_thread ( void *arg )
+{
+	unsigned int            i = 0;
+	char                    manual_correlations_xml[1060]   = { 0 },
+					    manual_uncorrelations_xml[1060] = { 0 };
+	struct stat             st;
+	xmlTextReaderPtr        xml;
+	const xmlChar           *tagname;
+	AI_alert_type_pair_key  key;
+	AI_alert_type_pair      *pair  = NULL,
+					    *found = NULL;
+	BOOL                    xml_flags[MAN_TAG_NUM] = { false };
+
+	while ( 1 )
+	{
+		/* Cleanup tables */
+		while ( manual_correlations )
+		{
+			pair = manual_correlations;
+			HASH_DEL ( manual_correlations, pair );
+			free ( pair );
+		}
+
+		while ( manual_uncorrelations )
+		{
+			pair = manual_uncorrelations;
+			HASH_DEL ( manual_uncorrelations, pair );
+			free ( pair );
+		}
+
+		pair = NULL;
+		memset ( &key, 0, sizeof ( key ));
+
+		snprintf ( manual_correlations_xml,
+				sizeof ( manual_correlations_xml ),
+				"%s/manual_correlations.xml", config->webserv_dir );
+
+		snprintf ( manual_uncorrelations_xml,
+				sizeof ( manual_uncorrelations_xml ),
+				"%s/manual_uncorrelations.xml", config->webserv_dir );
+
+		if ( stat ( manual_correlations_xml, &st ) < 0 )
+		{
+			pthread_exit ((void*) 0);
+			return (void*) 0;
+		}
+
+		if ( stat ( manual_uncorrelations_xml, &st ) < 0 )
+		{
+			pthread_exit ((void*) 0);
+			return (void*) 0;
+		}
+
+		LIBXML_TEST_VERSION
+
+		/* Check manual correlations */
+		if ( !( xml = xmlReaderForFile ( manual_correlations_xml, NULL, 0 )))
+		{
+			pthread_exit ((void*) 0);
+			return (void*) 0;
+		}
+
+		while ( xmlTextReaderRead ( xml ))
+		{
+			if ( !( tagname = xmlTextReaderConstName ( xml )))
+				continue;
+
+			if ( xmlTextReaderNodeType ( xml ) == XML_READER_TYPE_ELEMENT )
+			{
+				if ( !strcasecmp ((const char*) tagname, "correlations" ))
+				{
+					if ( xml_flags[inCorrelations] )
+					{
+						AI_fatal_err ( "Tag 'correlations' opened twice in manual correlations XML file", __FILE__, __LINE__ );
+					} else {
+						xml_flags[inCorrelations] = true;
+					}
+				} else if ( !strcasecmp ((const char*) tagname, "correlation" )) {
+					if ( xml_flags[inCorrelation] )
+					{
+						AI_fatal_err ( "Tag 'correlation' opened twice in manual correlations XML file", __FILE__, __LINE__ );
+					} else {
+						xml_flags[inCorrelation] = true;
+					}
+				} else if ( !strcasecmp ((const char*) tagname, "from" )) {
+					xml_flags[inFromTag] = true;
+
+					key.from_gid = (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "gid" )) ?
+						strtol (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "gid" ), NULL, 10 ) : 0;
+					key.from_sid = (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "sid" )) ?
+						strtol (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "sid" ), NULL, 10 ) : 0;
+					key.from_rev = (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "rev" )) ?
+						strtol (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "rev" ), NULL, 10 ) : 0;
+
+					/* If this is a new pair, allocate the memory */
+					if ( pair == NULL )
+					{
+						if ( !( pair = ( AI_alert_type_pair* ) malloc ( sizeof ( AI_alert_type_pair ))))
+						{
+							AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+						}
+
+						pair->corr_type = manuallyCorrelated;
+					} else {
+						/* Otherwise, add the pair to the hash, if it's not already there */
+						pair->key = key;
+						HASH_FIND ( hh, manual_correlations, &key, sizeof ( key ), found );
+
+						if ( !found )
+						{
+							HASH_ADD ( hh, manual_correlations, key, sizeof ( key ), pair );
+						}
+
+						pair = NULL;
+						memset ( &key, 0, sizeof ( key ));
+					}
+				} else if ( !strcasecmp ((const char*) tagname, "to" )) {
+					xml_flags[inToTag] = true;
+
+					key.to_gid = (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "gid" )) ?
+						strtol (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "gid" ), NULL, 10 ) : 0;
+					key.to_sid = (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "sid" )) ?
+						strtol (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "sid" ), NULL, 10 ) : 0;
+					key.to_rev = (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "rev" )) ?
+						strtol (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "rev" ), NULL, 10 ) : 0;
+
+					/* If this is a new pair, allocate the memory */
+					if ( pair == NULL )
+					{
+						if ( !( pair = ( AI_alert_type_pair* ) malloc ( sizeof ( AI_alert_type_pair ))))
+						{
+							AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+						}
+
+						pair->corr_type = manuallyCorrelated;
+					} else {
+						/* Otherwise, add the pair to the hash, if it's not already there */
+						pair->key = key;
+						HASH_FIND ( hh, manual_correlations, &key, sizeof ( key ), found );
+
+						if ( !found )
+						{
+							HASH_ADD ( hh, manual_correlations, key, sizeof ( key ), pair );
+						}
+
+						pair = NULL;
+						memset ( &key, 0, sizeof ( key ));
+					}
+				} else {
+					AI_fatal_err ( "Unrecognized tag in manual correlations XML file", __FILE__, __LINE__ );
+				}
+			} else if ( xmlTextReaderNodeType ( xml ) == XML_READER_TYPE_END_ELEMENT ) {
+				if ( !strcasecmp ((const char*) tagname, "correlations" ))
+				{
+					if ( !xml_flags[inCorrelations] )
+					{
+						AI_fatal_err ( "Tag 'correlations' closed but never opened in manual correlations XML file", __FILE__, __LINE__ );
+					} else {
+						xml_flags[inCorrelations] = false;
+					}
+				} else if ( !strcasecmp ((const char*) tagname, "correlation" )) {
+					if ( !xml_flags[inCorrelation] )
+					{
+						AI_fatal_err ( "Tag 'correlation' closed but never opened in manual correlations XML file", __FILE__, __LINE__ );
+					} else {
+						xml_flags[inCorrelation] = false;
+					}
+				} else if ( !strcasecmp ((const char*) tagname, "from" )) {
+					if ( !xml_flags[inFromTag] )
+					{
+						AI_fatal_err ( "Tag 'from' closed but never opened in manual correlations XML file", __FILE__, __LINE__ );
+					} else {
+						xml_flags[inFromTag] = false;
+					}
+				} else if ( !strcasecmp ((const char*) tagname, "to" )) {
+					if ( !xml_flags[inToTag] )
+					{
+						AI_fatal_err ( "Tag 'to' closed but never opened in manual correlations XML file", __FILE__, __LINE__ );
+					} else {
+						xml_flags[inToTag] = false;
+					}
+				} else {
+					AI_fatal_err ( "Unrecognized tag in manual correlations XML file", __FILE__, __LINE__ );
+				}
+			}
+		}
+
+		xmlFreeTextReader ( xml );
+		xmlCleanupParser();
+
+		for ( i=0; i < MAN_TAG_NUM; i++ )
+		{
+			xml_flags[i] = false;
+		}
+
+		/* Check manual un-correlations */
+		if ( !( xml = xmlReaderForFile ( manual_uncorrelations_xml, NULL, 0 )))
+		{
+			pthread_exit ((void*) 0);
+			return (void*) 0;
+		}
+
+		while ( xmlTextReaderRead ( xml ))
+		{
+			if ( !( tagname = xmlTextReaderConstName ( xml )))
+				continue;
+
+			if ( xmlTextReaderNodeType ( xml ) == XML_READER_TYPE_ELEMENT )
+			{
+				if ( !strcasecmp ((const char*) tagname, "correlations" ))
+				{
+					if ( xml_flags[inCorrelations] )
+					{
+						AI_fatal_err ( "Tag 'correlations' opened twice in manual correlations XML file", __FILE__, __LINE__ );
+					} else {
+						xml_flags[inCorrelations] = true;
+					}
+				} else if ( !strcasecmp ((const char*) tagname, "correlation" )) {
+					if ( xml_flags[inCorrelation] )
+					{
+						AI_fatal_err ( "Tag 'correlation' opened twice in manual correlations XML file", __FILE__, __LINE__ );
+					} else {
+						xml_flags[inCorrelation] = true;
+					}
+				} else if ( !strcasecmp ((const char*) tagname, "from" )) {
+					xml_flags[inFromTag] = true;
+
+					key.from_gid = (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "gid" )) ?
+						strtol (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "gid" ), NULL, 10 ) : 0;
+					key.from_sid = (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "sid" )) ?
+						strtol (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "sid" ), NULL, 10 ) : 0;
+					key.from_rev = (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "rev" )) ?
+						strtol (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "rev" ), NULL, 10 ) : 0;
+
+					/* If this is a new pair, allocate the memory */
+					if ( pair == NULL )
+					{
+						if ( !( pair = ( AI_alert_type_pair* ) malloc ( sizeof ( AI_alert_type_pair ))))
+						{
+							AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+						}
+
+						pair->corr_type = manuallyNotCorrelated;
+					} else {
+						/* Otherwise, add the pair to the hash, if it's not already there */
+						pair->key = key;
+						HASH_FIND ( hh, manual_uncorrelations, &key, sizeof ( key ), found );
+
+						if ( !found )
+						{
+							HASH_ADD ( hh, manual_uncorrelations, key, sizeof ( key ), pair );
+						}
+
+						pair = NULL;
+						memset ( &key, 0, sizeof ( key ));
+					}
+				} else if ( !strcasecmp ((const char*) tagname, "to" )) {
+					xml_flags[inToTag] = true;
+
+					key.to_gid = (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "gid" )) ?
+						strtol (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "gid" ), NULL, 10 ) : 0;
+					key.to_sid = (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "sid" )) ?
+						strtol (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "sid" ), NULL, 10 ) : 0;
+					key.to_rev = (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "rev" )) ?
+						strtol (( const char* ) xmlTextReaderGetAttribute ( xml, (const xmlChar*) "rev" ), NULL, 10 ) : 0;
+
+					/* If this is a new pair, allocate the memory */
+					if ( pair == NULL )
+					{
+						if ( !( pair = ( AI_alert_type_pair* ) malloc ( sizeof ( AI_alert_type_pair ))))
+						{
+							AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+						}
+
+						pair->corr_type = manuallyNotCorrelated;
+					} else {
+						/* Otherwise, add the pair to the hash, if it's not already there */
+						pair->key = key;
+						HASH_FIND ( hh, manual_uncorrelations, &key, sizeof ( key ), found );
+
+						if ( !found )
+						{
+							HASH_ADD ( hh, manual_uncorrelations, key, sizeof ( key ), pair );
+						}
+
+						pair = NULL;
+						memset ( &key, 0, sizeof ( key ));
+					}
+				} else {
+					AI_fatal_err ( "Unrecognized tag in manual correlations XML file", __FILE__, __LINE__ );
+				}
+			} else if ( xmlTextReaderNodeType ( xml ) == XML_READER_TYPE_END_ELEMENT ) {
+				if ( !strcasecmp ((const char*) tagname, "correlations" ))
+				{
+					if ( !xml_flags[inCorrelations] )
+					{
+						AI_fatal_err ( "Tag 'correlations' closed but never opened in manual correlations XML file", __FILE__, __LINE__ );
+					} else {
+						xml_flags[inCorrelations] = false;
+					}
+				} else if ( !strcasecmp ((const char*) tagname, "correlation" )) {
+					if ( !xml_flags[inCorrelation] )
+					{
+						AI_fatal_err ( "Tag 'correlation' closed but never opened in manual correlations XML file", __FILE__, __LINE__ );
+					} else {
+						xml_flags[inCorrelation] = false;
+					}
+				} else if ( !strcasecmp ((const char*) tagname, "from" )) {
+					if ( !xml_flags[inFromTag] )
+					{
+						AI_fatal_err ( "Tag 'from' closed but never opened in manual correlations XML file", __FILE__, __LINE__ );
+					} else {
+						xml_flags[inFromTag] = false;
+					}
+				} else if ( !strcasecmp ((const char*) tagname, "to" )) {
+					if ( !xml_flags[inToTag] )
+					{
+						AI_fatal_err ( "Tag 'to' closed but never opened in manual correlations XML file", __FILE__, __LINE__ );
+					} else {
+						xml_flags[inToTag] = false;
+					}
+				} else {
+					AI_fatal_err ( "Unrecognized tag in manual correlations XML file", __FILE__, __LINE__ );
+				}
+			}
+		}
+
+		xmlFreeTextReader ( xml );
+		xmlCleanupParser();
+		sleep ( config->manualCorrelationsParsingInterval );
+	}
+
+	pthread_exit ((void*) 0);
+	return (void*) 0;
+}		/* -----  end of function __AI_manual_correlations_parsing_thread  ----- */
+
+
+/**
  * \brief  Substitute the macros in hyperalert pre-conditions and post-conditions with their associated values
  * \param  alert 	Reference to the hyperalert to work on
  */
@@ -719,7 +1085,7 @@ __AI_hyperalert_from_XML ( AI_hyperalert_key key )
 {
 	char                  hyperalert_file[1024] = {0};
 	char                  snort_id[1024]        = {0};
-	BOOL                  xmlFlags[TAG_NUM]     = { false };
+	BOOL                  xmlFlags[HYP_TAG_NUM]     = { false };
 	struct stat           st;
 	xmlTextReaderPtr      xml;
 	const xmlChar         *tagname, *tagvalue;
@@ -867,13 +1233,18 @@ AI_alert_correlation_thread ( void *arg )
 	AI_alert_correlation_key  corr_key;
 	AI_alert_correlation      *corr                 = NULL;
 
+	AI_alert_type_pair_key    pair_key;
+	AI_alert_type_pair        *pair                 = NULL,
+						 *unpair               = NULL;
+
 	AI_hyperalert_key         key;
 	AI_hyperalert_info        *hyp                  = NULL;
 
 	AI_snort_alert            *alert_iterator       = NULL,
 					      *alert_iterator2      = NULL;
 
-	pthread_t                 db_thread;
+	pthread_t                 db_thread,
+						 manual_corr_thread;
 
 	#ifdef                    HAVE_LIBGVC
 	char                      corr_png_file[4096]   = { 0 };
@@ -882,6 +1253,12 @@ AI_alert_correlation_thread ( void *arg )
 	#endif
 
 	pthread_mutex_init ( &mutex, NULL );
+
+	/* Start the thread for parsing manual correlations from XML */
+	if ( pthread_create ( &manual_corr_thread, NULL, __AI_manual_correlations_parsing_thread, NULL ) != 0 )
+	{
+		AI_fatal_err ( "Failed to create the manual correlations parsing thread", __FILE__, __LINE__ );
+	}
 
 	while ( 1 )
 	{
@@ -955,6 +1332,7 @@ AI_alert_correlation_thread ( void *arg )
 		__AI_correlation_table_cleanup();
 		correlation_table = NULL;
 
+		/* Fill the table of correlated alerts */
 		for ( alert_iterator = alerts; alert_iterator; alert_iterator = alert_iterator->next )
 		{
 			for ( alert_iterator2 = alerts; alert_iterator2; alert_iterator2 = alert_iterator2->next )
@@ -1026,12 +1404,23 @@ AI_alert_correlation_thread ( void *arg )
 			/* Find correlated alerts */
 			for ( corr = correlation_table; corr; corr = ( AI_alert_correlation* ) corr->hh.next )
 			{
-				if ( corr->correlation >= corr_threshold &&
+				pair_key.from_sid = corr->key.a->sid;
+				pair_key.from_gid = corr->key.a->gid;
+				pair_key.from_rev = corr->key.a->rev;
+				pair_key.to_sid = corr->key.b->sid;
+				pair_key.to_gid = corr->key.b->gid;
+				pair_key.to_rev = corr->key.b->rev;
+
+				HASH_FIND ( hh, manual_correlations, &pair_key, sizeof ( pair_key ), pair );
+				HASH_FIND ( hh, manual_uncorrelations, &pair_key, sizeof ( pair_key ), unpair );
+
+				if ( !unpair && ( pair || (
+						corr->correlation >= corr_threshold &&
 						corr_threshold != 0.0 &&
 						corr->key.a->timestamp <= corr->key.b->timestamp && ! (
 						corr->key.a->gid == corr->key.b->gid &&
 						corr->key.a->sid == corr->key.b->sid &&
-						corr->key.a->rev == corr->key.b->rev ))
+						corr->key.a->rev == corr->key.b->rev ))))
 				{
 					if ( !( corr->key.a->derived_alerts = ( AI_snort_alert** ) realloc ( corr->key.a->derived_alerts, (++corr->key.a->n_derived_alerts) * sizeof ( AI_snort_alert* ))))
 						AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );

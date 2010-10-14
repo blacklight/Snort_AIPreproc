@@ -1,19 +1,10 @@
 <html>
 <head>
 	<style rel="stylesheet" type="text/css">
-	#popupAlert  {
-		z-index : 100;
-		display : none;
-		position : absolute;
-		border : 1px solid #000;
-		background-color : #89ffa7;
-		color : #000;
-		opacity : 0.6;
-		padding : 5px;
-	}
-
 	#alertInfo  {
 		display : none;
+		font : Fixed;
+		font-size : 12px;
 		border  : 1px solid #888;
 		padding : 3px;
 		height  : 150px;
@@ -26,7 +17,18 @@
 	}
 
 	a  {
-		color : #22dd22;
+		color : #2d2;
+	}
+
+	button  {
+		background-color : #ddd;
+		color : #222;
+		font-size : 13px;
+		border : 1px dotted #888;
+	}
+
+	button:hover  {
+		background-color : #7fc;
 	}
 	</style>
 
@@ -37,11 +39,65 @@
 <!--
 
 redraw = null;
-width = 0;
+width  = 0;
 height = 0;
 layouter = null;
 renderer = null;
 json = [];
+
+inCorrelateFrom = false;
+inCorrelateTo   = false;
+correlationFrom = -1;
+correlationTo   = -1;
+correlationFromIndex = -1;
+correlationToIndex   = -1;
+
+inUncorrelateFrom = false;
+inUncorrelateTo   = false;
+uncorrelationFrom = -1;
+uncorrelationTo   = -1;
+uncorrelationFromIndex = -1;
+uncorrelationToIndex   = -1;
+
+function correlate()  {
+	var div = document.getElementById ( 'alertInfo' );
+	var button = document.getElementById ( 'correlate' );
+
+	if ( inCorrelateFrom || inCorrelateTo )
+	{
+		inCorrelateFrom = false;
+		div.style.backgroundColor = '#FFF';
+		div.style.display = 'none';
+		button.innerHTML = 'Manually correlate';
+	} else {
+		inCorrelateFrom = true;
+		inCorrelateTo   = false;
+		div.innerHTML = '<b>Click on the source alert of the correlation</b>';
+		div.style.backgroundColor = '#FF9';
+		div.style.display = 'block';
+		button.innerHTML = 'Cancel manual correlation';
+	}
+}
+
+function uncorrelate()  {
+	var div = document.getElementById ( 'alertInfo' );
+	var button = document.getElementById ( 'uncorrelate' );
+
+	if ( inUncorrelateFrom || inUncorrelateTo )
+	{
+		inUncorrelateFrom = false;
+		div.style.backgroundColor = '#FFF';
+		div.style.display = 'none';
+		button.innerHTML = 'Remove correlation';
+	} else {
+		inUncorrelateFrom = true;
+		inUncorrelateTo   = false;
+		div.innerHTML = '<b>Click on the source alert of the un-correlation</b>';
+		div.style.backgroundColor = '#FF9';
+		div.style.display = 'block';
+		button.innerHTML = 'Cancel un-correlation';
+	}
+}
 
 window.onload = function()  {
 	var req = new XMLHttpRequest();
@@ -116,17 +172,150 @@ window.onload = function()  {
 						{
 							var id = this.id.replace ( /^alert/, "" );
 							var json_element = null;
+							var index = -1;
 
 							for ( var i=0; i < json.length; i++ )
 							{
 								if ( json[i].id == id )
 								{
 									json_element = json[i];
+									index = i;
 									break;
 								}
 							}
 
-							div.style.display = 'block';
+							// Correlation stuff
+							if ( inCorrelateFrom )
+							{
+								inCorrelateFrom = false;
+								inCorrelateTo   = true;
+								correlationFrom = id;
+								correlationFromIndex = index;
+								div.innerHTML = "<b>Click on the destination alert of the correlation</b><br>\n" +
+									"From: <b>" + json_element.label + "</b>";
+								return;
+							} else if ( inCorrelateTo ) {
+								inCorrelateTo = false;
+								correlationTo = id;
+								correlationToIndex = index;
+
+								div.style.backgroundColor = '#FFF';
+								div.style.display = 'none';
+
+								// Check if this correlation is already there
+								for ( var j=0; j < connections.length; j++ )
+								{
+									if ( connections[j].from == correlationFrom &&
+											connections[j].to == correlationTo )
+									{
+										document.getElementById ( 'correlate' ).innerHTML = "Manually correlate";
+										return;
+									}
+								}
+
+								var from_sid = json[correlationFromIndex].snortSID;
+								var from_gid = json[correlationFromIndex].snortGID;
+								var from_rev = json[correlationFromIndex].snortREV;
+								var to_sid   = json[correlationToIndex].snortSID;
+								var to_gid   = json[correlationToIndex].snortGID;
+								var to_rev   = json[correlationToIndex].snortREV;
+
+								var corr_req = new XMLHttpRequest();
+								corr_req.open ( 'GET', 'http://' + window.location.host +
+										'/correlate.cgi?' +
+										'action=add' +
+										'&from_sid=' + from_sid +
+										'&from_gid=' + from_gid +
+										'&from_rev=' + from_rev +
+										'&to_sid=' + to_sid +
+										'&to_gid=' + to_gid +
+										'&to_rev=' + to_rev, true );
+
+								corr_req.send ( null );
+								document.getElementById ( 'correlate' ).innerHTML = "Manually correlate";
+
+								connections.push ({
+									"from": correlationFrom,
+									"to"  : correlationTo
+								});
+
+								g.addEdge ( correlationFrom, correlationTo, { directed: true });
+								redraw();
+								return;
+							}
+
+							// Un-correlation stuff
+							if ( inUncorrelateFrom )
+							{
+								inUncorrelateFrom = false;
+								inUncorrelateTo   = true;
+								uncorrelationFrom = id;
+								uncorrelationFromIndex = index;
+								div.innerHTML = "<b>Click on the destination alert of the un-correlation</b><br>\n" +
+									"From: <b>" + json_element.label + "</b>";
+								return;
+							} else if ( inUncorrelateTo ) {
+								inUncorrelateTo = false;
+								uncorrelationTo = id;
+								uncorrelationToIndex = index;
+
+								div.style.backgroundColor = '#FFF';
+								div.style.display = 'none';
+
+								// Check if the alerts are already un-correlated
+								var correlated = false;
+
+								for ( var j=0; j < connections.length && !correlated; j++ )
+								{
+									if ( connections[j].from == uncorrelationFrom &&
+											connections[j].to == uncorrelationTo )
+									{
+										correlated = true;
+									}
+								}
+
+								if ( !correlated )
+								{
+									document.getElementById ( 'uncorrelate' ).innerHTML = "Remove correlation";
+									return;
+								}
+
+								var from_sid = json[uncorrelationFromIndex].snortSID;
+								var from_gid = json[uncorrelationFromIndex].snortGID;
+								var from_rev = json[uncorrelationFromIndex].snortREV;
+								var to_sid   = json[uncorrelationToIndex].snortSID;
+								var to_gid   = json[uncorrelationToIndex].snortGID;
+								var to_rev   = json[uncorrelationToIndex].snortREV;
+
+								var corr_req = new XMLHttpRequest();
+								corr_req.open ( 'GET', 'http://' + window.location.host +
+										'/correlate.cgi?' +
+										'action=remove' +
+										'&from_sid=' + from_sid +
+										'&from_gid=' + from_gid +
+										'&from_rev=' + from_rev +
+										'&to_sid=' + to_sid +
+										'&to_gid=' + to_gid +
+										'&to_rev=' + to_rev, true );
+
+								corr_req.send ( null );
+								document.getElementById ( 'uncorrelate' ).innerHTML = "Remove correlation";
+
+								// Remove the connection from the array
+								for ( var j=0; j < connections.length; j++ )
+								{
+									if ( connections[j].from == uncorrelationFrom &&
+											connections[j].to == uncorrelationTo )
+									{
+										connections.slice ( j, 1 );
+										break;
+									}
+								}
+
+								redraw();
+								return;
+							}
+
 							var content =
 								'<table id="alertInfoTable" cellspacing="5"><tr style="background-color:#99ff99">' +
 								'<td><b>Type</b></td><td><b>From</b></td>' +
@@ -143,7 +332,9 @@ window.onload = function()  {
 									json_element.packets[j].match ( /^.*(=*)$/ );
 									var pad = RegExp.$1;
 									var len = parseInt ( json_element.packets[j].length * 3 / 4 ) - pad.length;
+
 									json_element.date.match ( /[a-zA-Z]+\s+([a-zA-Z]+)\s+([0-9]+)\s+([0-9]+):([0-9]+):([0-9]+)\s+([0-9]+)/ );
+
 									var month = RegExp.$1;
 									var day   = RegExp.$2;
 									var hour  = RegExp.$3;
@@ -245,6 +436,7 @@ window.onload = function()  {
 							}
 
 							content += '</table>';
+							div.style.display = 'block';
 							div.innerHTML = content;
 						}
 					};
@@ -261,7 +453,10 @@ window.onload = function()  {
 </head>
 <body>
 <div id="canvas" style="border: 1px solid #000"></div>
-<button id="redraw" onclick="redraw();">Redraw</button>
+<div style="height : 5px"></div>
+<button id="redraw" onClick="redraw();">Redraw</button>
+<button id="correlate" onClick="correlate();">Manually correlate</button>
+<button id="uncorrelate" onClick="uncorrelate();">Remove correlation</button>
 <div id="popupAlert"></div>
 <div id="alertInfo"></div>
 

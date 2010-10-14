@@ -72,6 +72,9 @@
 /** Default interval between two alerts (a,b) for considering them correlated */
 #define 	DEFAULT_BAYESIAN_CORRELATION_INTERVAL 	1200
 
+/** Default interval in seconds between an invocation of the thread for parsing XML manual correlations and the next one */
+#define 	DEFAULT_MANUAL_CORRELATIONS_PARSING_INTERVAL 	120
+
 /** Default interval of validity in seconds for an entry in the cache of correlated alerts */
 #define 	DEFAULT_BAYESIAN_CORRELATION_CACHE_VALIDITY 	600
 
@@ -166,6 +169,9 @@ typedef struct
 
 	/** Default maximum interval, in seconds, between two alerts for being considered in the same cluster */
 	unsigned long  clusterMaxAlertInterval;
+
+	/** Interval in seconds between an invocation of the thread for parsing XML manual correlations and the next one */
+	unsigned long  manualCorrelationsParsingInterval;
 
 	/** Interval in seconds for which an entry in the cache of correlated alerts is valid */
 	unsigned long  bayesianCorrelationCacheValidity;

@@ -186,24 +186,25 @@ static AI_config * AI_parse(char *args)
 	hierarchy_node **hierarchy_nodes = NULL;
 	int            n_hierarchy_nodes = 0;
 
-	unsigned short webserv_port                        = 0;
-	unsigned long  cleanup_interval                    = 0,
-			     stream_expire_interval              = 0,
-			     alertfile_len                       = 0,
-			     alert_history_file_len              = 0,
-			     alert_serialization_interval        = 0,
-			     alert_bufsize                       = 0,
-			     bayesian_correlation_interval       = 0,
-			     bayesian_correlation_cache_validity = 0,
-			     clusterfile_len                     = 0,
-			     cluster_max_alert_interval          = 0,
-			     corr_rules_dir_len                  = 0,
-			     corr_alerts_dir_len                 = 0,
-				webserv_dir_len                     = 0,
-				webserv_banner_len                  = 0,
-			     alert_clustering_interval           = 0,
-			     database_parsing_interval           = 0,
-			     correlation_graph_interval          = 0;
+	unsigned short webserv_port                         = 0;
+	unsigned long  cleanup_interval                     = 0,
+			     stream_expire_interval               = 0,
+			     alertfile_len                        = 0,
+			     alert_history_file_len               = 0,
+			     alert_serialization_interval         = 0,
+			     alert_bufsize                        = 0,
+			     bayesian_correlation_interval        = 0,
+			     bayesian_correlation_cache_validity  = 0,
+			     clusterfile_len                      = 0,
+			     cluster_max_alert_interval           = 0,
+			     corr_rules_dir_len                   = 0,
+			     corr_alerts_dir_len                  = 0,
+				webserv_dir_len                      = 0,
+				webserv_banner_len                   = 0,
+			     alert_clustering_interval            = 0,
+			     database_parsing_interval            = 0,
+			     correlation_graph_interval           = 0,
+				manual_correlations_parsing_interval = 0;
 
 	BOOL has_cleanup_interval        = false,
 		has_stream_expire_interval  = false,
@@ -419,6 +420,27 @@ static AI_config * AI_parse(char *args)
 
 	config->bayesianCorrelationInterval = bayesian_correlation_interval;
 	_dpd.logMsg( "    Bayesian correlation interval: %u\n", config->bayesianCorrelationInterval );
+
+	/* Parsing the manual_correlations_parsing_interval option */
+	if (( arg = (char*) strcasestr( args, "manual_correlations_parsing_interval" ) ))
+	{
+		for ( arg += strlen("manual_correlations_parsing_interval");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			AI_fatal_err ( "manual_correlations_parsing_interval option used but "
+				"no value specified", __FILE__, __LINE__ );
+		}
+
+		manual_correlations_parsing_interval = strtoul ( arg, NULL, 10 );
+	} else {
+		manual_correlations_parsing_interval = DEFAULT_MANUAL_CORRELATIONS_PARSING_INTERVAL;
+	}
+
+	config->manualCorrelationsParsingInterval = manual_correlations_parsing_interval;
+	_dpd.logMsg( "    Manual correlations parsing interval: %u\n", config->manualCorrelationsParsingInterval );
 
 	/* Parsing the bayesian_correlation_cache_validity option */
 	if (( arg = (char*) strcasestr( args, "bayesian_correlation_cache_validity" ) ))

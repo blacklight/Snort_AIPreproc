@@ -392,8 +392,7 @@ __AI_print_clustered_alerts ( AI_snort_alert *log, FILE *fp )
 {
 	AI_snort_alert *tmp;
 	char ip[INET_ADDRSTRLEN];
-	char timestamp[128];
-	struct tm *_tm;
+	char *timestamp;
 
 	for ( tmp = log; tmp; tmp = tmp->next )
 	{
@@ -404,8 +403,8 @@ __AI_print_clustered_alerts ( AI_snort_alert *log, FILE *fp )
 
 		fprintf ( fp, "[Priority: %d]\n", tmp->priority );
 
-		_tm = localtime ( &tmp->timestamp );
-		strftime ( timestamp, sizeof ( timestamp ), "%a %b %d %Y, %H:%M:%S", _tm );
+		timestamp = ctime ( &( tmp->timestamp ));
+		timestamp [ strlen ( timestamp ) - 1 ] = 0;
 		fprintf ( fp, "[Grouped alerts: %d] [Starting from: %s]\n", tmp->grouped_alerts_count, timestamp );
 
 		if ( h_root[src_addr] && tmp->h_node[src_addr] )

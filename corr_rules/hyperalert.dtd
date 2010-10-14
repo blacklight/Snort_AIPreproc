@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!DOCTYPE hyperalert[
-	<!ELEMENT hyperalert 	(snort-id, pre, post)>
+	<!ELEMENT hyperalert 	(snort-id, pre, post, desc)>
 	<!ELEMENT snort-id 		(#PCDATA)>
+	<!ELEMENT desc 		(#PCDATA)>
 	<!ELEMENT pre 			(#PCDATA)>
 	<!ELEMENT post 		(#PCDATA)>
 ]>
