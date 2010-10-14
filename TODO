@@ -2,8 +2,6 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
-- XML::Simple dependancy
-- Manual alert correlation from the web interface
 - Bayesian network
 - Modules for correlation coefficients
 - Code profiling
@@ -17,7 +15,6 @@ LOW PRIORITY:
 
 - Managing clusters for addresses, timestamps (and more?)
 - Splitting the distinct subgraphs of the output graph
-- libgc support
 
 =====
 DONE:
@@ -38,4 +35,5 @@ DONE:
 + Web interface
 + Function names (private functions with _ or __ ?)
 + Saving packet flows as .pcap
++ Manual alert correlation from the web interface
 

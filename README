@@ -125,10 +125,15 @@ install libpq-dev.
 clusters,  correlations  and  packet  streams  information on a DBMS, making the
 analysis                                                                 easier.
 
-- Perl  (OPTIONAL),  used  for  the CGI script in the web interface that saves a
-packet  stream  associated  to an alert in .pcap format, to be analyzed by tools
-like                   tcpdump                   and                  Wireshark.
+- Perl  (RECOMMANDED),  used  for  the  CGI  script  in  the  web interface that
+saves  a  packet  stream  associated to an alert in .pcap format, to be analyzed
+by            tools           like             tcpdump         and     Wireshark.
 
+- XML::Simple  Perl module (RECOMMANDED), used by 'correlate.cgi' CGI script for
+reading  and  writing  manual  (un)correlations  XML  files.  A  quick  way  for
+installing     it     on     a     Unix     system    is    by    using    CPAN:
+
+# cpan XML::Simple
 
 =====================
 3.2 Configure options
@@ -452,6 +457,14 @@ document  path,  so  you  can use it as stand-alone web server as well and place
 your  documents  and  files  inside.  You can moreover place some CGI scripts or
 applications  made  in  the  language  you  prefer,  as  long  as they are files
 executable    by    any    users   and   they   have   the   extension   ".cgi".
+
+A powerful featured offered by the web interface is the one that allows the user
+to manually "mark" two alerts as correlated, if the system didn't do that, or as
+not  correlated,  if  the  system  made  a  mistake correlating two uncorrelated
+alerts.  These decisions are made simply by clicking the right button on the web
+page  and  clicking  the two alerts to mark as correlated or uncorrelated. After
+that,  all  the  alerts  of  those  types  will  be  marted  as  correlated,  or
+uncorrelated.
 
 
 ===========================

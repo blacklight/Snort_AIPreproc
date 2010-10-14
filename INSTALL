@@ -1,0 +1,21 @@
+The installation procedure is the usual one:
+
+$ ./configure
+$ make
+$ make install
+
+If  you did not install Snort in /usr directory you may need to use the --prefix
+option with configure for selecting the directory where you installed Snort (for
+ example    ./configure   --prefix=$HOME/local/snort).   If   the   prefix   was
+specified  correctly,  and  it  actually  points to the location where Snort was
+installed,      the      module     binaries     should     be     placed     in
+$SNORT_DIR/lib/snort_dynamicpreprocessor    after    the    installation,    and
+automatically  loaded  by  Snort  at  the  next start. Moreover, a new directory
+named  corr_rules  will  be  created, in /etc/snort if the prefix was /usr or in
+$SNORT_DIR/etc  otherwise,  containing  XML files describing default correlation
+rules provided by the developer. This set can be enriched in any moment with new
+XML  files,  provided  by  third parts or created by the user itself, describing
+more hyperalerts.
+
+For more details, see the README file.
+
