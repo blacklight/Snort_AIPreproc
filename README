@@ -99,7 +99,7 @@ a Debian-based  system,  install  libpthread-dev  if  you don't already have it.
 - libxml2 (REQUIRED), used for parsing XML files from corr_rules directory. On a
 Debian-based   system,  install  libxml2-dev  if  you  don't  already  have  it.
 
-- libgraphviz  (RECOMMANDED),  used  for  generating  PNG (and in future PS too)
+- libgraphviz  (RECOMMENDED),  used  for  generating  PNG (and in future PS too)
  files    representing   hyperalert   correlation   graphs   from   .dot   files
  generated   from  the  software.  You  can  remove  this  dependancy  from  the
  compilation  process  by  specifying  --without-graphviz to ./configure, but in
@@ -121,15 +121,15 @@ disabled   by  the  default,  and  can  be  enabled  by  specifying  the  option
 --with-postgresql  to  ./configure.  On  a  Debian-based  system you may need to
 install libpq-dev.
 
-- A  DBMS (RECOMMANDED), MySQL and PostgreSQL are supported for now, for writing
+- A  DBMS (RECOMMENDED), MySQL and PostgreSQL are supported for now, for writing
 clusters,  correlations  and  packet  streams  information on a DBMS, making the
 analysis                                                                 easier.
 
-- Perl  (RECOMMANDED),  used  for  the  CGI  script  in  the  web interface that
+- Perl  (RECOMMENDED),  used  for  the  CGI  script  in  the  web interface that
 saves  a  packet  stream  associated to an alert in .pcap format, to be analyzed
 by            tools           like             tcpdump         and     Wireshark.
 
-- XML::Simple  Perl module (RECOMMANDED), used by 'correlate.cgi' CGI script for
+- XML::Simple  Perl module (RECOMMENDED), used by 'correlate.cgi' CGI script for
 reading  and  writing  manual  (un)correlations  XML  files.  A  quick  way  for
 installing     it     on     a     Unix     system    is    by    using    CPAN:
 
@@ -430,7 +430,7 @@ from      the      E/R      schema     saved     in     schemas/database_ER.png.
 7. Web interface
 ================
 
-The  module  provides  an  optional (but strongly recommanded) web interface for
+The  module  provides  an  optional (but strongly recommended) web interface for
 browsing   the   triggered   (and  already  clustered)  security  alerts,  their
 correlations  and  their  packet  streams  information  from  your browser. This
 feature  can  be switched off by setting the configuration option "webserv_port"
