@@ -2,6 +2,7 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
+- Neural network for alert correlation
 - Modules for correlation coefficients
 - Code profiling
 - Comment all the code!!!

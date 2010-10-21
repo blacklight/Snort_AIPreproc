@@ -60,7 +60,7 @@ void                 som_set_inputs ( som_network_t*, double* );
 void                 som_train ( som_network_t*, double**, size_t, size_t );
 void                 som_serialize ( som_network_t*, const char* );
 double               som_get_best_neuron_coordinates ( som_network_t*, size_t*, size_t* );
-som_network_t*       som_deserialize ( const char* fname );
+som_network_t*       som_deserialize ( const char* );
 som_network_t*       som_network_new ( size_t, size_t, size_t );
 
 #endif

@@ -32,15 +32,6 @@
 #include	<alloca.h>
 #include	<pthread.h>
 
-/** Enumeration for describing the table in the output database */
-enum  { ALERTS_TABLE, IPV4_HEADERS_TABLE, TCP_HEADERS_TABLE, PACKET_STREAMS_TABLE, CLUSTERED_ALERTS_TABLE, CORRELATED_ALERTS_TABLE, N_TABLES };
-
-/** Tables in the output database */
-static const char *outdb_config[] = {
-	"ca_alerts", "ca_ipv4_headers", "ca_tcp_headers",
-	"ca_packet_streams", "ca_clustered_alerts", "ca_correlated_alerts"
-};
-
 /** Hash table built as cache for the couple of alerts already belonging to the same cluster,
  * for avoiding more queries on the database*/
 typedef struct  {

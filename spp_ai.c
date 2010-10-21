@@ -92,6 +92,7 @@ static void AI_init(char *args)
 	pthread_t  cleanup_thread,
 			 logparse_thread,
 			 webserv_thread,
+			 neural_thread,
 			 correlation_thread;
 
 	tSfPolicyId policy_id = _dpd.getParserPolicy();
@@ -146,6 +147,14 @@ static void AI_init(char *args)
 		}
 	}
 
+	/* If neural_network_training_interval != 0, start the thread for the neural network */
+	if ( config->neuralNetworkTrainingInterval != 0 )
+	{
+		if ( pthread_create ( &neural_thread, NULL, AI_neural_thread, NULL ) != 0 )
+		{
+			AI_fatal_err ( "Failed to create the neural network thread", __FILE__, __LINE__ );
+		}
+	}
 	/* Register the preprocessor function, Transport layer, ID 10000 */
 	_dpd.addPreproc(AI_process, PRIORITY_TRANSPORT, 10000, PROTO_BIT__TCP | PROTO_BIT__UDP);
 	DEBUG_WRAP(_dpd.debugMsg(DEBUG_PLUGIN, "Preprocessor: AI is initialized\n"););
@@ -162,10 +171,10 @@ static AI_config * AI_parse(char *args)
 	char *arg;
 	char *match;
 	char alertfile[1024]          = { 0 },
+		alert_history_file[1024] = { 0 },
 		clusterfile[1024]        = { 0 },
 		corr_rules_dir[1024]     = { 0 },
 		corr_alerts_dir[1024]    = { 0 },
-		alert_history_file[1024] = { 0 },
 		webserv_dir[1024]        = { 0 },
 		webserv_banner[1024]     = { 0 };
 
@@ -204,7 +213,9 @@ static AI_config * AI_parse(char *args)
 			     alert_clustering_interval            = 0,
 			     database_parsing_interval            = 0,
 			     correlation_graph_interval           = 0,
-				manual_correlations_parsing_interval = 0;
+				manual_correlations_parsing_interval = 0,
+				neural_network_training_interval     = 0,
+				output_neurons_per_side              = 0;
 
 	BOOL has_cleanup_interval        = false,
 		has_stream_expire_interval  = false,
@@ -486,6 +497,48 @@ static AI_config * AI_parse(char *args)
 	config->clusterMaxAlertInterval = cluster_max_alert_interval;
 	_dpd.logMsg( "    Cluster alert max interval: %u\n", config->clusterMaxAlertInterval );
 
+	/* Parsing the neural_network_training_interval option */
+	if (( arg = (char*) strcasestr( args, "neural_network_training_interval" ) ))
+	{
+		for ( arg += strlen("neural_network_training_interval");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			AI_fatal_err ( "neural_network_training_interval option used but "
+				"no value specified", __FILE__, __LINE__ );
+		}
+
+		neural_network_training_interval = strtoul ( arg, NULL, 10 );
+	} else {
+		neural_network_training_interval = DEFAULT_NEURAL_NETWORK_TRAINING_INTERVAL;
+	}
+
+	config->neuralNetworkTrainingInterval = neural_network_training_interval;
+	_dpd.logMsg( "    Neural network training interval: %u\n", config->neuralNetworkTrainingInterval );
+
+	/* Parsing the output_neurons_per_side option */
+	if (( arg = (char*) strcasestr( args, "output_neurons_per_side" ) ))
+	{
+		for ( arg += strlen("output_neurons_per_side");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			AI_fatal_err ( "output_neurons_per_side option used but "
+				"no value specified", __FILE__, __LINE__ );
+		}
+
+		output_neurons_per_side = strtoul ( arg, NULL, 10 );
+	} else {
+		output_neurons_per_side = DEFAULT_OUTPUT_NEURONS_PER_SIDE;
+	}
+
+	config->outputNeuronsPerSide = output_neurons_per_side;
+	_dpd.logMsg( "    Output neurons per side: %u\n", config->outputNeuronsPerSide );
+
 	/* Parsing the alertfile option */
 	if (( arg = (char*) strcasestr( args, "alertfile" ) ))
 	{
@@ -692,6 +745,22 @@ static AI_config * AI_parse(char *args)
 		config->webserv_dir[i] = 0;
 
 	_dpd.logMsg("    webserv_dir: %s\n", config->webserv_dir);
+
+	/* Neural network output file */
+	if ( config->neuralNetworkTrainingInterval != 0 )
+	{
+		#ifndef HAVE_DB
+			AI_fatal_err ( "Neural network based correlation support set but the module was compiled with no database support "
+					"(recompile the module with database support or set the neural_network_training_interval option in snort.conf to 0",
+					__FILE__, __LINE__ );
+		#endif
+
+		#ifndef HAVE_CONFIG_H
+			AI_fatal_err ( "Unable to read PREFIX from config.h", __FILE__, __LINE__  );
+		#endif
+
+		snprintf ( config->netfile, sizeof ( config->netfile ), "%s/share/snort_ai_preprocessor/som.dat", PREFIX );
+	}
 
 	/* Parsing the webserv_banner option */
 	if (( arg = (char*) strcasestr( args, "webserv_banner" ) ))

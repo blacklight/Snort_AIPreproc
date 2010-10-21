@@ -75,11 +75,18 @@
 /** Default interval in seconds between an invocation of the thread for parsing XML manual correlations and the next one */
 #define 	DEFAULT_MANUAL_CORRELATIONS_PARSING_INTERVAL 	120
 
+/** Default interval in seconds between a training loop for the neural network for
+ * alert correlations and the next one (this value should usually be high) */
+#define 	DEFAULT_NEURAL_NETWORK_TRAINING_INTERVAL 	43200
+
 /** Default interval of validity in seconds for an entry in the cache of correlated alerts */
 #define 	DEFAULT_BAYESIAN_CORRELATION_CACHE_VALIDITY 	600
 
 /** Default maximum interval, in seconds, between two alerts for being considered in the same cluster */
 #define 	DEFAULT_CLUSTER_MAX_ALERT_INTERVAL 	14400
+
+/** Default number of neurons per side on the output matrix of the SOM neural network */
+#define 	DEFAULT_OUTPUT_NEURONS_PER_SIDE 		20
 
 /** Default web server port */
 #define 	DEFAULT_WEBSERV_PORT 				7654
@@ -147,22 +154,22 @@ struct pkt_info
 typedef struct
 {
 	/** Interval in seconds for the stream cleanup thread */
-	unsigned long hashCleanupInterval;
+	unsigned long  hashCleanupInterval;
 
 	/** Interval in seconds for considering an idle stream timed out */
-	unsigned long streamExpireInterval;
+	unsigned long  streamExpireInterval;
 
 	/** Interval in seconds for the alert clustering thread */
-	unsigned long alertClusteringInterval;
+	unsigned long  alertClusteringInterval;
 
 	/** Interval in seconds for reading the alert database, if database logging is used */
-	unsigned long databaseParsingInterval;
+	unsigned long  databaseParsingInterval;
 
 	/** Interval in seconds for running the thread for building alert correlation graphs */
-	unsigned long correlationGraphInterval;
+	unsigned long  correlationGraphInterval;
 	
 	/** Interval in seconds between a serialization of the alerts' buffer and the next one */
-	unsigned long alertSerializationInterval;
+	unsigned long  alertSerializationInterval;
 
 	/** Interval in seconds between two alerts (a,b) for considering them correlated */
 	unsigned long  bayesianCorrelationInterval;
@@ -176,8 +183,15 @@ typedef struct
 	/** Interval in seconds for which an entry in the cache of correlated alerts is valid */
 	unsigned long  bayesianCorrelationCacheValidity;
 
+	/** Interval in seconds between a training loop for the neural network for
+	 * alert correlations and the next one (this value should usually be high) */
+	unsigned long  neuralNetworkTrainingInterval;
+
+	/** Number of neurons per side on the output matrix of the SOM neural network */
+	unsigned long  outputNeuronsPerSide;
+
 	/** Size of the alerts' buffer to be periodically sent to the serialization thread */
-	unsigned long alert_bufsize;
+	unsigned long  alert_bufsize;
 
 	/** Correlation threshold coefficient for correlating two hyperalerts. Two hyperalerts
 	 * are 'correlated' to each other in a multi-step attack graph if and only if their
@@ -214,6 +228,9 @@ typedef struct
 
 	/** Directory where the correlated alerts' information will be placed */
 	char          corr_alerts_dir[1024];
+
+	/** File keeping the serialized neural network used for the alert correlation */
+	char          netfile[1024];
 
 	/** Database name, if database logging is used */
 	char          dbname[256];
@@ -410,6 +427,15 @@ typedef struct  {
 	UT_hash_handle            hh;
 } AI_alert_correlation;
 /*****************************************************************/
+/** Enumeration for describing the table in the output database */
+enum  { ALERTS_TABLE, IPV4_HEADERS_TABLE, TCP_HEADERS_TABLE, PACKET_STREAMS_TABLE, CLUSTERED_ALERTS_TABLE, CORRELATED_ALERTS_TABLE, N_TABLES };
+
+/** Tables in the output database */
+static const char *outdb_config[] __attribute__ (( unused )) = {
+	"ca_alerts", "ca_ipv4_headers", "ca_tcp_headers",
+	"ca_packet_streams", "ca_clustered_alerts", "ca_correlated_alerts"
+};
+/*****************************************************************/
 
 int                preg_match ( const char*, char*, char***, int* );
 char*              str_replace ( char*, char*, char *);
@@ -440,8 +466,9 @@ AI_snort_alert*    AI_get_clustered_alerts ( void );
 
 void                   AI_serialize_alerts ( AI_snort_alert**, unsigned int );
 void*                  AI_deserialize_alerts ();
-void*                  AI_alerts_pool_thread ( void *arg );
-void*                  AI_serializer_thread ( void *arg );
+void*                  AI_alerts_pool_thread ( void* );
+void*                  AI_serializer_thread ( void* );
+void*                  AI_neural_thread ( void* );
 const AI_alert_event*  AI_get_alert_events_by_key ( AI_alert_event_key );
 unsigned int           AI_get_history_alert_number ();
 double                 AI_alert_bayesian_correlation ( AI_snort_alert *a, AI_snort_alert *b );

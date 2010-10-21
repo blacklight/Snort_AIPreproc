@@ -156,6 +156,18 @@ mysql_do_out_escape_string ( char **to, const char *from, unsigned long length )
 	return mysql_real_escape_string ( outdb, *to, from, length );
 }
 
+unsigned long
+mysql_do_num_rows ()
+{
+	return mysql_num_rows ( db );
+}
+
+unsigned long
+mysql_do_num_rows ()
+{
+	return mysql_num_rows ( outdb );
+}
+
 void
 mysql_do_out_close ()
 {
