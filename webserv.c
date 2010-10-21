@@ -628,7 +628,7 @@ AI_webserv_thread ( void *arg )
 {
 	int on = 1,
 	    sd,
-	    sockaddr_size;
+	    sockaddr_size = sizeof ( struct sockaddr );
 
 	struct sockaddr_in addr;
 	pthread_t servlet_thread;

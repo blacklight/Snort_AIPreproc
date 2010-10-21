@@ -144,7 +144,6 @@ AI_alert_bayesian_correlation ( AI_snort_alert *a, AI_snort_alert *b )
 
 	corr /= (double) corr_count;
 	corr -= ( events_a->count - corr_count_a ) / events_a->count;
-	/* _dpd.logMsg ( "   Number of '%s' alerts correlated to '%s': %u over %u\\n", a->desc, b->desc, corr_count_a, events_a->count ); */
 
 	if ( found )
 	{

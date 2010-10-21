@@ -25,6 +25,7 @@ bayesian.c \
 cluster.c \
 correlation.c \
 db.c \
+fsom/fsom.c \
 mysql.c \
 outdb.c \
 postgresql.c \

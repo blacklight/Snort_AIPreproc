@@ -220,6 +220,10 @@ window.onload = function()  {
 								var to_gid   = json[correlationToIndex].snortGID;
 								var to_rev   = json[correlationToIndex].snortREV;
 
+								// If I'm correlating an alert to itself, STOP!!
+								if ( from_sid == to_sid && from_gid == to_gid && from_rev == to_rev )
+									return;
+
 								var corr_req = new XMLHttpRequest();
 								corr_req.open ( 'GET', 'http://' + window.location.host +
 										'/correlate.cgi?' +

@@ -233,8 +233,9 @@ AI_file_alertparser_thread ( void* arg )
 		 * The first time the thread is called, the flow exits instantly from the while,
 		 * so this first time the stats structure has to be initialized properly.
 		 */
-		if( last_mod_time == (time_t)0 ){
-			fstats( fd, &stats );
+		if( last_mod_time == (time_t) 0 )
+		{
+			fstats ( fd, &stats );
 		}
 		
 		last_mod_time = stats.st_mtime;
@@ -257,14 +258,15 @@ AI_file_alertparser_thread ( void* arg )
 			{
 				if ( in_alert )
 				{
-					if ( alert->ip_src_addr && ( alert->ip_proto == IPPROTO_TCP || alert->ip_proto == IPPROTO_UDP ))
+					if ( alert->ip_src_addr )
 					{
-						key.src_ip   = alert->ip_src_addr;
-						key.dst_port = alert->tcp_dst_port;
-
 						if ( alert->ip_proto == IPPROTO_TCP )
 						{
-							if (( info = AI_get_stream_by_key ( key ) ))
+							memset ( &key, 0, sizeof ( key ));
+							key.src_ip   = alert->ip_src_addr;
+							key.dst_port = alert->tcp_dst_port;
+
+							if (( info = AI_get_stream_by_key ( key )))
 							{
 								AI_set_stream_observed ( key );
 								alert->stream = info;

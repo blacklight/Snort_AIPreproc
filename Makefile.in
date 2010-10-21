@@ -84,10 +84,10 @@ am_libsf_ai_preproc_la_OBJECTS = libsf_ai_preproc_la-alert_history.lo \
 	libsf_ai_preproc_la-cencode.lo libsf_ai_preproc_la-bayesian.lo \
 	libsf_ai_preproc_la-cluster.lo \
 	libsf_ai_preproc_la-correlation.lo libsf_ai_preproc_la-db.lo \
-	libsf_ai_preproc_la-mysql.lo libsf_ai_preproc_la-outdb.lo \
-	libsf_ai_preproc_la-postgresql.lo libsf_ai_preproc_la-regex.lo \
-	libsf_ai_preproc_la-spp_ai.lo libsf_ai_preproc_la-stream.lo \
-	libsf_ai_preproc_la-webserv.lo
+	libsf_ai_preproc_la-fsom.lo libsf_ai_preproc_la-mysql.lo \
+	libsf_ai_preproc_la-outdb.lo libsf_ai_preproc_la-postgresql.lo \
+	libsf_ai_preproc_la-regex.lo libsf_ai_preproc_la-spp_ai.lo \
+	libsf_ai_preproc_la-stream.lo libsf_ai_preproc_la-webserv.lo
 nodist_libsf_ai_preproc_la_OBJECTS =  \
 	libsf_ai_preproc_la-sf_dynamic_preproc_lib.lo \
 	libsf_ai_preproc_la-sfPolicyUserData.lo
@@ -266,6 +266,7 @@ bayesian.c \
 cluster.c \
 correlation.c \
 db.c \
+fsom/fsom.c \
 mysql.c \
 outdb.c \
 postgresql.c \
@@ -411,6 +412,9 @@ libsf_ai_preproc_la-correlation.lo: correlation.c
 
 libsf_ai_preproc_la-db.lo: db.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-db.lo `test -f 'db.c' || echo '$(srcdir)/'`db.c
+
+libsf_ai_preproc_la-fsom.lo: fsom/fsom.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-fsom.lo `test -f 'fsom/fsom.c' || echo '$(srcdir)/'`fsom/fsom.c
 
 libsf_ai_preproc_la-mysql.lo: mysql.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-mysql.lo `test -f 'mysql.c' || echo '$(srcdir)/'`mysql.c

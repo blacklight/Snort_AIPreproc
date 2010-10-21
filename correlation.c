@@ -221,6 +221,7 @@ __AI_correlated_alerts_to_json ()
 
 			for ( pkt_iterator = alert_iterator->stream; pkt_iterator; pkt_iterator = pkt_iterator->next )
 			{
+				encoded_pkt = NULL;
 				pkt_len = pkt_iterator->pkt->pcap_header->len + pkt_iterator->pkt->payload_size;
 
 				if ( !( encoded_pkt = (char*) malloc ( 4*pkt_len + 1 )))
