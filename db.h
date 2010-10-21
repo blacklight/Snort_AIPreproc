@@ -30,7 +30,7 @@
 	#define 	DB_init 			mysql_do_init
 	#define 	DB_is_init 		mysql_is_init
 	#define 	DB_query 			mysql_do_query
-	#define 	DB_num_rows 		mysql_do_num_rows
+	#define 	DB_num_rows 		mysql_num_rows
 	#define 	DB_fetch_row 		mysql_fetch_row
 	#define 	DB_free_result 	mysql_free_result
 	#define 	DB_escape_string 	mysql_do_escape_string
@@ -39,14 +39,11 @@
 	#define 	DB_out_init 			mysql_do_out_init
 	#define 	DB_is_out_init 		mysql_is_out_init
 	#define 	DB_out_query 			mysql_do_out_query
-	#define 	DB_out_num_rows 		mysql_do_out_num_rows
 	#define 	DB_out_escape_string 	mysql_do_out_escape_string
 	#define 	DB_out_close 			mysql_do_out_close
 
 	DB_result* DB_query ( const char* );
 	DB_result* DB_out_query ( const char* );
-	unsigned long     DB_num_rows();
-	unsigned long     DB_out_num_rows();
 #endif
 
 #ifdef 	HAVE_LIBPQ

@@ -85,7 +85,7 @@ AI_som_train ()
 		AI_fatal_err ( "AIPreproc: Query error", __FILE__, __LINE__ );
 	}
 
-	num_rows = DB_out_num_rows();
+	num_rows = DB_num_rows ( res );
 
 	if ( !( inputs = (double**) alloca ( num_rows * sizeof ( double* ))))
 	{
