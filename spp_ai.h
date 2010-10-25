@@ -105,6 +105,9 @@
 /** Cutoff y value in the exponential decay for considering two alerts not correlated */
 #define 	CUTOFF_Y_VALUE 					0.01
 
+/** Approximated solution of the equation tanh(x) = 0.95 */
+#define 	HYPERBOLIC_TANGENT_SOLUTION 	1.83178
+
 /****************************/
 /* Database support */
 #ifdef 	HAVE_LIBMYSQLCLIENT
@@ -497,6 +500,8 @@ const AI_alert_event*  AI_get_alert_events_by_key ( AI_alert_event_key );
 unsigned int           AI_get_history_alert_number ();
 double                 AI_alert_bayesian_correlation ( const AI_snort_alert*, const AI_snort_alert* );
 double                 AI_alert_neural_som_correlation ( const AI_snort_alert*, const AI_snort_alert* );
+double                 AI_neural_correlation_weight ();
+double                 AI_bayesian_correlation_weight ();
 
 void                   AI_outdb_mutex_initialize ();
 void*                  AI_store_alert_to_db_thread ( void* );

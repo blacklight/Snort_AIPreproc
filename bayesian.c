@@ -54,6 +54,20 @@ PRIVATE AI_bayesian_correlation  *bayesian_cache    = NULL;
 PRIVATE double                   k_exp_value        = 0.0;
 
 /**
+ * \brief  Get the current weight of the bayesian correlation index using a hyperbolic tangent function with a parameter expressed in function of the current number of alerts in the history file
+ * \return The weight of the correlation index ( 0 <= weight < 1 )
+ */
+
+double
+AI_bayesian_correlation_weight ()
+{
+	double x = (double) AI_get_history_alert_number(),
+		  k = (double) config->alert_correlation_weight / HYPERBOLIC_TANGENT_SOLUTION;
+
+	return (( exp(x/k) - exp(-x/k) ) / ( exp(x/k) + exp(-x/k) ));
+}		/* -----  end of function AI_bayesian_correlation_weight  ----- */
+
+/**
  * \brief  Function used for computing the correlation probability A->B of two alerts (A,B) given their timestamps: f(ta, tb) = exp ( -(tb - ta)^2 / k )
  * \param  ta 	Timestamp of A
  * \param  tb 	Timestamp of B
@@ -142,8 +156,13 @@ AI_alert_bayesian_correlation ( const AI_snort_alert *a, const AI_snort_alert *b
 			corr_count_a++;
 	}
 
-	corr /= (double) corr_count;
-	corr -= ( events_a->count - corr_count_a ) / events_a->count;
+	if ( !corr_count )
+	{
+		corr = 0.0;
+	} else {
+		corr /= (double) corr_count;
+		corr -= ( events_a->count - corr_count_a ) / events_a->count;
+	}
 
 	if ( found )
 	{

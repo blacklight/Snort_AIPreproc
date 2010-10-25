@@ -1361,7 +1361,8 @@ AI_alert_correlation_thread ( void *arg )
 					/* Use the correlation indexes for which we have a value */
 					if ( bayesian_correlation != 0.0 && config->bayesianCorrelationInterval != 0 )
 					{
-						corr->correlation += bayesian_correlation;
+						corr->correlation += AI_bayesian_correlation_weight() * bayesian_correlation;
+						_dpd.logMsg ( "bayesian probability: %f\n", bayesian_correlation );
 						n_correlations++;
 					}
 
@@ -1373,7 +1374,7 @@ AI_alert_correlation_thread ( void *arg )
 
 					if ( neural_correlation != 0.0 && config->neuralNetworkTrainingInterval != 0 )
 					{
-						corr->correlation += neural_correlation;
+						corr->correlation += AI_neural_correlation_weight() * neural_correlation;
 						n_correlations++;
 					}
 

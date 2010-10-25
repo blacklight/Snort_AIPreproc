@@ -54,6 +54,39 @@ PRIVATE som_network_t *net                = NULL;
 PRIVATE pthread_mutex_t neural_mutex;
 
 /**
+ * \brief  Get the current weight of the neural correlation index using a hyperbolic tangent function with a parameter expressed in function of the current number of alerts in the database
+ * \return The weight of the correlation index ( 0 <= weight < 1 )
+ */
+
+double
+AI_neural_correlation_weight ()
+{
+	DB_result res;
+	DB_row    row;
+	char      query[1024] = { 0 };
+	double    x = 0,
+			k = (double) config->alert_correlation_weight / HYPERBOLIC_TANGENT_SOLUTION;
+	
+	snprintf ( query, sizeof ( query ), "SELECT count(*) FROM %s", outdb_config[ALERTS_TABLE] );
+
+	if ( !DB_out_init() )
+	{
+		AI_fatal_err ( "Unable to connect to the database specified in module configuration", __FILE__, __LINE__ );
+	}
+
+	if ( !( res = (DB_result) DB_out_query ( query )))
+	{
+		AI_fatal_err ( "AIPreproc: Query error", __FILE__, __LINE__ );
+	}
+
+	row = (DB_row) DB_fetch_row ( res );
+	x = strtod ( row[0], NULL );
+	DB_free_result ( res );
+
+	return (( exp(x/k) - exp(-x/k) ) / ( exp(x/k) + exp(-x/k) ));
+}		/* -----  end of function AI_neural_correlation_weight  ----- */
+
+/**
  * \brief  Convert an alert row fetched from db to a vector suitable for being elaborated by the SOM neural network
  * \param  alert 	AI_som_alert_tuple object identifying the alert tuple
  * \param  data 	Reference to the vector that will contain the SOM data
@@ -185,7 +218,7 @@ __AI_som_train ()
 	char      query[1024] = { 0 };
 
 	size_t    i = 0,
-			num_rows  = 0;
+			num_rows = 0;
 
 	DB_result res;
 	DB_row    row;
