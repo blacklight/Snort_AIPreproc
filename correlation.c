@@ -1362,7 +1362,6 @@ AI_alert_correlation_thread ( void *arg )
 					if ( bayesian_correlation != 0.0 && config->bayesianCorrelationInterval != 0 )
 					{
 						corr->correlation += AI_bayesian_correlation_weight() * bayesian_correlation;
-						_dpd.logMsg ( "bayesian probability: %f\n", bayesian_correlation );
 						n_correlations++;
 					}
 
