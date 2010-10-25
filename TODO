@@ -2,8 +2,7 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
-- Neural network for alert correlation
-- Modules for correlation coefficients
+- Supporting extra modules for alert correlation
 - Code profiling
 - Comment all the code!!!
 - Neural network for computing k
@@ -36,4 +35,5 @@ DONE:
 + Function names (private functions with _ or __ ?)
 + Saving packet flows as .pcap
 + Manual alert correlation from the web interface
++ Neural network for alert correlation
 

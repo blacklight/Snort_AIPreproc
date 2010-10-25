@@ -196,26 +196,29 @@ static AI_config * AI_parse(char *args)
 	int            n_hierarchy_nodes = 0;
 
 	unsigned short webserv_port                         = 0;
-	unsigned long  cleanup_interval                     = 0,
-			     stream_expire_interval               = 0,
-			     alertfile_len                        = 0,
+	
+	unsigned long  alertfile_len                        = 0,
+			     alert_bufsize                        = 0,
+			     alert_clustering_interval            = 0,
+				alert_correlation_weight             = 0,
 			     alert_history_file_len               = 0,
 			     alert_serialization_interval         = 0,
-			     alert_bufsize                        = 0,
-			     bayesian_correlation_interval        = 0,
 			     bayesian_correlation_cache_validity  = 0,
+			     bayesian_correlation_interval        = 0,
+				cleanup_interval                     = 0,
 			     clusterfile_len                      = 0,
 			     cluster_max_alert_interval           = 0,
-			     corr_rules_dir_len                   = 0,
 			     corr_alerts_dir_len                  = 0,
-				webserv_dir_len                      = 0,
-				webserv_banner_len                   = 0,
-			     alert_clustering_interval            = 0,
-			     database_parsing_interval            = 0,
+			     corr_rules_dir_len                   = 0,
 			     correlation_graph_interval           = 0,
+			     database_parsing_interval            = 0,
 				manual_correlations_parsing_interval = 0,
 				neural_network_training_interval     = 0,
-				output_neurons_per_side              = 0;
+				neural_train_steps                   = 0,
+				output_neurons_per_side              = 0,
+			     stream_expire_interval               = 0,
+				webserv_banner_len                   = 0,
+				webserv_dir_len                      = 0;
 
 	BOOL has_cleanup_interval        = false,
 		has_stream_expire_interval  = false,
@@ -538,6 +541,48 @@ static AI_config * AI_parse(char *args)
 
 	config->outputNeuronsPerSide = output_neurons_per_side;
 	_dpd.logMsg( "    Output neurons per side: %u\n", config->outputNeuronsPerSide );
+
+	/* Parsing the neural_train_steps option */
+	if (( arg = (char*) strcasestr( args, "neural_train_steps" ) ))
+	{
+		for ( arg += strlen("neural_train_steps");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			AI_fatal_err ( "neural_train_steps option used but "
+				"no value specified", __FILE__, __LINE__ );
+		}
+
+		neural_train_steps = strtoul ( arg, NULL, 10 );
+	} else {
+		neural_train_steps = DEFAULT_NEURAL_TRAIN_STEPS;
+	}
+
+	config->neural_train_steps = neural_train_steps;
+	_dpd.logMsg( "    Neural train steps: %u\n", config->neural_train_steps );
+
+	/* Parsing the alert_correlation_weight option */
+	if (( arg = (char*) strcasestr( args, "alert_correlation_weight" ) ))
+	{
+		for ( arg += strlen("alert_correlation_weight");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			AI_fatal_err ( "alert_correlation_weight option used but "
+				"no value specified", __FILE__, __LINE__ );
+		}
+
+		alert_correlation_weight = strtoul ( arg, NULL, 10 );
+	} else {
+		alert_correlation_weight = DEFAULT_ALERT_CORRELATION_WEIGHT;
+	}
+
+	config->alert_correlation_weight = alert_correlation_weight;
+	_dpd.logMsg( "    Alert correlation weight: %u\n", config->alert_correlation_weight );
 
 	/* Parsing the alertfile option */
 	if (( arg = (char*) strcasestr( args, "alertfile" ) ))

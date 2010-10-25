@@ -77,7 +77,7 @@ __AI_bayesian_correlation_function ( time_t ta, time_t tb )
  */
 
 double
-AI_alert_bayesian_correlation ( AI_snort_alert *a, AI_snort_alert *b )
+AI_alert_bayesian_correlation ( const AI_snort_alert *a, const AI_snort_alert *b )
 {
 	double                corr         = 0.0;
 	unsigned int          corr_count   = 0,

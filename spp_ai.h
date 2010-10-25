@@ -88,6 +88,14 @@
 /** Default number of neurons per side on the output matrix of the SOM neural network */
 #define 	DEFAULT_OUTPUT_NEURONS_PER_SIDE 		20
 
+/** Default number of steps used for training the neural network */
+#define 	DEFAULT_NEURAL_TRAIN_STEPS 			10
+
+/** Default number of alerts needed in the history file or database for letting a certain
+ * heuristic correlation index weight be =~ 0.95 (the weight monotonically increases
+ * with the number of alerts according to a hyperbolic tangent function) */
+#define 	DEFAULT_ALERT_CORRELATION_WEIGHT 		400
+
 /** Default web server port */
 #define 	DEFAULT_WEBSERV_PORT 				7654
 
@@ -189,6 +197,14 @@ typedef struct
 
 	/** Number of neurons per side on the output matrix of the SOM neural network */
 	unsigned long  outputNeuronsPerSide;
+
+	/** Number of alerts needed in the history file or database for letting a certain
+	 * heuristic correlation index weight be =~ 0.95 (the weight monotonically increases
+	 * with the number of alerts according to a hyperbolic tangent function) */
+	unsigned long  alert_correlation_weight;
+
+	/** Number of steps used for training the neural network */
+	unsigned long  neural_train_steps;
 
 	/** Size of the alerts' buffer to be periodically sent to the serialization thread */
 	unsigned long  alert_bufsize;
@@ -427,6 +443,7 @@ typedef struct  {
 	UT_hash_handle            hh;
 } AI_alert_correlation;
 /*****************************************************************/
+
 /** Enumeration for describing the table in the output database */
 enum  { ALERTS_TABLE, IPV4_HEADERS_TABLE, TCP_HEADERS_TABLE, PACKET_STREAMS_TABLE, CLUSTERED_ALERTS_TABLE, CORRELATED_ALERTS_TABLE, N_TABLES };
 
@@ -435,6 +452,13 @@ static const char *outdb_config[] __attribute__ (( unused )) = {
 	"ca_alerts", "ca_ipv4_headers", "ca_tcp_headers",
 	"ca_packet_streams", "ca_clustered_alerts", "ca_correlated_alerts"
 };
+
+/*
+ * The unused attribute is needed for gcc to avoid raising a warning
+ * of "unused variable" when compiling with -Wall -pedantic -pedatic errors,
+ * since this array is declared here but only used in two source files
+ */
+
 /*****************************************************************/
 
 int                preg_match ( const char*, char*, char***, int* );
@@ -471,7 +495,8 @@ void*                  AI_serializer_thread ( void* );
 void*                  AI_neural_thread ( void* );
 const AI_alert_event*  AI_get_alert_events_by_key ( AI_alert_event_key );
 unsigned int           AI_get_history_alert_number ();
-double                 AI_alert_bayesian_correlation ( AI_snort_alert *a, AI_snort_alert *b );
+double                 AI_alert_bayesian_correlation ( const AI_snort_alert*, const AI_snort_alert* );
+double                 AI_alert_neural_som_correlation ( const AI_snort_alert*, const AI_snort_alert* );
 
 void                   AI_outdb_mutex_initialize ();
 void*                  AI_store_alert_to_db_thread ( void* );

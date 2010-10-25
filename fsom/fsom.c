@@ -630,7 +630,7 @@ som_train_iteration ( som_network_t *net, double *data, size_t iter )
  * \param  n_data 	Number of vectors in the input set
  */
 
-static void
+void
 som_init_weights ( som_network_t *net, double **data, size_t n_data )
 {
 	size_t i = 0,
@@ -830,8 +830,6 @@ som_train ( som_network_t *net, double **data, size_t n_data, size_t iter )
 		  k = 0,
 		  x = 0,
 		  y = 0;
-
-	som_init_weights ( net, data, n_data );
 
 	for ( n=0; n < n_data; n++ )
 	{

@@ -1227,8 +1227,10 @@ AI_alert_correlation_thread ( void *arg )
 						 std_deviation         = 0.0,
 						 corr_threshold        = 0.0,
 						 kb_correlation        = 0.0,
-						 bayesian_correlation  = 0.0;
+						 bayesian_correlation  = 0.0,
+						 neural_correlation    = 0.0;
 
+	size_t                    n_correlations        = 0;
 	FILE                      *fp                   = NULL;
 
 	AI_alert_correlation_key  corr_key;
@@ -1348,17 +1350,37 @@ AI_alert_correlation_thread ( void *arg )
 
 					corr_key.a = alert_iterator;
 					corr_key.b = alert_iterator2;
-
 					corr->key  = corr_key;
+					corr->correlation = 0.0;
+					n_correlations = 0;
+
 					kb_correlation = __AI_kb_correlation_coefficient ( corr_key.a, corr_key.b );
 					bayesian_correlation = AI_alert_bayesian_correlation ( corr_key.a, corr_key.b );
+					neural_correlation = AI_alert_neural_som_correlation ( corr_key.a, corr_key.b );
 
-					if ( bayesian_correlation == 0.0 || config->bayesianCorrelationInterval == 0 )
-						corr->correlation = kb_correlation;
-					else if ( kb_correlation == 0.0 )
-						corr->correlation = bayesian_correlation;
-					else
-						corr->correlation = ( kb_correlation + bayesian_correlation ) / 2;
+					/* Use the correlation indexes for which we have a value */
+					if ( bayesian_correlation != 0.0 && config->bayesianCorrelationInterval != 0 )
+					{
+						corr->correlation += bayesian_correlation;
+						n_correlations++;
+					}
+
+					if ( kb_correlation != 0.0 )
+					{
+						corr->correlation += kb_correlation;
+						n_correlations++;
+					}
+
+					if ( neural_correlation != 0.0 && config->neuralNetworkTrainingInterval != 0 )
+					{
+						corr->correlation += neural_correlation;
+						n_correlations++;
+					}
+
+					if ( n_correlations != 0 )
+					{
+						corr->correlation /= (double) n_correlations;
+					}
 
 					HASH_ADD ( hh, correlation_table, key, sizeof ( AI_alert_correlation_key ), corr );
 				}
