@@ -216,7 +216,6 @@ __AI_som_train ()
 	double    **inputs = NULL;
 
 	char      query[1024] = { 0 };
-
 	size_t    i = 0,
 			num_rows = 0;
 
