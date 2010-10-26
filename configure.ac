@@ -136,6 +136,7 @@ AS_IF([test "x$with_graphviz" != xno],
 AC_CHECK_LIB([xml2], [xmlReaderForFile],, AC_MSG_FAILURE(libxml2 not found on the system))
 AC_CHECK_LIB([pthread], [pthread_create],, AC_MSG_FAILURE(libpthread not found on the system))
 AC_CHECK_LIB([m], [sqrt],, AC_MSG_FAILURE(libm not found on the system))
+AC_CHECK_LIB([dl], [dlopen],, AC_MSG_FAILURE(libdl not found on the system))
 
 AS_IF([test "x$prefix" == x/usr],
 	[AC_SUBST([CORR_RULES_PREFIX], ["/etc/snort/corr_rules"])],
@@ -161,7 +162,7 @@ AS_IF([test "x$with_graphviz" != xno],
 	[AC_DEFINE([HAVE_BOOLEAN], [1], [Check if the boolean type is defined])])
 
 AC_FUNC_ALLOCA
-AC_CHECK_HEADERS([inttypes.h limits.h stddef.h stdlib.h string.h unistd.h wchar.h math.h],,AC_MSG_ERROR(At least one of the required headers was not found))
+AC_CHECK_HEADERS([dirent.h dlfcn.h inttypes.h limits.h math.h stddef.h stdlib.h string.h unistd.h wchar.h],,AC_MSG_ERROR(At least one of the required headers was not found))
 
 # Check for int types
 AC_CHECK_TYPES([u_int8_t,u_int16_t,u_int32_t,u_int64_t,uint8_t,uint16_t,uint32_t,uint64_t])

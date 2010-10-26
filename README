@@ -30,7 +30,8 @@ Table of contents:
 	5. Correlation rules
 	6. Output database
 	7. Web interface
-	8. Additional documentation
+	8. Additional correlation modules
+	9. Additional documentation
 
 
 ===============================
@@ -161,18 +162,13 @@ following:
 
 preprocessor ai: \
 	alertfile "/your/snort/dir/log/alert" \
-	alert_history_file "/your/snort/dir/log/alert_history" \
-	alert_serialization_interval 3600 \
 	alert_bufsize 30 \
 	alert_clustering_interval 300 \
+	alert_correlation_weight 5000 \
+	alert_history_file "/your/snort/dir/log/alert_history" \
+	alert_serialization_interval 3600 \
 	bayesian_correlation_interval 1200 \
 	bayesian_correlation_cache_validity 600 \
-	correlation_graph_interval 300 \
-	correlation_rules_dir "/your/snort/dir/etc/corr_rules" \
-	correlated_alerts_dir "/your/snort/dir/log/correlated_alerts" \
-	correlation_threshold_coefficient 0.5 \
-	cluster_max_alert_interval 14400 \
-	clusterfile "/your/snort/dir/log/clustered_alerts" \
 	cluster ( class="dst_port", name="privileged_ports", range="1-1023" ) \
 	cluster ( class="dst_port", name="unprivileged_ports", range="1024-65535" ) \
 	cluster ( class="src_addr", name="local_net", range="192.168.1.0/24" ) \
@@ -181,10 +177,21 @@ preprocessor ai: \
 	cluster ( class="dst_addr", name="local_net", range="192.168.1.0/24" ) \
 	cluster ( class="dst_addr", name="dmz_net", range="155.185.0.0/16" ) \
 	cluster ( class="dst_addr", name="vpn_net", range="10.8.0.0/24" ) \
+	cluster_max_alert_interval 14400 \
+	clusterfile "/your/snort/dir/log/clustered_alerts" \
+	corr_modules_dir "/your/snort/dir/share/snort_ai_preproc/corr_modules" \
+	correlation_graph_interval 300 \
+	correlation_rules_dir "/your/snort/dir/etc/corr_rules" \
+	correlated_alerts_dir "/your/snort/dir/log/correlated_alerts" \
+	correlation_threshold_coefficient 0.5 \
 	database ( type="dbtype", name="snort", user="snortusr", password="snortpass", host="dbhost" ) \
 	database_parsing_interval 30 \
 	hashtable_cleanup_interval 300 \
+	manual_correlations_parsing_interval 120 \
+	neural_network_training_interval 43200 \
+	neural_train_steps 10 \
 	output_database ( type="dbtype", name="snort", user="snortusr", password="snortpass", host="dbhost" ) \
+	output_neurons_per_side 20 \
 	tcp_stream_expire_interval 300 \
 	webserv_banner "Snort AIPreprocessor module" \
 	webserv_dir "/prefix/share/htdocs" \
@@ -195,6 +202,15 @@ The options are the following:
 
 - alertfile:  The file where Snort saves its alerts, if they are saved to a file
 and   not  to  a  database  (default  if  not  specified:  /var/log/snort/alert)
+
+
+- alert_correlation_weight:  When this number of alert is stored in the "memory"
+of  the software (i.e. in the alert history file or in the output database), the
+weight  for  the  heuristical  correlation  indexes (bayesian network and neural
+ network)  will  be  more  or  less  equal  to  0.95,  on  a  scale from 0 to 1.
+This parameter expresses how much the heuristical indexes should be weighted and
+it  can  be  considered like a kind of "learning rate" for the alert correlation
+algorithm       (default       value      if      not      specified:      5000)
 
 
 - alert_history_file:  The   file keeping track of the history, in binary format,
@@ -232,6 +248,14 @@ can      set      the      correlation      interval      to      any     value.
 in  the  bayesian  correlation  hash  table  (i.e.  a  pair  of  alerts with the
  associated   historical   bayesian   correlation)   is   considered   as  valid
 before         being         updated        (default:        600        seconds)
+
+
+- corr_modules_dir:  This  software supports a kind of plugins, or "modules over
+the  module",  that  allow  the user to specify some extra correlation rules and
+indexes.  These  modules  are .so files placed in this directory (default if not
+ specified:  PREFIX/share/snort_ai_preproc/corr_modules),  dynamically loaded by
+the  module.  For  more  information  on  how  to write your own module, see the
+dedicated              section             in             this             file.
 
 
 - correlation_graph_interval:  The  interval that should occur from the building
@@ -301,6 +325,20 @@ the  hashtable  of  TCP  streams and the next one (default if not specified: 300
  seconds)
 
 
+- manual_correlations_parsing_interval: Interval in seconds between an execution
+of  the  thread for parsing the alert correlations manually set and the next one
+(default       value       if       not       specified:       120      seconds)
+
+
+- neural_network_training_interval:  Interval in seconds between an execution of
+the  thread  for  training the neural network using the set of recent alerts and
+the     next     one    (default    if    not    specified:    43200    seconds)
+
+
+- neural_train_steps:  Number  of  steps  to take in each training cycle for the
+neural                   network                  (default:                  10)
+
+
 - output_database:  Specify this option if you want to save the outputs from the
 module  (correlated  alerts,  clustered  alerts,  alerts  information  and their
 associated    packets   streams,   and  so  on)  to  a  relational  database  as
@@ -310,6 +348,13 @@ The  structure  of this database can be seen in the files schemas/*.sql (replace
 to  * the name of your DBMS). If you want to initialize the tables needed by the
 module,   just   give   the   right  file  to  your  database,  e.g.  for  MySQL
 $ mysql -uusername -ppassword dbname < schemas/mysql.sql
+
+
+- output_neurons_per_side: Number of output neurons per side on the output layer
+of  the  neural network (that is a rectangular matrix). A higher number allows a
+higher  granularity  over  similar  alerts, but a linear increment of this value
+produces  a  squared  increment of the computational complexity for the training
+and    evaluation    algorithms   (default   value   if   not   specified:   20)
 
 
 - tcp_stream_expire_interval:  The  interval that should occur for marking a TCP
@@ -467,8 +512,41 @@ that,  all  the  alerts  of  those  types  will  be  marted  as  correlated,  or
 uncorrelated.
 
 
+=================================
+8. Additional correlation modules
+=================================
+
+It  is  possible  to  add  extra  parameters  and  indexes  for  evaluating  the
+correlation  between  two  alerts  in  an  extremely  simple  way. The directory
+specified  in  the  configuration  option  "corr_modules_dir" contains the extra
+modules  (as  binary  shared  libraries  ->  .so).  Each of these modules should
+contain          a          function          whose         prototype         is
+
+
+double  AI_corr_index ( AI_snort_alert*, AI_snort_alert* )
+
+
+taking  two alerts as parameters and returning a correlation value between them,
+and               one              whose              prototype              is
+
+
+double  AI_corr_index_weight ()
+
+
+returning  a  coefficient  in  [0,1]  expressing  the  weight  of that index. An
+example  module  is  contained  in  the  corr_modules  directory  in  the source
+directory,  or in PREFIX/share/snort_ai_preproc/corr_modules after installation.
+
+When  you  write  your  own module, just add in the Makefile in the corr_modules
+directory  a  line  like  the one already present there for compiling, then type
+`make'.   You   may   need   to   link   your   module  source  file(s)  against
+libsf_ai_preproc.la  if  you  want to use some of the functions from the module,
+ for  example,  for  reading  the  alerts  stored  in  the  history file, in the
+ database,       the       current       correlations,      and      so      on.
+
+
 ===========================
-8. Additional documentation
+9. Additional documentation
 ===========================
 
 The additional documentation over the code, functions and data structures can

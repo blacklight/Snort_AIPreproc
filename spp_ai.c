@@ -110,6 +110,9 @@ static void AI_init(char *args)
 	sfPolicyUserPolicySet(ex_config, policy_id);
 	sfPolicyUserDataSetCurrent(ex_config, config);
 
+	/* Initialize the extra correlation modules */
+	AI_init_corr_modules();
+
 	/* If the hash_cleanup_interval or stream_expire_interval options are set to zero,
 	 * no cleanup will be made on the streams */
 	if ( config->hashCleanupInterval != 0 && config->streamExpireInterval != 0 )
@@ -173,8 +176,9 @@ static AI_config * AI_parse(char *args)
 	char alertfile[1024]          = { 0 },
 		alert_history_file[1024] = { 0 },
 		clusterfile[1024]        = { 0 },
-		corr_rules_dir[1024]     = { 0 },
 		corr_alerts_dir[1024]    = { 0 },
+		corr_modules_dir[1024]   = { 0 },
+		corr_rules_dir[1024]     = { 0 },
 		webserv_dir[1024]        = { 0 },
 		webserv_banner[1024]     = { 0 };
 
@@ -209,6 +213,7 @@ static AI_config * AI_parse(char *args)
 			     clusterfile_len                      = 0,
 			     cluster_max_alert_interval           = 0,
 			     corr_alerts_dir_len                  = 0,
+				corr_modules_dir_len                 = 0,
 			     corr_rules_dir_len                   = 0,
 			     correlation_graph_interval           = 0,
 			     database_parsing_interval            = 0,
@@ -224,6 +229,7 @@ static AI_config * AI_parse(char *args)
 		has_stream_expire_interval  = false,
 		has_correlation_interval    = false,
 		has_corr_alerts_dir         = false,
+		has_corr_modules_dir        = false,
 		has_database_interval       = false,
 		has_webserv_dir             = false,
 		has_webserv_banner          = false,
@@ -790,6 +796,46 @@ static AI_config * AI_parse(char *args)
 		config->webserv_dir[i] = 0;
 
 	_dpd.logMsg("    webserv_dir: %s\n", config->webserv_dir);
+
+	/* Parsing the corr_modules_dir option */
+	if (( arg = (char*) strcasestr( args, "corr_modules_dir" ) ))
+	{
+		for ( arg += strlen("corr_modules_dir");
+				*arg && *arg != '"';
+				arg++ );
+
+		if ( !(*(arg++)) )
+		{
+			AI_fatal_err ( "corr_modules_dir option used but no filename specified", __FILE__, __LINE__ );
+		}
+
+		for ( corr_modules_dir[ (++corr_modules_dir_len)-1 ] = *arg;
+				*arg && *arg != '"' && corr_modules_dir_len < sizeof ( corr_modules_dir );
+				arg++, corr_modules_dir[ (++corr_modules_dir_len)-1 ] = *arg );
+
+		if ( corr_modules_dir[0] == 0 || corr_modules_dir_len <= 1 )  {
+			has_corr_modules_dir = false;
+		} else {
+			if ( corr_modules_dir_len >= sizeof ( corr_modules_dir ))  {
+				AI_fatal_err ( "corr_modules_dir path too long ( >= 1024 )", __FILE__, __LINE__ );
+			} else if ( strlen( corr_modules_dir ) == 0 ) {
+				has_corr_modules_dir = false;
+			} else {
+				has_corr_modules_dir = true;
+				corr_modules_dir[ corr_modules_dir_len-1 ] = 0;
+				strncpy ( config->corr_modules_dir, corr_modules_dir, corr_modules_dir_len );
+			}
+		}
+	}
+
+	if ( ! has_corr_modules_dir )
+	{
+		#ifndef HAVE_CONFIG_H
+			AI_fatal_err ( "Unable to read PREFIX from config.h", __FILE__, __LINE__  );
+		#endif
+
+		snprintf ( config->corr_modules_dir, sizeof ( config->corr_modules_dir ), "%s/share/snort_ai_preprocessor/corr_modules", PREFIX );
+	}
 
 	/* Neural network output file */
 	if ( config->neuralNetworkTrainingInterval != 0 )

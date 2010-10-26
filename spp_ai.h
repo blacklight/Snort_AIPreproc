@@ -94,7 +94,7 @@
 /** Default number of alerts needed in the history file or database for letting a certain
  * heuristic correlation index weight be =~ 0.95 (the weight monotonically increases
  * with the number of alerts according to a hyperbolic tangent function) */
-#define 	DEFAULT_ALERT_CORRELATION_WEIGHT 		400
+#define 	DEFAULT_ALERT_CORRELATION_WEIGHT 		5000
 
 /** Default web server port */
 #define 	DEFAULT_WEBSERV_PORT 				7654
@@ -105,7 +105,7 @@
 /** Cutoff y value in the exponential decay for considering two alerts not correlated */
 #define 	CUTOFF_Y_VALUE 					0.01
 
-/** Approximated solution of the equation tanh(x) = 0.95 */
+/** Approximated solution of the equation tanh(x) = 0.95 (used as parameter in the correlation indexes weight function) */
 #define 	HYPERBOLIC_TANGENT_SOLUTION 	1.83178
 
 /****************************/
@@ -232,6 +232,9 @@ typedef struct
 	/** Banner string of the web server (this will be placed in the 'Server' HTTP header
 	 * and in the footer of error pages */
 	char          webserv_banner[1024];
+
+	/** Directory containing extra correlation modules */
+	char          corr_modules_dir[1024];
 
 	/** Alert file */
 	char          alertfile[1024];
@@ -486,6 +489,7 @@ void               AI_pkt_enqueue ( SFSnortPacket* );
 void               AI_set_stream_observed ( struct pkt_key key );
 void               AI_hierarchies_build ( hierarchy_node**, int );
 void               AI_free_alerts ( AI_snort_alert *node );
+void               AI_init_corr_modules ();
 
 struct pkt_info*   AI_get_stream_by_key ( struct pkt_key );
 AI_snort_alert*    AI_get_alerts ( void );
@@ -507,6 +511,9 @@ void                   AI_outdb_mutex_initialize ();
 void*                  AI_store_alert_to_db_thread ( void* );
 void*                  AI_store_cluster_to_db_thread ( void* );
 void*                  AI_store_correlation_to_db_thread ( void* );
+
+double(**AI_get_corr_functions ( size_t* ))(const AI_snort_alert*, const AI_snort_alert*);
+double(**AI_get_corr_weights ( size_t* ))();
 
 /** Function pointer to the function used for getting the alert list (from log file, db, ...) */
 extern AI_snort_alert* (*get_alerts)(void);

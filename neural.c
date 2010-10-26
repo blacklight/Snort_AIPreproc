@@ -251,7 +251,7 @@ __AI_som_train ()
 
 	if ( !( res = (DB_result) DB_out_query ( query )))
 	{
-		AI_fatal_err ( "AIPreproc: Query error", __FILE__, __LINE__ );
+		return;
 	}
 
 	num_rows = DB_num_rows ( res );
@@ -277,7 +277,7 @@ __AI_som_train ()
 	{
 		row = (DB_row) DB_fetch_row ( res );
 
-		tuples[i].gid = row[0] ? strtoul ( row[0], NULL, 10 ) : 0;
+		
 		tuples[i].sid = row[1] ? strtoul ( row[1], NULL, 10 ) : 0;
 		tuples[i].rev = row[2] ? strtoul ( row[2], NULL, 10 ) : 0;
 		tuples[i].timestamp = row[3] ? (time_t) strtol ( row[3], NULL, 10 ) : (time_t) 0;

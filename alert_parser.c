@@ -497,7 +497,7 @@ __AI_copy_alerts ( AI_snort_alert *node )
 AI_snort_alert*
 AI_get_alerts ()
 {
-	AI_snort_alert *alerts_copy;
+	AI_snort_alert *alerts_copy = NULL;
 
 	pthread_mutex_lock ( &alert_mutex );
 	alerts_copy = __AI_copy_alerts ( alerts );

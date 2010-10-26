@@ -2,10 +2,8 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
-- Supporting extra modules for alert correlation
 - Code profiling
 - Comment all the code!!!
-- Neural network for computing k
 - Testing more scenarios, making more hyperalert models
 
 =============
@@ -36,4 +34,5 @@ DONE:
 + Saving packet flows as .pcap
 + Manual alert correlation from the web interface
 + Neural network for alert correlation
++ Supporting extra modules for alert correlation
 

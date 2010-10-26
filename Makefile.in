@@ -84,11 +84,11 @@ am_libsf_ai_preproc_la_OBJECTS = libsf_ai_preproc_la-alert_history.lo \
 	libsf_ai_preproc_la-cencode.lo libsf_ai_preproc_la-bayesian.lo \
 	libsf_ai_preproc_la-cluster.lo \
 	libsf_ai_preproc_la-correlation.lo libsf_ai_preproc_la-db.lo \
-	libsf_ai_preproc_la-fsom.lo libsf_ai_preproc_la-mysql.lo \
-	libsf_ai_preproc_la-neural.lo libsf_ai_preproc_la-outdb.lo \
-	libsf_ai_preproc_la-postgresql.lo libsf_ai_preproc_la-regex.lo \
-	libsf_ai_preproc_la-spp_ai.lo libsf_ai_preproc_la-stream.lo \
-	libsf_ai_preproc_la-webserv.lo
+	libsf_ai_preproc_la-fsom.lo libsf_ai_preproc_la-modules.lo \
+	libsf_ai_preproc_la-mysql.lo libsf_ai_preproc_la-neural.lo \
+	libsf_ai_preproc_la-outdb.lo libsf_ai_preproc_la-postgresql.lo \
+	libsf_ai_preproc_la-regex.lo libsf_ai_preproc_la-spp_ai.lo \
+	libsf_ai_preproc_la-stream.lo libsf_ai_preproc_la-webserv.lo
 nodist_libsf_ai_preproc_la_OBJECTS =  \
 	libsf_ai_preproc_la-sf_dynamic_preproc_lib.lo \
 	libsf_ai_preproc_la-sfPolicyUserData.lo
@@ -268,6 +268,7 @@ cluster.c \
 correlation.c \
 db.c \
 fsom/fsom.c \
+modules.c \
 mysql.c \
 neural.c \
 outdb.c \
@@ -417,6 +418,9 @@ libsf_ai_preproc_la-db.lo: db.c
 
 libsf_ai_preproc_la-fsom.lo: fsom/fsom.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-fsom.lo `test -f 'fsom/fsom.c' || echo '$(srcdir)/'`fsom/fsom.c
+
+libsf_ai_preproc_la-modules.lo: modules.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-modules.lo `test -f 'modules.c' || echo '$(srcdir)/'`modules.c
 
 libsf_ai_preproc_la-mysql.lo: mysql.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-mysql.lo `test -f 'mysql.c' || echo '$(srcdir)/'`mysql.c
@@ -840,6 +844,8 @@ fi
 	mkdir -p "${SHARE_PREFIX}/htdocs"
 	mkdir -p "${SHARE_PREFIX}/htdocs/js"
 	mkdir -p "${SHARE_PREFIX}/schemas"
+	mkdir -p "${SHARE_PREFIX}/corr_modules"
+	cp -rf "${PWD}/corr_modules/"* "${SHARE_PREFIX}/corr_modules"
 	install -m 0644 "${PWD}/htdocs/index.html" "${SHARE_PREFIX}/htdocs"
 	install -m 0644 "${PWD}/htdocs/manual_correlations.dtd" "${SHARE_PREFIX}/htdocs"
 	install -m 0644 "${PWD}/htdocs/manual_correlations.xml" "${SHARE_PREFIX}/htdocs"

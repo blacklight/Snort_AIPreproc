@@ -102,9 +102,7 @@ __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 		 src_port1[10],
 		 dst_port1[10],
 		 src_port2[10],
-		 dst_port2[10],
-		 *timestamp1,
-		 *timestamp2;
+		 dst_port2[10];
 
 	if ( !corr )
 		return;
@@ -115,37 +113,27 @@ __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 	snprintf ( src_port1, sizeof ( src_port1 ), "%d", ntohs ( corr->key.a->tcp_src_port ));
 	snprintf ( dst_port1, sizeof ( dst_port1 ), "%d", ntohs ( corr->key.a->tcp_dst_port ));
 
-	timestamp1 = ctime ( &(corr->key.a->timestamp ) );
-	timestamp1 [ strlen ( timestamp1 ) - 1 ] = 0;
-
 	inet_ntop ( AF_INET, &(corr->key.b->ip_src_addr), src_addr2, INET_ADDRSTRLEN );
 	inet_ntop ( AF_INET, &(corr->key.b->ip_dst_addr), dst_addr2, INET_ADDRSTRLEN );
 
 	snprintf ( src_port2, sizeof ( src_port2 ), "%d", ntohs ( corr->key.b->tcp_src_port ));
 	snprintf ( dst_port2, sizeof ( dst_port2 ), "%d", ntohs ( corr->key.b->tcp_dst_port ));
 
-	timestamp2 = ctime ( &(corr->key.b->timestamp ) );
-	timestamp2 [ strlen ( timestamp2 ) - 1 ] = 0;
-
 	fprintf ( fp,
 		"\t\"[%d.%d.%d] %s\\n"
 		"%s:%s -> %s:%s\\n"
-		"%s\\n"
 		"(%d alerts grouped)\" -> "
 
 		"\"[%d.%d.%d] %s\\n"
 		"%s:%s -> %s:%s\\n"
-		"%s\\n"
 		"(%d alerts grouped)\";\n",
 
 		corr->key.a->gid, corr->key.a->sid, corr->key.a->rev, corr->key.a->desc,
 		src_addr1, src_port1, dst_addr1, dst_port1,
-		timestamp1,
 		corr->key.a->grouped_alerts_count,
 
 		corr->key.b->gid, corr->key.b->sid, corr->key.b->rev, corr->key.b->desc,
 		src_addr2, src_port2, dst_addr2, dst_port2,
-		timestamp2,
 		corr->key.b->grouped_alerts_count
 	);
 }		/* -----  end of function __AI_correlated_alerts_to_dot  ----- */
@@ -1230,7 +1218,10 @@ AI_alert_correlation_thread ( void *arg )
 						 bayesian_correlation  = 0.0,
 						 neural_correlation    = 0.0;
 
-	size_t                    n_correlations        = 0;
+	size_t                    n_correlations        = 0,
+						 n_corr_functions      = 0,
+						 n_corr_weights        = 0;
+
 	FILE                      *fp                   = NULL;
 
 	AI_alert_correlation_key  corr_key;
@@ -1254,6 +1245,12 @@ AI_alert_correlation_thread ( void *arg )
 	GVC_t                     *gvc                  = NULL;
 	graph_t                   *g                    = NULL;
 	#endif
+
+	double (**corr_functions)( const AI_snort_alert*, const AI_snort_alert* ) = NULL;
+	double (**corr_weights)() = NULL;
+
+	corr_functions = AI_get_corr_functions( &n_corr_functions );
+	corr_weights   = AI_get_corr_weights ( &n_corr_weights );
 
 	pthread_mutex_init ( &mutex, NULL );
 
@@ -1375,6 +1372,19 @@ AI_alert_correlation_thread ( void *arg )
 					{
 						corr->correlation += AI_neural_correlation_weight() * neural_correlation;
 						n_correlations++;
+					}
+
+					/* Get the correlation indexes from extra correlation modules */
+					if (( corr_functions ))
+					{
+						for ( i=0; i < n_corr_functions; i++ )
+						{
+							if ( corr_weights[i]() != 0.0 )
+							{
+								corr->correlation += corr_weights[i]() * corr_functions[i] ( corr_key.a, corr_key.b );
+								n_correlations++;
+							}
+						}
 					}
 
 					if ( n_correlations != 0 )

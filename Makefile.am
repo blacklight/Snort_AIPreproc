@@ -26,6 +26,7 @@ cluster.c \
 correlation.c \
 db.c \
 fsom/fsom.c \
+modules.c \
 mysql.c \
 neural.c \
 outdb.c \
@@ -57,6 +58,8 @@ fi
 	mkdir -p "${SHARE_PREFIX}/htdocs"
 	mkdir -p "${SHARE_PREFIX}/htdocs/js"
 	mkdir -p "${SHARE_PREFIX}/schemas"
+	mkdir -p "${SHARE_PREFIX}/corr_modules"
+	cp -rf "${PWD}/corr_modules/"* "${SHARE_PREFIX}/corr_modules"
 	install -m 0644 "${PWD}/htdocs/index.html" "${SHARE_PREFIX}/htdocs"
 	install -m 0644 "${PWD}/htdocs/manual_correlations.dtd" "${SHARE_PREFIX}/htdocs"
 	install -m 0644 "${PWD}/htdocs/manual_correlations.xml" "${SHARE_PREFIX}/htdocs"
