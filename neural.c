@@ -277,7 +277,7 @@ __AI_som_train ()
 	{
 		row = (DB_row) DB_fetch_row ( res );
 
-		
+		tuples[i].gid = row[0] ? strtoul ( row[1], NULL, 10 ) : 0;
 		tuples[i].sid = row[1] ? strtoul ( row[1], NULL, 10 ) : 0;
 		tuples[i].rev = row[2] ? strtoul ( row[2], NULL, 10 ) : 0;
 		tuples[i].timestamp = row[3] ? (time_t) strtol ( row[3], NULL, 10 ) : (time_t) 0;
