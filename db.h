@@ -34,16 +34,26 @@
 	#define 	DB_fetch_row 		mysql_fetch_row
 	#define 	DB_free_result 	mysql_free_result
 	#define 	DB_escape_string 	mysql_do_escape_string
+	#define 	DB_do_error 		mysql_do_error
+	#define 	DB_is_gone 		mysql_is_gone
 	#define 	DB_close 			mysql_do_close
 
 	#define 	DB_out_init 			mysql_do_out_init
 	#define 	DB_is_out_init 		mysql_is_out_init
 	#define 	DB_out_query 			mysql_do_out_query
 	#define 	DB_out_escape_string 	mysql_do_out_escape_string
+	#define 	DB_do_out_error 		mysql_do_out_error
+	#define 	DB_is_out_gone 		mysql_is_out_gone
 	#define 	DB_out_close 			mysql_do_out_close
 
 	DB_result* DB_query ( const char* );
 	DB_result* DB_out_query ( const char* );
+
+	const char* DB_do_error();
+	const char* DB_do_out_error();
+
+	BOOL DB_is_gone();
+	BOOL DB_is_out_gone();
 #endif
 
 #ifdef 	HAVE_LIBPQ

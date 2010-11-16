@@ -30,7 +30,6 @@
 #include	<alloca.h>
 #include	<limits.h>
 #include	<math.h>
-#include	<pthread.h>
 #include	<sys/stat.h>
 #include	<time.h>
 #include	<unistd.h>
@@ -68,20 +67,24 @@ AI_neural_correlation_weight ()
 			k = (double) config->alert_correlation_weight / HYPERBOLIC_TANGENT_SOLUTION;
 	
 	snprintf ( query, sizeof ( query ), "SELECT count(*) FROM %s", outdb_config[ALERTS_TABLE] );
+	pthread_mutex_lock ( &outdb_mutex );
 
 	if ( !DB_out_init() )
 	{
+		pthread_mutex_unlock ( &outdb_mutex );
 		AI_fatal_err ( "Unable to connect to the database specified in module configuration", __FILE__, __LINE__ );
 	}
 
 	if ( !( res = (DB_result) DB_out_query ( query )))
 	{
-		AI_fatal_err ( "AIPreproc: Query error", __FILE__, __LINE__ );
+		pthread_mutex_unlock ( &outdb_mutex );
+		return 0;
 	}
 
 	row = (DB_row) DB_fetch_row ( res );
 	x = strtod ( row[0], NULL );
 	DB_free_result ( res );
+	pthread_mutex_unlock ( &outdb_mutex );
 
 	return (( exp(x/k) - exp(-x/k) ) / ( exp(x/k) + exp(-x/k) ));
 }		/* -----  end of function AI_neural_correlation_weight  ----- */
@@ -183,7 +186,10 @@ AI_alert_neural_som_correlation ( const AI_snort_alert *a, const AI_snort_alert 
 	/* The timestamp of this alert is computed like the average timestamp of the grouped alerts */
 	for ( i=1; i < a->grouped_alerts_count; i++ )
 	{
-		time_sum += (unsigned long long int) a->grouped_alerts[i-1]->timestamp;
+		if ( a->grouped_alerts[i-1] )
+		{
+			time_sum += (unsigned long long int) a->grouped_alerts[i-1]->timestamp;
+		}
 	}
 
 	t1.timestamp = (time_t) ( time_sum / a->grouped_alerts_count );
@@ -199,7 +205,10 @@ AI_alert_neural_som_correlation ( const AI_snort_alert *a, const AI_snort_alert 
 	
 	for ( i=1; i < b->grouped_alerts_count; i++ )
 	{
-		time_sum += (unsigned long long int) b->grouped_alerts[i-1]->timestamp;
+		if ( b->grouped_alerts[i-1] )
+		{
+			time_sum += (unsigned long long int) b->grouped_alerts[i-1]->timestamp;
+		}
 	}
 
 	t2.timestamp = (time_t) ( time_sum / b->grouped_alerts_count );
@@ -224,8 +233,11 @@ __AI_som_train ()
 	DB_row    row;
 	AI_som_alert_tuple   *tuples = NULL;
 
+	pthread_mutex_lock ( &outdb_mutex );
+
 	if ( !DB_out_init() )
 	{
+		pthread_mutex_unlock ( &outdb_mutex );
 		AI_fatal_err ( "Unable to connect to the database specified in module configuration", __FILE__, __LINE__ );
 	}
 
@@ -251,9 +263,11 @@ __AI_som_train ()
 
 	if ( !( res = (DB_result) DB_out_query ( query )))
 	{
+		pthread_mutex_unlock ( &outdb_mutex );
 		return;
 	}
 
+	pthread_mutex_unlock ( &outdb_mutex );
 	num_rows = DB_num_rows ( res );
 
 	if ( num_rows == 0 )
@@ -295,7 +309,6 @@ __AI_som_train ()
 	}
 
 	DB_free_result ( res );
-
 	pthread_mutex_lock ( &neural_mutex );
 
 	if ( !net )

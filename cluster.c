@@ -21,7 +21,6 @@
 
 #include	<limits.h>
 #include	<math.h>
-#include 	<pthread.h>
 #include	<stdio.h>
 #include	<unistd.h>
 
@@ -481,6 +480,9 @@ __AI_cluster_thread ( void* arg )
 			alert_log = NULL;
 		}
 		
+		/* get_alerts() is a function pointer that can point to the function for getting the alerts from
+		 * the plain alert log file or from the database. Calling it the source of the alerts is
+		 * completely transparent to this level */
 		if ( !( alert_log = get_alerts() ))
 		{
 			pthread_mutex_unlock ( &mutex );

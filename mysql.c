@@ -21,6 +21,7 @@
 #ifdef 	HAVE_LIBMYSQLCLIENT
 
 #include	<mysql/mysql.h>
+#include	<mysql/errmsg.h>
 
 /** \defgroup mysql Module for the interface with a MySQL DBMS
  * @{ */
@@ -124,6 +125,18 @@ mysql_do_escape_string ( char **to, const char *from, unsigned long length )
 	return mysql_real_escape_string ( db, *to, from, length );
 }
 
+const char*
+mysql_do_error ()
+{
+	return mysql_error ( db );
+}
+
+BOOL
+mysql_is_gone ()
+{
+	return (( mysql_errno ( db ) == CR_SERVER_GONE_ERROR ) || ( mysql_errno ( db ) == CR_SERVER_LOST ));
+}
+
 void
 mysql_do_close ()
 {
@@ -154,6 +167,18 @@ unsigned long
 mysql_do_out_escape_string ( char **to, const char *from, unsigned long length )
 {
 	return mysql_real_escape_string ( outdb, *to, from, length );
+}
+
+const char*
+mysql_do_out_error ()
+{
+	return mysql_error ( outdb );
+}
+
+BOOL
+mysql_is_out_gone ()
+{
+	return (( mysql_errno ( outdb ) == CR_SERVER_GONE_ERROR ) || ( mysql_errno ( outdb ) == CR_SERVER_LOST ));
 }
 
 void

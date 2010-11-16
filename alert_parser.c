@@ -19,7 +19,6 @@
 
 #include	"spp_ai.h"
 
-#include 	<pthread.h>
 #include	<stdio.h>
 #include	<sys/stat.h>
 #include	<time.h>
@@ -325,7 +324,7 @@ AI_file_alertparser_thread ( void* arg )
 					free ( matches );
 					matches = NULL;
 				} else {
-					AI_fatal_err ( "Parse error: a line in the alert log cannot be associated to an alert block", __FILE__, __LINE__ );
+					_dpd.errMsg ( "Error: a line in the alert log cannot be associated to an alert block", __FILE__, __LINE__ );
 				}
 			} else if ( preg_match ( "\\[Priority:\\s*([0-9]+)\\]", line, &matches, &nmatches) > 0 ) {
 				alert->priority = (unsigned short) strtoul ( matches[0], NULL, 10 );

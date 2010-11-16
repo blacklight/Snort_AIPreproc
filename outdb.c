@@ -30,7 +30,6 @@
 #include	"uthash.h"
 
 #include	<alloca.h>
-#include	<pthread.h>
 
 /** Hash table built as cache for the couple of alerts already belonging to the same cluster,
  * for avoiding more queries on the database*/
@@ -41,7 +40,7 @@ typedef struct  {
 } AI_couples_cache;
 
 /** Mutex object, for managing concurrent thread access to the database */
-PRIVATE pthread_mutex_t  mutex;
+pthread_mutex_t outdb_mutex;
 PRIVATE AI_couples_cache *couples_cache = NULL;
 
 /**
@@ -51,7 +50,7 @@ PRIVATE AI_couples_cache *couples_cache = NULL;
 void
 AI_outdb_mutex_initialize ()
 {
-	pthread_mutex_init ( &mutex, NULL );
+	pthread_mutex_init ( &outdb_mutex, NULL );
 }		/* -----  end of function AI_outdb_mutex_initialize  ----- */
 
 /**
@@ -80,7 +79,7 @@ AI_store_alert_to_db_thread ( void *arg )
 	DB_row    row;
 	AI_snort_alert *alert = (AI_snort_alert*) arg;
 
-	pthread_mutex_lock ( &mutex );
+	pthread_mutex_lock ( &outdb_mutex );
 
 	if ( !DB_out_init() )
 		AI_fatal_err ( "Unable to connect to the specified output database", __FILE__, __LINE__ );
@@ -109,13 +108,14 @@ AI_store_alert_to_db_thread ( void *arg )
 	if ( !( res = (DB_result) DB_out_query ( query )))
 	{
 		_dpd.logMsg ( "AIPreproc: Warning: error in executing query: '%s'\n", query );
-		pthread_mutex_unlock ( &mutex );
+		pthread_mutex_unlock ( &outdb_mutex );
 		pthread_exit ((void*) 0);
+		return (void*) 0;
 	}
 
 	if ( !( row = (DB_row) DB_fetch_row ( res )))
 	{
-		pthread_mutex_unlock ( &mutex );
+		pthread_mutex_unlock ( &outdb_mutex );
 		pthread_exit ((void*) 0);
 	}
 
@@ -145,13 +145,13 @@ AI_store_alert_to_db_thread ( void *arg )
 		if ( !( res = (DB_result) DB_out_query ( query )))
 		{
 			_dpd.logMsg ( "AIPreproc: Warning: error in executing query: '%s'\n", query );
-			pthread_mutex_unlock ( &mutex );
+			pthread_mutex_unlock ( &outdb_mutex );
 			pthread_exit ((void*) 0);
 		}
 
 		if ( !( row = (DB_row) DB_fetch_row ( res )))
 		{
-			pthread_mutex_unlock ( &mutex );
+			pthread_mutex_unlock ( &outdb_mutex );
 			pthread_exit ((void*) 0);
 		}
 
@@ -211,13 +211,13 @@ AI_store_alert_to_db_thread ( void *arg )
 	if ( !( res = (DB_result) DB_out_query ( query )))
 	{
 		_dpd.logMsg ( "AIPreproc: Warning: error in executing query: '%s'\n", query );
-		pthread_mutex_unlock ( &mutex );
+		pthread_mutex_unlock ( &outdb_mutex );
 		pthread_exit ((void*) 0);
 	}
 
 	if ( !( row = (DB_row) DB_fetch_row ( res )))
 	{
-		pthread_mutex_unlock ( &mutex );
+		pthread_mutex_unlock ( &outdb_mutex );
 		pthread_exit ((void*) 0);
 	}
 
@@ -274,7 +274,7 @@ AI_store_alert_to_db_thread ( void *arg )
 		}
 	}
 
-	pthread_mutex_unlock ( &mutex );
+	pthread_mutex_unlock ( &outdb_mutex );
 	pthread_exit ((void*) 0);
 	return (void*) 0;
 }		/* -----  end of function AI_store_alert_to_db_thread  ----- */
@@ -303,7 +303,7 @@ AI_store_cluster_to_db_thread ( void *arg )
 	DB_row    row;
 	BOOL      new_cluster = false;
 
-	pthread_mutex_lock ( &mutex );
+	pthread_mutex_lock ( &outdb_mutex );
 
 	/* Check if the couple of alerts is already in our cache, so it already
 	 * belongs to the same cluster. If so, just return */
@@ -311,7 +311,7 @@ AI_store_cluster_to_db_thread ( void *arg )
 
 	if ( found )
 	{
-		pthread_mutex_unlock ( &mutex );
+		pthread_mutex_unlock ( &outdb_mutex );
 		pthread_exit ((void*) 0);
 		return (void*) 0;
 	}
@@ -323,7 +323,7 @@ AI_store_cluster_to_db_thread ( void *arg )
 	/* If one of the two alerts has no alert_id, simply return */
 	if ( !alerts_couple->alert1->alert_id || !alerts_couple->alert2->alert_id )
 	{
-		pthread_mutex_unlock ( &mutex );
+		pthread_mutex_unlock ( &outdb_mutex );
 		pthread_exit ((void*) 0);
 		return (void*) 0;
 	}
@@ -337,14 +337,14 @@ AI_store_cluster_to_db_thread ( void *arg )
 	if ( !( res = (DB_result) DB_out_query ( query )))
 	{
 		_dpd.logMsg ( "AIPreproc: Warning: error in executing query: '%s'\n", query );
-		pthread_mutex_unlock ( &mutex );
+		pthread_mutex_unlock ( &outdb_mutex );
 		pthread_exit ((void*) 0);
 		return (void*) 0;
 	}
 
 	if ( !( row = (DB_row) DB_fetch_row ( res )))
 	{
-		pthread_mutex_unlock ( &mutex );
+		pthread_mutex_unlock ( &outdb_mutex );
 		pthread_exit ((void*) 0);
 		return (void*) 0;
 	}
@@ -384,7 +384,7 @@ AI_store_cluster_to_db_thread ( void *arg )
 		found->alerts_couple = alerts_couple;
 		found->cluster_id = cluster1;
 		HASH_ADD ( hh, couples_cache, alerts_couple, sizeof ( AI_alerts_couple ), found );
-		pthread_mutex_unlock ( &mutex );
+		pthread_mutex_unlock ( &outdb_mutex );
 		pthread_exit ((void*) 0);
 		return (void*) 0;
 	}
@@ -417,14 +417,14 @@ AI_store_cluster_to_db_thread ( void *arg )
 		if ( !( res = (DB_result) DB_out_query ( query )))
 		{
 			_dpd.logMsg ( "AIPreproc: Warning: error in executing query: '%s'\n", query );
-			pthread_mutex_unlock ( &mutex );
+			pthread_mutex_unlock ( &outdb_mutex );
 			pthread_exit ((void*) 0);
 			return (void*) 0;
 		}
 
 		if ( !( row = (DB_row) DB_fetch_row ( res )))
 		{
-			pthread_mutex_unlock ( &mutex );
+			pthread_mutex_unlock ( &outdb_mutex );
 			pthread_exit ((void*) 0);
 			return (void*) 0;
 		}
@@ -468,7 +468,7 @@ AI_store_cluster_to_db_thread ( void *arg )
 	found->cluster_id = cluster1;
 	HASH_ADD ( hh, couples_cache, alerts_couple, sizeof ( AI_alerts_couple ), found );
 
-	pthread_mutex_unlock ( &mutex );
+	pthread_mutex_unlock ( &outdb_mutex );
 	pthread_exit ((void*) 0);
 	return (void*) 0;
 }		/* -----  end of function AI_store_cluster_to_db_thread  ----- */
@@ -485,7 +485,7 @@ AI_store_correlation_to_db_thread ( void *arg )
 	char query[1024] = { 0 };
 	AI_alert_correlation *corr = (AI_alert_correlation*) arg;
 
-	pthread_mutex_lock ( &mutex );
+	pthread_mutex_lock ( &outdb_mutex );
 
 	/* Initialize the database (it just does nothing if it is already initialized) */
 	if ( !DB_out_init() )
@@ -501,7 +501,7 @@ AI_store_correlation_to_db_thread ( void *arg )
 		corr->correlation );
 	DB_free_result ((DB_result) DB_out_query ( query ));
 
-	pthread_mutex_unlock ( &mutex );
+	pthread_mutex_unlock ( &outdb_mutex );
 	pthread_exit ((void*) 0);
 	return 0;
 }		/* -----  end of function AI_store_correlation_to_db_thread  ----- */

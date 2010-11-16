@@ -22,7 +22,6 @@
 
 #include	"db.h"
 
-#include 	<pthread.h>
 #include	<time.h>
 #include	<unistd.h>
 

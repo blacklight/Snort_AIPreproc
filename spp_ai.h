@@ -28,6 +28,8 @@
 #include 	"sf_dynamic_preprocessor.h"
 #include	"uthash.h"
 
+#include	<pthread.h>
+
 #define 	PRIVATE 		static
 
 /** Default interval in seconds for the thread cleaning up TCP streams */
@@ -523,6 +525,9 @@ extern AI_snort_alert   **alerts_pool;
 
 /** Number of alerts contained in the buffer to be serialized */
 extern unsigned int     alerts_pool_count;
+
+/** Mutex variable for writing on the output database */
+extern pthread_mutex_t  outdb_mutex;
 
 /** Configuration of the module */
 extern AI_config        *config;

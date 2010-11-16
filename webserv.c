@@ -20,7 +20,6 @@
 #include	"spp_ai.h"
 
 #include	<alloca.h>
-#include 	<pthread.h>
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<sys/stat.h>

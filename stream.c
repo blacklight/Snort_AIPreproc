@@ -19,7 +19,6 @@
 
 #include 	"spp_ai.h"
 
-#include 	<pthread.h>
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<unistd.h>
@@ -43,18 +42,21 @@ PRIVATE void
 __AI_stream_free ( struct pkt_info* stream )
 {
 	struct pkt_info *tmp = NULL;
-	char ip [ INET_ADDRSTRLEN ];
 
+	/* If the provided stream is empty, or the hash table contains no element, just return */
 	if ( !stream || !hash || HASH_COUNT(hash) == 0 )
 		return;
 
+	/* Lock the mutex over the hash table and search for a stream having the provided key */
 	pthread_mutex_lock ( &hash_mutex );
 	HASH_FIND ( hh, hash, &(stream->key), sizeof(struct pkt_key), tmp );
 	pthread_mutex_unlock ( &hash_mutex );
 
+	/* If that key is not there, just return */
 	if ( !tmp )
 		return;
 
+	/* If the stream has no IP or TCP header, return */
 	if ( stream->pkt )
 	{
 		if ( !stream->pkt->ip4_header )
@@ -64,12 +66,12 @@ __AI_stream_free ( struct pkt_info* stream )
 			return;
 	}
 
-	inet_ntop ( AF_INET, &(stream->key.src_ip), ip, INET_ADDRSTRLEN );
-
+	/* Remove the stream from the hash table */
 	pthread_mutex_lock ( &hash_mutex );
 	HASH_DEL ( hash, stream );
 	pthread_mutex_unlock ( &hash_mutex );
 
+	/* Remove all the packets contained in the stream */
 	while ( stream )
 	{
 		tmp = stream->next;
