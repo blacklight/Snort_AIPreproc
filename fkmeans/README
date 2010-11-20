@@ -1,0 +1,88 @@
+fkmeans is a tiny C library that allows you to perform k-means clustering
+algorithm over arbitrary sets of n-dimensional data. All you need to do is:
+
+- Include the file kmeans.h in your sources;
+
+- Consider your data set as a vector of vectors of double items (double**),
+  where each vector is an n-dimensional item of your data set;
+
+- If you want to perform the k-means algorithm over your data and you already
+  know the number k of clusters there contained, or its estimate, you want to
+  execute some code like this (in this example, the data set is 3-dimensional,
+  i.e. it contains N vectors whose size is 3, and we know it contains n_clus
+  clusters):
+
+    kmeans_t *km;
+    double **dataset;
+    ...
+    km = kmeans_new ( dataset, N, 3, n_clus );
+    kmeans ( km );
+    ...
+    kmeans_free ( km );
+
+  If you don't already know the number of clusters contained in your data set,
+  you can use the function kmeans_auto() for automatically attempting to find
+  the best one using Schwarz's criterion. Be careful, this operation can be very
+  slow, especially if executed on data set having many elements. The example
+  above would simply become something like:
+
+    kmeans_t *km;
+    double **dataset;
+    ...
+    km = kmeans_auto ( dataset, N, 3 );
+    ...
+    kmeans_free ( km );
+
+- Once the clustering has been performed, the clusters of data can be simply
+  accessed from your kmeans_t* structure, as they are held as a double*** field
+  named "clusters". Each vector in this structure represents a cluter, whose
+  size is specified in the field cluster_sizes[i] of the structure. Each cluster
+  contains the items that form it, each of it is an n-dimensional vector. The
+  number of clusters is specified in the field "k" of the structure, the
+  number of dimensions of each element is specified in the field "dataset_dim"
+  and the number of elements in the originary data set is specified in the field
+  "dataset_size". So, for example:
+
+    for ( i=0; i < km->k; i++ )
+    {
+	    printf ( "cluster %d: [ ", i );
+
+	    for ( j=0; j < km->cluster_sizes[i]; j++ )
+	    {
+		    printf ( "(" );
+
+		    for ( k=0; k < km->dataset_size; k++ )
+		    {
+			    printf ( "%f, ", km->clusters[i][j][k] );
+		    }
+
+		    printf ( "), ");
+		}
+
+	    printf ( "]\n" );
+	}
+
+  The library however already comes with a sample implementation, contained in
+  "test.c", and typing "make" this example will be built. This example takes 0,
+  1, 2 or 3 command-line arguments, in format
+
+  $ ./kmeans-test [num_elements] [min_value] [max_value]
+
+  and randomly generates a 2-dimensional data set containing num_elements, whose
+  coordinates are between min_value and max_value. The clustering is then
+  performed and the results are shown on stdout, with the clusters coloured in
+  different ways;
+
+- After you write your source, remember to include the file "kmeans.c",
+  containing the implementation of the library, in the list of your sources
+  files;
+
+- That's all. Include "kmeans.h", write your code using
+  kmeans_new()+kmeans()+kmeans_free() or kmeans_auto()+kmeans_free(), explore
+  your clusters, remember to include "kmeans.c" in the list of your source
+  files, and you're ready for k-means clustering.
+
+Author: Fabio "BlackLight" Manganiello,
+        <blacklight@autistici.org>,
+        http://0x00.ath.cx
+

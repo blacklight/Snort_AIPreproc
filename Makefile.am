@@ -25,10 +25,12 @@ bayesian.c \
 cluster.c \
 correlation.c \
 db.c \
+fkmeans/kmeans.c \
 fsom/fsom.c \
 modules.c \
 mysql.c \
 neural.c \
+neural_cluster.c \
 outdb.c \
 postgresql.c \
 regex.c \

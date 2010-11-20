@@ -84,8 +84,10 @@ am_libsf_ai_preproc_la_OBJECTS = libsf_ai_preproc_la-alert_history.lo \
 	libsf_ai_preproc_la-cencode.lo libsf_ai_preproc_la-bayesian.lo \
 	libsf_ai_preproc_la-cluster.lo \
 	libsf_ai_preproc_la-correlation.lo libsf_ai_preproc_la-db.lo \
-	libsf_ai_preproc_la-fsom.lo libsf_ai_preproc_la-modules.lo \
-	libsf_ai_preproc_la-mysql.lo libsf_ai_preproc_la-neural.lo \
+	libsf_ai_preproc_la-kmeans.lo libsf_ai_preproc_la-fsom.lo \
+	libsf_ai_preproc_la-modules.lo libsf_ai_preproc_la-mysql.lo \
+	libsf_ai_preproc_la-neural.lo \
+	libsf_ai_preproc_la-neural_cluster.lo \
 	libsf_ai_preproc_la-outdb.lo libsf_ai_preproc_la-postgresql.lo \
 	libsf_ai_preproc_la-regex.lo libsf_ai_preproc_la-spp_ai.lo \
 	libsf_ai_preproc_la-stream.lo libsf_ai_preproc_la-webserv.lo
@@ -267,10 +269,12 @@ bayesian.c \
 cluster.c \
 correlation.c \
 db.c \
+fkmeans/kmeans.c \
 fsom/fsom.c \
 modules.c \
 mysql.c \
 neural.c \
+neural_cluster.c \
 outdb.c \
 postgresql.c \
 regex.c \
@@ -416,6 +420,9 @@ libsf_ai_preproc_la-correlation.lo: correlation.c
 libsf_ai_preproc_la-db.lo: db.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-db.lo `test -f 'db.c' || echo '$(srcdir)/'`db.c
 
+libsf_ai_preproc_la-kmeans.lo: fkmeans/kmeans.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-kmeans.lo `test -f 'fkmeans/kmeans.c' || echo '$(srcdir)/'`fkmeans/kmeans.c
+
 libsf_ai_preproc_la-fsom.lo: fsom/fsom.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-fsom.lo `test -f 'fsom/fsom.c' || echo '$(srcdir)/'`fsom/fsom.c
 
@@ -427,6 +434,9 @@ libsf_ai_preproc_la-mysql.lo: mysql.c
 
 libsf_ai_preproc_la-neural.lo: neural.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-neural.lo `test -f 'neural.c' || echo '$(srcdir)/'`neural.c
+
+libsf_ai_preproc_la-neural_cluster.lo: neural_cluster.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-neural_cluster.lo `test -f 'neural_cluster.c' || echo '$(srcdir)/'`neural_cluster.c
 
 libsf_ai_preproc_la-outdb.lo: outdb.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-outdb.lo `test -f 'outdb.c' || echo '$(srcdir)/'`outdb.c

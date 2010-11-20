@@ -37,20 +37,21 @@
 /** Enumeration for the input fields of the SOM neural network */
 enum  { som_src_ip, som_dst_ip, som_src_port, som_dst_port, som_time, som_gid, som_sid, som_rev, SOM_NUM_ITEMS };
 
-typedef struct  {
-	unsigned int  gid;
-	unsigned int  sid;
-	unsigned int  rev;
-	uint32_t      src_ip_addr;
-	uint32_t      dst_ip_addr;
-	uint16_t      src_port;
-	uint16_t      dst_port;
-	time_t        timestamp;
-} AI_som_alert_tuple;
-
-PRIVATE time_t latest_serialization_time  = ( time_t ) 0;
-PRIVATE som_network_t *net                = NULL;
+PRIVATE time_t latest_serialization_time         = ( time_t ) 0;
+PRIVATE som_network_t *net                       = NULL;
+PRIVATE AI_alerts_per_neuron *alerts_per_neuron = NULL;
 PRIVATE pthread_mutex_t neural_mutex;
+
+/**
+ * \brief  Get the hash table containing the alerts associated to each output neuron
+ * \return The hash table
+ */
+
+AI_alerts_per_neuron*
+AI_get_alerts_per_neuron ()
+{
+	return alerts_per_neuron;
+}		/* -----  end of function AI_get_alerts_per_neuron  ----- */
 
 /**
  * \brief  Get the current weight of the neural correlation index using a hyperbolic tangent function with a parameter expressed in function of the current number of alerts in the database
@@ -126,6 +127,11 @@ __AI_som_alert_distance ( const AI_som_alert_tuple alert1, const AI_som_alert_tu
 		  x2 = 0,
 		  y2 = 0;
 	
+	int i;
+	BOOL is_found = false;
+	AI_alerts_per_neuron *found = NULL;
+	AI_alerts_per_neuron_key key;
+
 	if ( !( input1 = (double*) alloca ( SOM_NUM_ITEMS * sizeof ( double ))))
 	{
 		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
@@ -136,23 +142,127 @@ __AI_som_alert_distance ( const AI_som_alert_tuple alert1, const AI_som_alert_tu
 		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 	}
 
-	pthread_mutex_lock ( &neural_mutex );
-
 	if ( !net )
 	{
-		pthread_mutex_unlock ( &neural_mutex );
 		return 0.0;
 	}
 
 	__AI_alert_to_som_data ( alert1, &input1 );
+	__AI_alert_to_som_data ( alert2, &input2 );
+
+	pthread_mutex_lock ( &neural_mutex );
+
 	som_set_inputs ( net, input1 );
 	som_get_best_neuron_coordinates ( net, &x1, &y1 );
 
-	__AI_alert_to_som_data ( alert2, &input2 );
 	som_set_inputs ( net, input2 );
 	som_get_best_neuron_coordinates ( net, &x2, &y2 );
 
 	pthread_mutex_unlock ( &neural_mutex );
+
+	/* Check if there are already entries in the hash table for these two neurons, otherwise
+	 * it creates them and append these two alerts */
+	key.x = x1;
+	key.y = y1;
+	HASH_FIND ( hh, alerts_per_neuron, &key, sizeof ( key ), found );
+
+	if ( !found )
+	{
+		if ( !( found = (AI_alerts_per_neuron*) calloc ( 1, sizeof ( AI_alerts_per_neuron ))))
+		{
+			AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+		}
+
+		found->key = key;
+		found->n_alerts = 1;
+
+		if ( !( found->alerts = (AI_som_alert_tuple*) calloc ( 1, sizeof ( AI_som_alert_tuple ))))
+		{
+			AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+		}
+
+		found->alerts[0] = alert1;
+		HASH_ADD ( hh, alerts_per_neuron, key, sizeof ( key ), found );
+	} else {
+		is_found = false;
+
+		for ( i=0; i < found->n_alerts && !is_found; i++ )
+		{
+			if (
+				alert1.gid == found->alerts[i].gid &&
+				alert1.sid == found->alerts[i].sid &&
+				alert1.rev == found->alerts[i].rev &&
+				alert1.src_ip_addr == found->alerts[i].src_ip_addr &&
+				alert1.dst_ip_addr == found->alerts[i].dst_ip_addr &&
+				alert1.src_port == found->alerts[i].src_port &&
+				alert1.dst_port == found->alerts[i].dst_port )
+			{
+				is_found = true;
+			}
+		}
+
+		if ( !is_found )
+		{
+			if ( !( found->alerts = (AI_som_alert_tuple*) realloc ( found->alerts,
+							(++(found->n_alerts)) * sizeof ( AI_som_alert_tuple ))))
+			{
+				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+			}
+
+			found->alerts[ found->n_alerts - 1 ] = alert1;
+		}
+	}
+
+	key.x = x2;
+	key.y = y2;
+	HASH_FIND ( hh, alerts_per_neuron, &key, sizeof ( key ), found );
+
+	if ( !found )
+	{
+		if ( !( found = (AI_alerts_per_neuron*) calloc ( 1, sizeof ( AI_alerts_per_neuron ))))
+		{
+			AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+		}
+
+		found->key = key;
+		found->n_alerts = 1;
+
+		if ( !( found->alerts = (AI_som_alert_tuple*) calloc ( 1, sizeof ( AI_som_alert_tuple ))))
+		{
+			AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+		}
+
+		found->alerts[0] = alert2;
+		HASH_ADD ( hh, alerts_per_neuron, key, sizeof ( key ), found );
+	} else {
+		is_found = false;
+
+		for ( i=0; i < found->n_alerts && !is_found; i++ )
+		{
+			if (
+				alert2.gid == found->alerts[i].gid &&
+				alert2.sid == found->alerts[i].sid &&
+				alert2.rev == found->alerts[i].rev &&
+				alert2.src_ip_addr == found->alerts[i].src_ip_addr &&
+				alert2.dst_ip_addr == found->alerts[i].dst_ip_addr &&
+				alert2.src_port == found->alerts[i].src_port &&
+				alert2.dst_port == found->alerts[i].dst_port )
+			{
+				is_found = true;
+			}
+		}
+
+		if ( !is_found )
+		{
+			if ( !( found->alerts = (AI_som_alert_tuple*) realloc ( found->alerts,
+				(++(found->n_alerts)) * sizeof ( AI_som_alert_tuple ))))
+			{
+				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+			}
+
+			found->alerts[ found->n_alerts - 1 ] = alert2;
+		}
+	}
 
 	/* Return the normalized euclidean distance in [0,1] (the normalization is made considering that the maximum distance
 	 * between two points on the output neurons matrix is the distance between the upper-left and bottom-right points) */
@@ -170,9 +280,7 @@ __AI_som_alert_distance ( const AI_som_alert_tuple alert1, const AI_som_alert_tu
 double
 AI_alert_neural_som_correlation ( const AI_snort_alert *a, const AI_snort_alert *b )
 {
-	size_t                 i = 0;
-	unsigned long long int time_sum = 0;
-	AI_som_alert_tuple     t1, t2;
+	AI_som_alert_tuple t1, t2;
 
 	t1.gid = a->gid;
 	t1.sid = a->sid;
@@ -181,18 +289,7 @@ AI_alert_neural_som_correlation ( const AI_snort_alert *a, const AI_snort_alert 
 	t1.dst_ip_addr = ntohl ( a->ip_dst_addr );
 	t1.src_port = ntohs ( a->tcp_src_port );
 	t1.dst_port = ntohs ( a->tcp_dst_port );
-	time_sum = (unsigned long long int) a->timestamp;
-	
-	/* The timestamp of this alert is computed like the average timestamp of the grouped alerts */
-	for ( i=1; i < a->grouped_alerts_count; i++ )
-	{
-		if ( a->grouped_alerts[i-1] )
-		{
-			time_sum += (unsigned long long int) a->grouped_alerts[i-1]->timestamp;
-		}
-	}
-
-	t1.timestamp = (time_t) ( time_sum / a->grouped_alerts_count );
+	t1.timestamp = a->timestamp;
 
 	t2.gid = b->gid;
 	t2.sid = b->sid;
@@ -201,17 +298,7 @@ AI_alert_neural_som_correlation ( const AI_snort_alert *a, const AI_snort_alert 
 	t2.dst_ip_addr = ntohl ( b->ip_dst_addr );
 	t2.src_port = ntohs ( b->tcp_src_port );
 	t2.dst_port = ntohs ( b->tcp_dst_port );
-	time_sum = (unsigned long long int) b->timestamp;
-	
-	for ( i=1; i < b->grouped_alerts_count; i++ )
-	{
-		if ( b->grouped_alerts[i-1] )
-		{
-			time_sum += (unsigned long long int) b->grouped_alerts[i-1]->timestamp;
-		}
-	}
-
-	t2.timestamp = (time_t) ( time_sum / b->grouped_alerts_count );
+	t2.timestamp = b->timestamp;
 	return __AI_som_alert_distance ( t1, t2 );
 }		/* -----  end of function AI_alert_neural_som_correlation  ----- */
 
@@ -338,8 +425,9 @@ __AI_som_train ()
 void*
 AI_neural_thread ( void *arg )
 {
-	BOOL do_train = false;
 	struct stat st;
+	BOOL do_train = false;
+	pthread_t neural_clustering_thread;
 
 	pthread_mutex_init ( &neural_mutex, NULL );
 
@@ -351,6 +439,14 @@ AI_neural_thread ( void *arg )
 	if ( strlen ( config->netfile ) == 0 )
 	{
 		AI_fatal_err ( "AIPreproc: neural network thread launched but netfile option was not specified", __FILE__, __LINE__ );
+	}
+
+	if ( config->neuralClusteringInterval != 0 )
+	{
+		if ( pthread_create ( &neural_clustering_thread, NULL, AI_neural_clustering_thread, NULL ) != 0 )
+		{
+			AI_fatal_err ( "Failed to create the manual correlations parsing thread", __FILE__, __LINE__ );
+		}
 	}
 
 	while ( 1 )

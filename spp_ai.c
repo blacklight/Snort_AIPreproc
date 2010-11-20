@@ -172,14 +172,14 @@ static AI_config * AI_parse(char *args)
 {
 	char *arg;
 	char *match;
-	char alertfile[1024]          = { 0 },
-		alert_history_file[1024] = { 0 },
-		clusterfile[1024]        = { 0 },
-		corr_alerts_dir[1024]    = { 0 },
-		corr_modules_dir[1024]   = { 0 },
-		corr_rules_dir[1024]     = { 0 },
-		webserv_dir[1024]        = { 0 },
-		webserv_banner[1024]     = { 0 };
+	char alertfile[1024]           = { 0 },
+		alert_history_file[1024]  = { 0 },
+		clusterfile[1024]         = { 0 },
+		corr_alerts_dir[1024]     = { 0 },
+		corr_modules_dir[1024]    = { 0 },
+		corr_rules_dir[1024]      = { 0 },
+		webserv_dir[1024]         = { 0 },
+		webserv_banner[1024]      = { 0 };
 
 	char **matches       = NULL;
 	int  nmatches        = 0;
@@ -217,6 +217,7 @@ static AI_config * AI_parse(char *args)
 			     correlation_graph_interval           = 0,
 			     database_parsing_interval            = 0,
 				manual_correlations_parsing_interval = 0,
+				neural_clustering_interval           = 0,
 				neural_network_training_interval     = 0,
 				neural_train_steps                   = 0,
 				output_neurons_per_side              = 0,
@@ -526,6 +527,27 @@ static AI_config * AI_parse(char *args)
 	config->neuralNetworkTrainingInterval = neural_network_training_interval;
 	_dpd.logMsg( "    Neural network training interval: %u\n", config->neuralNetworkTrainingInterval );
 
+	/* Parsing the neural_clustering_interval option */
+	if (( arg = (char*) strcasestr( args, "neural_clustering_interval" ) ))
+	{
+		for ( arg += strlen("neural_clustering_interval");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			AI_fatal_err ( "neural_clustering_interval option used but "
+				"no value specified", __FILE__, __LINE__ );
+		}
+
+		neural_clustering_interval = strtoul ( arg, NULL, 10 );
+	} else {
+		neural_clustering_interval = DEFAULT_NEURAL_CLUSTERING_INTERVAL;
+	}
+
+	config->neuralClusteringInterval = neural_clustering_interval;
+	_dpd.logMsg( "    Neural network clustering interval: %u\n", config->neuralClusteringInterval );
+
 	/* Parsing the output_neurons_per_side option */
 	if (( arg = (char*) strcasestr( args, "output_neurons_per_side" ) ))
 	{
@@ -795,6 +817,9 @@ static AI_config * AI_parse(char *args)
 		config->webserv_dir[i] = 0;
 
 	_dpd.logMsg("    webserv_dir: %s\n", config->webserv_dir);
+
+	snprintf ( config->neural_clusters_log, sizeof ( config->neural_clusters_log ), "%s/neural_clusters.xml", config->webserv_dir );
+	_dpd.logMsg("    neural_clusters_log: %s\n", config->neural_clusters_log);
 
 	/* Parsing the corr_modules_dir option */
 	if (( arg = (char*) strcasestr( args, "corr_modules_dir" ) ))

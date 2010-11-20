@@ -81,6 +81,11 @@
  * alert correlations and the next one (this value should usually be high) */
 #define 	DEFAULT_NEURAL_NETWORK_TRAINING_INTERVAL 	43200
 
+/** Default interval in seconds between an execution of the thread that attempts to cluster
+ * the output layer of the neural network searching for alerts belonging to the same
+ * attack scenario and the next one */
+#define 	DEFAULT_NEURAL_CLUSTERING_INTERVAL 		1200
+
 /** Default interval of validity in seconds for an entry in the cache of correlated alerts */
 #define 	DEFAULT_BAYESIAN_CORRELATION_CACHE_VALIDITY 	600
 
@@ -193,6 +198,11 @@ typedef struct
 	/** Interval in seconds between an invocation of the thread for parsing XML manual correlations and the next one */
 	unsigned long  manualCorrelationsParsingInterval;
 
+	/** Interval in seconds between an execution of the thread that attempts to cluster
+	 * the output layer of the neural network searching for alerts belonging to the same
+	 * attack scenario and the next one */
+	unsigned long  neuralClusteringInterval;
+
 	/** Interval in seconds for which an entry in the cache of correlated alerts is valid */
 	unsigned long  bayesianCorrelationCacheValidity;
 
@@ -255,6 +265,9 @@ typedef struct
 
 	/** File keeping the serialized neural network used for the alert correlation */
 	char          netfile[1024];
+
+	/** File containing the likely clusters computed over the output layer of the neural network */
+	char          neural_clusters_log[1024];
 
 	/** Database name, if database logging is used */
 	char          dbname[256];
@@ -451,6 +464,34 @@ typedef struct  {
 	UT_hash_handle            hh;
 } AI_alert_correlation;
 /*****************************************************************/
+/** Expresses an alert as a numerical tuple manageable by a neural network */
+typedef struct  {
+	unsigned int  gid;
+	unsigned int  sid;
+	unsigned int  rev;
+	uint32_t      src_ip_addr;
+	uint32_t      dst_ip_addr;
+	uint16_t      src_port;
+	uint16_t      dst_port;
+	time_t        timestamp;
+} AI_som_alert_tuple;
+/*****************************************************************/
+/** Key for the AI_alerts_per_neuron hash table */
+typedef struct  {
+	int x;
+	int y;
+} AI_alerts_per_neuron_key;
+/*****************************************************************/
+/** Struct that holds, for each point of the output layer, the list of associated alerts
+ * for easily performing the clustering algorithm */
+typedef struct  {
+	AI_alerts_per_neuron_key  key;
+	AI_som_alert_tuple        *alerts;
+	int                       n_alerts;
+	UT_hash_handle            hh;
+} AI_alerts_per_neuron;
+/*****************************************************************/
+
 
 /** Enumeration for describing the table in the output database */
 enum  { ALERTS_TABLE, IPV4_HEADERS_TABLE, TCP_HEADERS_TABLE, PACKET_STREAMS_TABLE, CLUSTERED_ALERTS_TABLE, CORRELATED_ALERTS_TABLE, N_TABLES };
@@ -513,6 +554,8 @@ void                   AI_outdb_mutex_initialize ();
 void*                  AI_store_alert_to_db_thread ( void* );
 void*                  AI_store_cluster_to_db_thread ( void* );
 void*                  AI_store_correlation_to_db_thread ( void* );
+void*                  AI_neural_clustering_thread ( void* );
+AI_alerts_per_neuron*  AI_get_alerts_per_neuron ();
 
 double(**AI_get_corr_functions ( size_t* ))(const AI_snort_alert*, const AI_snort_alert*);
 double(**AI_get_corr_weights ( size_t* ))();

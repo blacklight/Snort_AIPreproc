@@ -48,18 +48,26 @@ __mysql_do_init ( MYSQL **__DB, BOOL is_out )
 		return (void*) *__DB;
 
 	if ( !( *__DB = (MYSQL*) malloc ( sizeof ( MYSQL ))))
+	{
 		return NULL;
+	}
 
 	if ( !( mysql_init ( *__DB )))
+	{
 		return NULL;
+	}
 
 	if ( is_out )
 	{
 		if ( !mysql_real_connect ( *__DB, config->outdbhost, config->outdbuser, config->outdbpass, NULL, 0, NULL, 0 ))
+		{
 			return NULL;
+		}
 
 		if ( mysql_select_db ( *__DB, config->outdbname ))
+		{
 			return NULL;
+		}
 	} else {
 		if ( !mysql_real_connect ( *__DB, config->dbhost, config->dbuser, config->dbpass, NULL, 0, NULL, 0 ))
 			return NULL;
