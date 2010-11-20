@@ -287,6 +287,7 @@ AI_store_alert_to_db_thread ( void *arg )
 void*
 AI_store_cluster_to_db_thread ( void *arg )
 {
+	int i;
 	unsigned long cluster1 = 0,
 			    cluster2 = 0,
 			    latest_cluster_id = 0;
@@ -342,34 +343,23 @@ AI_store_cluster_to_db_thread ( void *arg )
 		return (void*) 0;
 	}
 
-	if ( !( row = (DB_row) DB_fetch_row ( res )))
-	{
-		pthread_mutex_unlock ( &outdb_mutex );
-		pthread_exit ((void*) 0);
-		return (void*) 0;
-	}
+	new_cluster = true;
 
-	/* If no cluster exists containing at least of them, create it */
-	new_cluster = false;
-
-	if ( !row[0] && !row[1] )
+	for ( i=0; (row = (DB_row) DB_fetch_row ( res )); i++ )
 	{
-		new_cluster = true;
-	} else {
-		if ( row[0] )
+		new_cluster = false;
+
+		if ( i == 0 )
 		{
 			cluster1 = strtoul ( row[0], NULL, 10 );
+		} else if ( i == 1 ) {
+			cluster2 = strtoul ( row[0], NULL, 10 );
 		}
+	}
 
-		if ( row[1] )
-		{
-			cluster2 = strtoul ( row[1], NULL, 10 );
-		}
-
-		if ( cluster1 == 0 && cluster2 == 0 )
-		{
-			new_cluster = true;
-		}
+	if ( cluster1 == 0 && cluster2 == 0 )
+	{
+		new_cluster = true;
 	}
 
 	DB_free_result ( res );

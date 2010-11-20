@@ -211,12 +211,10 @@ __AI_correlated_alerts_to_json ()
 				encoded_pkt = NULL;
 				pkt_len = pkt_iterator->pkt->pcap_header->len + pkt_iterator->pkt->payload_size;
 
-				if ( !( encoded_pkt = (char*) malloc ( 4*pkt_len + 1 )))
+				if ( !( encoded_pkt = (char*) calloc ( 4*pkt_len + 1, sizeof ( char ))))
 				{
 					AI_fatal_err ( "Fatal dynamic memory allocation", __FILE__, __LINE__ );
 				}
-
-				memset ( encoded_pkt, 0, 4*pkt_len + 1 );
 
 				base64_encode (
 					(const char*) pkt_iterator->pkt->pkt_data,

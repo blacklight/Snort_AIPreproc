@@ -474,6 +474,7 @@ typedef struct  {
 	uint16_t      src_port;
 	uint16_t      dst_port;
 	time_t        timestamp;
+	char*         desc;
 } AI_som_alert_tuple;
 /*****************************************************************/
 /** Key for the AI_alerts_per_neuron hash table */

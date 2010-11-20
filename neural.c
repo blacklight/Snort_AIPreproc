@@ -290,6 +290,7 @@ AI_alert_neural_som_correlation ( const AI_snort_alert *a, const AI_snort_alert 
 	t1.src_port = ntohs ( a->tcp_src_port );
 	t1.dst_port = ntohs ( a->tcp_dst_port );
 	t1.timestamp = a->timestamp;
+	t1.desc = a->desc;
 
 	t2.gid = b->gid;
 	t2.sid = b->sid;
@@ -299,6 +300,8 @@ AI_alert_neural_som_correlation ( const AI_snort_alert *a, const AI_snort_alert 
 	t2.src_port = ntohs ( b->tcp_src_port );
 	t2.dst_port = ntohs ( b->tcp_dst_port );
 	t2.timestamp = b->timestamp;
+	t2.desc = b->desc;
+
 	return __AI_som_alert_distance ( t1, t2 );
 }		/* -----  end of function AI_alert_neural_som_correlation  ----- */
 

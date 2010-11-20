@@ -104,8 +104,9 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 						inet_ntop ( AF_INET, &src_addr, src_ip, INET_ADDRSTRLEN );
 						inet_ntop ( AF_INET, &dst_addr, dst_ip, INET_ADDRSTRLEN );
 
-						fprintf ( fp, "\t\t<alert gid=\"%d\" sid=\"%d\" rev=\"%d\" src_ip=\"%s\" src_port=\"%d\" "
+						fprintf ( fp, "\t\t<alert desc=\"%s\" gid=\"%d\" sid=\"%d\" rev=\"%d\" src_ip=\"%s\" src_port=\"%d\" "
 							"dst_ip=\"%s\" dst_port=\"%d\" timestamp=\"%lu\" xcoord=\"%d\" ycoord=\"%d\"/>\n",
+							alert_iterator->alerts[k].desc,
 							alert_iterator->alerts[k].gid,
 							alert_iterator->alerts[k].sid,
 							alert_iterator->alerts[k].rev,
