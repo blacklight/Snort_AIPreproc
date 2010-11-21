@@ -188,6 +188,7 @@ preprocessor ai: \
 	database_parsing_interval 30 \
 	hashtable_cleanup_interval 300 \
 	manual_correlations_parsing_interval 120 \
+	neural_clustering_interval 1200 \
 	neural_network_training_interval 43200 \
 	neural_train_steps 10 \
 	output_database ( type="dbtype", name="snort", user="snortusr", password="snortpass", host="dbhost" ) \
@@ -328,6 +329,13 @@ the  hashtable  of  TCP  streams and the next one (default if not specified: 300
 - manual_correlations_parsing_interval: Interval in seconds between an execution
 of  the  thread for parsing the alert correlations manually set and the next one
 (default       value       if       not       specified:       120      seconds)
+
+
+- neural_clustering_interval:  Interval  in  seconds between an execution of the
+thread  for  clustering  (using  k-means)  the alerts on the output layer of the
+neural  network in order to recognize likely attack scenarios, and the next one.
+Set  this  to  0  if  you want no clusterization (default if not specified: 1200
+seconds)
 
 
 - neural_network_training_interval:  Interval in seconds between an execution of

@@ -1205,8 +1205,12 @@ AI_alert_correlation_thread ( void *arg )
 {
 	int                       i;
 	struct stat               st;
-	char                      corr_dot_file[4096]   = { 0 },
-						 corr_ps_file [4096]   = { 0 };
+
+	char                      corr_dot_file[4096]   = { 0 };
+
+#ifdef HAVE_LIBGVC
+	char                      corr_ps_file [4096]   = { 0 };
+#endif
 
 	double                    avg_correlation       = 0.0,
 						 std_deviation         = 0.0,

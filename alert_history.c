@@ -77,6 +77,8 @@ AI_deserialize_alerts ()
 				      *event_list     = NULL;
 	AI_alert_event_key   key;
 
+	return NULL;
+
 	if ( stat ( config->alert_history_file, &st ) < 0 )
 		return NULL;
 
@@ -158,6 +160,8 @@ AI_serialize_alerts ( AI_snort_alert **alerts_pool, unsigned int alerts_pool_cou
 					*event          = NULL,
 					*event_next     = NULL,
 					*event_iterator = NULL;
+
+	return;
 
 	if ( !alerts_hash )
 	{

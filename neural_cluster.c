@@ -31,7 +31,10 @@
 
 #include	<stdio.h>
 #include	<stdlib.h>
+#include	<string.h>
+#include	<sys/stat.h>
 #include	<unistd.h>
+#include	<time.h>
 
 /**
  * \brief  Print the clusters associated to the SOM output to an XML log file
@@ -49,7 +52,8 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 		    dst_addr = 0;
 
 	char src_ip[INET_ADDRSTRLEN] = { 0 },
-		dst_ip[INET_ADDRSTRLEN] = { 0 };
+		dst_ip[INET_ADDRSTRLEN] = { 0 },
+		*timestamp = NULL;
 
 	AI_alerts_per_neuron_key key;
 	AI_alerts_per_neuron *alert_iterator = NULL;
@@ -59,7 +63,8 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 		AI_fatal_err ( "Unable to write on the neural clusters XML log file", __FILE__, __LINE__ );
 	}
 
-	fprintf ( fp, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n"
+	fprintf ( fp, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+		"<?xml-stylesheet href=\"default.xsl\" type=\"text/xsl\"?>\n\n"
 		"<clusters>\n" );
 
 	for ( i=0; i < km->k; i++ )
@@ -104,15 +109,18 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 						inet_ntop ( AF_INET, &src_addr, src_ip, INET_ADDRSTRLEN );
 						inet_ntop ( AF_INET, &dst_addr, dst_ip, INET_ADDRSTRLEN );
 
+						timestamp = ctime ( &( alert_iterator->alerts[k].timestamp ));
+						timestamp[ strlen ( timestamp ) - 1 ] = 0;
+
 						fprintf ( fp, "\t\t<alert desc=\"%s\" gid=\"%d\" sid=\"%d\" rev=\"%d\" src_ip=\"%s\" src_port=\"%d\" "
-							"dst_ip=\"%s\" dst_port=\"%d\" timestamp=\"%lu\" xcoord=\"%d\" ycoord=\"%d\"/>\n",
+							"dst_ip=\"%s\" dst_port=\"%d\" timestamp=\"%s\" xcoord=\"%d\" ycoord=\"%d\"/>\n",
 							alert_iterator->alerts[k].desc,
 							alert_iterator->alerts[k].gid,
 							alert_iterator->alerts[k].sid,
 							alert_iterator->alerts[k].rev,
 							src_ip, alert_iterator->alerts[k].src_port,
 							dst_ip, alert_iterator->alerts[k].dst_port,
-							alert_iterator->alerts[k].timestamp,
+							timestamp,
 							alert_iterator->key.x, alert_iterator->key.y );
 					}
 				}
@@ -124,6 +132,8 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 
 	fprintf ( fp, "</clusters>\n" );
 	fclose ( fp );
+
+	chmod ( config->neural_clusters_log, 0644 );
 }		/* -----  end of function __AI_neural_clusters_to_xml  ----- */
 
 /**

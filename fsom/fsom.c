@@ -909,6 +909,7 @@ som_deserialize ( const char* fname )
 
 	if ( !( net = ( som_network_t* ) malloc ( sizeof ( som_network_t ))))
 	{
+		fclose ( fp );
 		return NULL;
 	}
 
@@ -923,6 +924,7 @@ som_deserialize ( const char* fname )
 	if ( !( net->input_layer = som_input_layer_new ( input_neurons )))
 	{
 		free ( net );
+		fclose ( fp );
 		return NULL;
 	}
 
@@ -930,6 +932,7 @@ som_deserialize ( const char* fname )
 	{
 		free ( net->input_layer );
 		free ( net );
+		fclose ( fp );
 		return NULL;
 	}
 
@@ -945,12 +948,14 @@ som_deserialize ( const char* fname )
 				{
 					som_input_layer_destroy ( net );
 					som_output_layer_destroy ( net );
+					fclose ( fp );
 					return NULL;
 				}
 			}
 		}
 	}
 
+	fclose ( fp );
 	return net;
 }		/* -----  end of function som_deserialize  ----- */
 
