@@ -64,6 +64,7 @@ fi
 	cp -rf "${PWD}/corr_modules/"* "${SHARE_PREFIX}/corr_modules"
 	install -m 0644 "${PWD}/htdocs/index.html" "${SHARE_PREFIX}/htdocs"
 	install -m 0644 "${PWD}/htdocs/manual_correlations.dtd" "${SHARE_PREFIX}/htdocs"
+	install -m 0644 "${PWD}/htdocs/neural_clusters.dtd" "${SHARE_PREFIX}/htdocs"
 	install -m 0644 "${PWD}/htdocs/manual_correlations.xml" "${SHARE_PREFIX}/htdocs"
 	install -m 0644 "${PWD}/htdocs/manual_uncorrelations.xml" "${SHARE_PREFIX}/htdocs"
 	install -m 0755 "${PWD}/htdocs/pcap.cgi" "${SHARE_PREFIX}/htdocs"
