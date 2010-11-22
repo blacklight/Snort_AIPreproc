@@ -242,6 +242,8 @@ AI_file_alertparser_thread ( void* arg )
 		fseek ( alert_fp, 0, SEEK_END );
 #endif
 		
+		pthread_mutex_lock ( &alert_mutex );
+
 		while ( !feof ( alert_fp ))
 		{
 			fgets ( line, sizeof(line), alert_fp );
@@ -300,8 +302,6 @@ AI_file_alertparser_thread ( void* arg )
 
 			if ( !in_alert )
 			{
-				pthread_mutex_lock ( &alert_mutex );
-
 				if ( preg_match ( "^\\[\\*\\*\\]\\s*\\[([0-9]+):([0-9]+):([0-9]+)\\]\\s*(.*)\\s*\\[\\*\\*\\]$", line, &matches, &nmatches ) > 0 )
 				{
 					in_alert = true;
