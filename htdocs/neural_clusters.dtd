@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE clusters[
+	<!ELEMENT cluster (alert)*>
+	<!ATTLIST cluster id CDATA #REQUIRED>
+	<!ATTLIST alert
+		desc CDATA
+		gid CDATA #REQUIRED
+		sid CDATA #REQUIRED
+		rev CDATA #REQUIRED
+		src_ip CDATA #REQUIRED
+		src_port CDATA
+		dst_ip CDATA #REQUIRED
+		dst_port CDATA
+		xcoord CDATA
+		ycoord CDATA
+	>
+]>
+
