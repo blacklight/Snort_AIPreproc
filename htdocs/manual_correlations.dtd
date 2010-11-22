@@ -3,6 +3,8 @@
 <!DOCTYPE correlations[
 	<!ELEMENT correlations 	(correlation)*>
 	<!ELEMENT correlation 	(from, to)>
+	<!ELEMENT from EMPTY>
+	<!ELEMENT to EMPTY>
 
 	<!ATTLIST from
 		sid 	CDATA 		#REQUIRED

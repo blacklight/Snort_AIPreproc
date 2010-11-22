@@ -64,7 +64,9 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 	}
 
 	fprintf ( fp, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-		"<?xml-stylesheet href=\"default.xsl\" type=\"text/xsl\"?>\n\n"
+		"<?xml-stylesheet href=\"default.xsl\" type=\"text/xsl\"?>\n"
+		"<!DOCTYPE neural-clusters PUBLIC \"-//blacklight//DTD NEURAL CLUSTERS//EN\" "
+		"\"http://0x00.ath.cx/neural_clusters.dtd\">\n\n"
 		"<clusters>\n" );
 
 	for ( i=0; i < km->k; i++ )

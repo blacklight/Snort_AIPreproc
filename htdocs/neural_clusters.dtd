@@ -2,6 +2,7 @@
 
 <!DOCTYPE clusters[
 	<!ELEMENT cluster (alert)*>
+	<!ELEMENT alert EMPTY>
 	<!ATTLIST cluster id CDATA #REQUIRED>
 	<!ATTLIST alert
 		desc CDATA
