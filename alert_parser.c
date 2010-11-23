@@ -74,7 +74,7 @@ AI_serializer_thread ( void *arg )
 		pthread_mutex_unlock ( &alerts_pool_mutex );
 	}
 
-	pthread_exit ((void*) 0);
+	/* pthread_exit ((void*) 0); */
 	return (void*) 0;
 }		/* -----  end of function AI_serializer_thread  ----- */
 
@@ -95,10 +95,12 @@ AI_alerts_pool_thread ( void *arg )
 		if ( !alerts_pool || alerts_pool_count == 0 )
 			continue;
 
-		if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, NULL ) != 0 )
-		{
-			AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__ );
-		}
+		AI_serializer_thread((void*) 0);
+
+		/* if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, NULL ) != 0 ) */
+		/* { */
+		/* 	AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__ ); */
+		/* } */
 
 		/* if ( pthread_join ( serializer_thread, NULL ) != 0 ) */
 		/* { */
@@ -293,22 +295,21 @@ AI_file_alertparser_thread ( void* arg )
 						tmp->next = alert;
 					}
 
-					if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, alert ) != 0 )
-					{
-						AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__  );
-					}
+					AI_serializer_thread ((void*) alert);
 
-					if ( pthread_join ( serializer_thread, NULL ) != 0 )
-					{
-						AI_fatal_err ( "Failed to join the alerts' serializer thread", __FILE__, __LINE__  );
-					}
+					/* if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, alert ) != 0 ) */
+					/* { */
+					/* 	AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__  ); */
+					/* } */
+
+					/* if ( pthread_join ( serializer_thread, NULL ) != 0 ) */
+					/* { */
+					/* 	AI_fatal_err ( "Failed to join the alerts' serializer thread", __FILE__, __LINE__  ); */
+					/* } */
 					
 					if ( config->outdbtype != outdb_none )
 					{
-						if ( pthread_create ( &db_thread, NULL, AI_store_alert_to_db_thread, alert ) != 0 )
-						{
-							AI_fatal_err ( "Failed to create the alert to db storing thread", __FILE__, __LINE__ );
-						}
+						AI_store_alert_to_db ( alert );
 					}
 
 					in_alert = false;

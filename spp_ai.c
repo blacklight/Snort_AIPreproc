@@ -157,6 +157,7 @@ static void AI_init(char *args)
 			AI_fatal_err ( "Failed to create the neural network thread", __FILE__, __LINE__ );
 		}
 	}
+
 	/* Register the preprocessor function, Transport layer, ID 10000 */
 	_dpd.addPreproc(AI_process, PRIORITY_TRANSPORT, 10000, PROTO_BIT__TCP | PROTO_BIT__UDP);
 	DEBUG_WRAP(_dpd.debugMsg(DEBUG_PLUGIN, "Preprocessor: AI is initialized\n"););

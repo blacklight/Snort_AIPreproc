@@ -67,7 +67,6 @@ AI_neural_correlation_weight ()
 	double    x = 0,
 			k = (double) config->alert_correlation_weight / HYPERBOLIC_TANGENT_SOLUTION;
 	
-	snprintf ( query, sizeof ( query ), "SELECT count(*) FROM %s", outdb_config[ALERTS_TABLE] );
 	pthread_mutex_lock ( &outdb_mutex );
 
 	if ( !DB_out_init() )
@@ -76,16 +75,23 @@ AI_neural_correlation_weight ()
 		AI_fatal_err ( "Unable to connect to the database specified in module configuration", __FILE__, __LINE__ );
 	}
 
+	pthread_mutex_unlock ( &outdb_mutex );
+
+	snprintf ( query, sizeof ( query ), "SELECT count(*) FROM %s", outdb_config[ALERTS_TABLE] );
+	pthread_mutex_lock ( &outdb_mutex );
+
 	if ( !( res = (DB_result) DB_out_query ( query )))
 	{
+		_dpd.errMsg ( "Warning: Database error while executing the query '%s'\n", query );
 		pthread_mutex_unlock ( &outdb_mutex );
-		return 0;
+		return 0.0;
 	}
+
+	pthread_mutex_unlock ( &outdb_mutex );
 
 	row = (DB_row) DB_fetch_row ( res );
 	x = strtod ( row[0], NULL );
 	DB_free_result ( res );
-	pthread_mutex_unlock ( &outdb_mutex );
 
 	return (( exp(x/k) - exp(-x/k) ) / ( exp(x/k) + exp(-x/k) ));
 }		/* -----  end of function AI_neural_correlation_weight  ----- */
@@ -331,6 +337,8 @@ __AI_som_train ()
 		AI_fatal_err ( "Unable to connect to the database specified in module configuration", __FILE__, __LINE__ );
 	}
 
+	pthread_mutex_unlock ( &outdb_mutex );
+
 	#ifdef 	HAVE_LIBMYSQLCLIENT
 	snprintf ( query, sizeof ( query ),
 		"SELECT gid, sid, rev, unix_timestamp(timestamp), ip_src_addr, ip_dst_addr, tcp_src_port, tcp_dst_port "
@@ -351,8 +359,11 @@ __AI_som_train ()
 	);
 	#endif
 
+	pthread_mutex_lock ( &outdb_mutex );
+
 	if ( !( res = (DB_result) DB_out_query ( query )))
 	{
+		_dpd.errMsg ( "Warning: Database error while executing the query '%s'\n", query );
 		pthread_mutex_unlock ( &outdb_mutex );
 		return;
 	}
@@ -405,6 +416,7 @@ __AI_som_train ()
 	{
 		if ( !( net = som_network_new ( SOM_NUM_ITEMS, config->outputNeuronsPerSide, config->outputNeuronsPerSide )))
 		{
+			pthread_mutex_unlock ( &neural_mutex );
 			AI_fatal_err ( "AIPreproc: Could not create the neural network", __FILE__, __LINE__ );
 		}
 

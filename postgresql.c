@@ -200,6 +200,13 @@ unsigned long
 postgresql_do_escape_string ( char **to, const char *from, unsigned long length )
 {
 	size_t out_len = 0;
+
+	if ( !from )
+		return 0;
+
+	if ( strlen ( from ) == 0 )
+		return 0;
+
 	*to = (char*) PQescapeByteaConn ( db, (const unsigned char* ) from, (size_t) length, &out_len );
 	return (unsigned long) out_len;
 }
@@ -234,6 +241,13 @@ unsigned long
 postgresql_do_out_escape_string ( char **to, const char *from, unsigned long length )
 {
 	size_t out_len = 0;
+
+	if ( !from )
+		return 0;
+
+	if ( strlen ( from ) == 0 )
+		return 0;
+
 	*to = (char*) PQescapeByteaConn ( outdb, (const unsigned char* ) from, (size_t) length, &out_len );
 	return (unsigned long) out_len;
 }

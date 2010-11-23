@@ -54,14 +54,14 @@ AI_outdb_mutex_initialize ()
 }		/* -----  end of function AI_outdb_mutex_initialize  ----- */
 
 /**
- * \brief  Thread for storing an alert to the database
- * \param  arg 	Alert to be stored
+ * \brief  Store an alert to the database
+ * \param  alert 	Alert to be stored
  */
 
-void*
-AI_store_alert_to_db_thread ( void *arg )
+void
+AI_store_alert_to_db ( AI_snort_alert *alert )
 {
-	char query[65535]      = { 0 },
+	char query[32768]      = { 0 },
 		iphdr_id_str[20]  = { 0 },
 		tcphdr_id_str[20] = { 0 },
 		srcip[INET_ADDRSTRLEN],
@@ -77,12 +77,16 @@ AI_store_alert_to_db_thread ( void *arg )
 	struct pkt_info *pkt = NULL;
 	DB_result res;
 	DB_row    row;
-	AI_snort_alert *alert = (AI_snort_alert*) arg;
 
 	pthread_mutex_lock ( &outdb_mutex );
 
 	if ( !DB_out_init() )
+	{
+		pthread_mutex_unlock ( &outdb_mutex );
 		AI_fatal_err ( "Unable to connect to the specified output database", __FILE__, __LINE__ );
+	}
+
+	pthread_mutex_unlock ( &outdb_mutex );
 
 	inet_ntop ( AF_INET, &(alert->ip_src_addr), srcip, INET_ADDRSTRLEN );
 	inet_ntop ( AF_INET, &(alert->ip_dst_addr), dstip, INET_ADDRSTRLEN );
@@ -100,24 +104,27 @@ AI_store_alert_to_db_thread ( void *arg )
 		srcip,
 		dstip );
 
+	pthread_mutex_lock ( &outdb_mutex );
 	DB_free_result ((DB_result) DB_out_query ( query ));
+	pthread_mutex_unlock ( &outdb_mutex );
 
 	memset ( query, 0, sizeof ( query ));
 	snprintf ( query, sizeof ( query ), "SELECT MAX(ip_hdr_id) FROM %s", outdb_config[IPV4_HEADERS_TABLE] );
+
+	pthread_mutex_lock ( &outdb_mutex );
 
 	if ( !( res = (DB_result) DB_out_query ( query )))
 	{
 		_dpd.logMsg ( "AIPreproc: Warning: error in executing query: '%s'\n", query );
 		pthread_mutex_unlock ( &outdb_mutex );
-		pthread_exit ((void*) 0);
-		return (void*) 0;
+		return;
 	}
+
+	pthread_mutex_unlock ( &outdb_mutex );
 
 	if ( !( row = (DB_row) DB_fetch_row ( res )))
 	{
-		pthread_mutex_unlock ( &outdb_mutex );
-		pthread_exit ((void*) 0);
-		return (void*) 0;
+		return;
 	}
 
 	latest_ip_hdr_id = strtoul ( row[0], NULL, 10 );
@@ -138,24 +145,27 @@ AI_store_alert_to_db_thread ( void *arg )
 				ntohs (alert->tcp_window ),
 				ntohs (alert->tcp_len ));
 
+		pthread_mutex_lock ( &outdb_mutex );
 		DB_free_result ((DB_result) DB_out_query ( query ));
+		pthread_mutex_unlock ( &outdb_mutex );
 
 		memset ( query, 0, sizeof ( query ));
 		snprintf ( query, sizeof ( query ), "SELECT MAX(tcp_hdr_id) FROM %s", outdb_config[TCP_HEADERS_TABLE] );
+
+		pthread_mutex_lock ( &outdb_mutex );
 
 		if ( !( res = (DB_result) DB_out_query ( query )))
 		{
 			_dpd.logMsg ( "AIPreproc: Warning: error in executing query: '%s'\n", query );
 			pthread_mutex_unlock ( &outdb_mutex );
-			pthread_exit ((void*) 0);
-			return (void*) 0;
+			return;
 		}
+
+		pthread_mutex_unlock ( &outdb_mutex );
 
 		if ( !( row = (DB_row) DB_fetch_row ( res )))
 		{
-			pthread_mutex_unlock ( &outdb_mutex );
-			pthread_exit ((void*) 0);
-			return (void*) 0;
+			return;
 		}
 
 		latest_tcp_hdr_id = strtoul ( row[0], NULL, 10 );
@@ -206,24 +216,27 @@ AI_store_alert_to_db_thread ( void *arg )
 		tcphdr_id_str );
 	#endif
 
+	pthread_mutex_lock ( &outdb_mutex );
 	DB_free_result ((DB_result) DB_out_query ( query ));
+	pthread_mutex_unlock ( &outdb_mutex );
 
 	memset ( query, 0, sizeof ( query ));
 	snprintf ( query, sizeof ( query ), "SELECT MAX(alert_id) FROM %s", outdb_config[ALERTS_TABLE] );
+
+	pthread_mutex_lock ( &outdb_mutex );
 
 	if ( !( res = (DB_result) DB_out_query ( query )))
 	{
 		_dpd.logMsg ( "AIPreproc: Warning: error in executing query: '%s'\n", query );
 		pthread_mutex_unlock ( &outdb_mutex );
-		pthread_exit ((void*) 0);
-		return (void*) 0;
+		return;
 	}
+
+	pthread_mutex_unlock ( &outdb_mutex );
 
 	if ( !( row = (DB_row) DB_fetch_row ( res )))
 	{
-		pthread_mutex_unlock ( &outdb_mutex );
-		pthread_exit ((void*) 0);
-		return (void*) 0;
+		return;
 	}
 
 	latest_alert_id = strtoul ( row[0], NULL, 10 );
@@ -250,47 +263,56 @@ AI_store_alert_to_db_thread ( void *arg )
 			if ( !( pkt_data = (unsigned char*) alloca ( 2 * ( pkt_size ) + 1 )))
 				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
-			DB_out_escape_string (
-					(char**) &pkt_data,
-					(const char*) pkt->pkt->pkt_data,
-					pkt_size );
+			if ( pkt->pkt )
+			{
+				if ( pkt->pkt->pkt_data )
+				{
+					if ( strlen ((const char*) pkt->pkt->pkt_data ) != 0 )
+					{
+						DB_out_escape_string (
+							(char**) &pkt_data,
+							(const char*) pkt->pkt->pkt_data,
+							pkt_size );
 
-			memset ( query, 0, sizeof ( query ));
+						memset ( query, 0, sizeof ( query ));
 
-			#ifdef 	HAVE_LIBMYSQLCLIENT
-			snprintf ( query, sizeof ( query ), "INSERT INTO %s (alert_id, pkt_len, timestamp, content) "
-					"VALUES (%lu, %u, from_unixtime('%lu'), '%s')",
-				outdb_config[PACKET_STREAMS_TABLE],
-				latest_alert_id,
-				pkt->pkt->pcap_header->len + pkt->pkt->payload_size,
-				pkt->timestamp,
-				pkt_data );
-			#elif 	HAVE_LIBPQ
-			snprintf ( query, sizeof ( query ), "INSERT INTO %s (alert_id, pkt_len, timestamp, content) "
-					"VALUES (%lu, %u, timestamp with time zone 'epoch' + %lu * interval '1 second', '%s')",
-				outdb_config[PACKET_STREAMS_TABLE],
-				latest_alert_id,
-				pkt->pkt->pcap_header->len + pkt->pkt->payload_size,
-				pkt->timestamp,
-				pkt_data );
-			#endif
+						#ifdef 	HAVE_LIBMYSQLCLIENT
+						snprintf ( query, sizeof ( query ), "INSERT INTO %s (alert_id, pkt_len, timestamp, content) "
+							"VALUES (%lu, %u, from_unixtime('%lu'), '%s')",
+							outdb_config[PACKET_STREAMS_TABLE],
+							latest_alert_id,
+							pkt->pkt->pcap_header->len + pkt->pkt->payload_size,
+							pkt->timestamp,
+							pkt_data );
+						#elif 	HAVE_LIBPQ
+						snprintf ( query, sizeof ( query ), "INSERT INTO %s (alert_id, pkt_len, timestamp, content) "
+							"VALUES (%lu, %u, timestamp with time zone 'epoch' + %lu * interval '1 second', '%s')",
+							outdb_config[PACKET_STREAMS_TABLE],
+							latest_alert_id,
+							pkt->pkt->pcap_header->len + pkt->pkt->payload_size,
+							pkt->timestamp,
+							pkt_data );
+						#endif
 
-			DB_free_result ((DB_result) DB_out_query ( query ));
+						pthread_mutex_lock ( &outdb_mutex );
+						DB_free_result ((DB_result) DB_out_query ( query ));
+						pthread_mutex_unlock ( &outdb_mutex );
+					}
+				}
+			}
 		}
 	}
 
-	pthread_mutex_unlock ( &outdb_mutex );
-	pthread_exit ((void*) 0);
-	return (void*) 0;
-}		/* -----  end of function AI_store_alert_to_db_thread  ----- */
+	return;
+}		/* -----  end of function AI_store_alert_to_db  ----- */
 
 /**
  * \brief  Store an alert cluster to database
- * \param  arg 	Struct pointer containing the couple of alerts to be clustered together
+ * \param  alerts_couple 	Struct pointer containing the couple of alerts to be clustered together
  */
 
-void*
-AI_store_cluster_to_db_thread ( void *arg )
+void
+AI_store_cluster_to_db ( AI_alerts_couple *alerts_couple )
 {
 	int i;
 	unsigned long cluster1 = 0,
@@ -303,13 +325,10 @@ AI_store_cluster_to_db_thread ( void *arg )
 		srcport[10] = { 0 },
 		dstport[10] = { 0 };
 
-	AI_alerts_couple *alerts_couple = (AI_alerts_couple*) arg;
 	AI_couples_cache *found         = NULL;
 	DB_result res;
 	DB_row    row;
 	BOOL      new_cluster = false;
-
-	pthread_mutex_lock ( &outdb_mutex );
 
 	/* Check if the couple of alerts is already in our cache, so it already
 	 * belongs to the same cluster. If so, just return */
@@ -317,21 +336,24 @@ AI_store_cluster_to_db_thread ( void *arg )
 
 	if ( found )
 	{
-		pthread_mutex_unlock ( &outdb_mutex );
-		pthread_exit ((void*) 0);
-		return (void*) 0;
+		return;
 	}
 
 	/* Initialize the database (it just does nothing if it is already initialized) */
+	pthread_mutex_lock ( &outdb_mutex );
+
 	if ( !DB_out_init() )
+	{
+		pthread_mutex_unlock ( &outdb_mutex );
 		AI_fatal_err ( "Unable to connect to the specified output database", __FILE__, __LINE__ );
+	}
+
+	pthread_mutex_unlock ( &outdb_mutex );
 
 	/* If one of the two alerts has no alert_id, simply return */
 	if ( !alerts_couple->alert1->alert_id || !alerts_couple->alert2->alert_id )
 	{
-		pthread_mutex_unlock ( &outdb_mutex );
-		pthread_exit ((void*) 0);
-		return (void*) 0;
+		return;
 	}
 
 	/* Check if there already exist a cluster containing one of them */
@@ -340,14 +362,16 @@ AI_store_cluster_to_db_thread ( void *arg )
 		"SELECT cluster_id FROM %s WHERE alert_id=%lu OR alert_id=%lu",
 		outdb_config[ALERTS_TABLE], alerts_couple->alert1->alert_id, alerts_couple->alert2->alert_id );
 
+	pthread_mutex_lock ( &outdb_mutex );
+
 	if ( !( res = (DB_result) DB_out_query ( query )))
 	{
 		_dpd.logMsg ( "AIPreproc: Warning: error in executing query: '%s'\n", query );
 		pthread_mutex_unlock ( &outdb_mutex );
-		pthread_exit ((void*) 0);
-		return (void*) 0;
+		return;
 	}
 
+	pthread_mutex_unlock ( &outdb_mutex );
 	new_cluster = true;
 
 	for ( i=0; (row = (DB_row) DB_fetch_row ( res )); i++ )
@@ -379,9 +403,7 @@ AI_store_cluster_to_db_thread ( void *arg )
 		found->alerts_couple = alerts_couple;
 		found->cluster_id = cluster1;
 		HASH_ADD ( hh, couples_cache, alerts_couple, sizeof ( AI_alerts_couple ), found );
-		pthread_mutex_unlock ( &outdb_mutex );
-		pthread_exit ((void*) 0);
-		return (void*) 0;
+		return;
 	}
 
 	if ( new_cluster )
@@ -403,25 +425,28 @@ AI_store_cluster_to_db_thread ( void *arg )
 			((alerts_couple->alert1->h_node[dst_port]) ? alerts_couple->alert1->h_node[dst_port]->label : dstport)
 		);
 
+		pthread_mutex_lock ( &outdb_mutex );
 		DB_free_result ((DB_result) DB_out_query ( query ));
+		pthread_mutex_unlock ( &outdb_mutex );
 
 		memset ( query, 0, sizeof ( query ));
 		snprintf ( query, sizeof ( query ),
 			"SELECT MAX(cluster_id) FROM %s", outdb_config[CLUSTERED_ALERTS_TABLE] );
 
+		pthread_mutex_lock ( &outdb_mutex );
+
 		if ( !( res = (DB_result) DB_out_query ( query )))
 		{
 			_dpd.logMsg ( "AIPreproc: Warning: error in executing query: '%s'\n", query );
 			pthread_mutex_unlock ( &outdb_mutex );
-			pthread_exit ((void*) 0);
-			return (void*) 0;
+			return;
 		}
+
+		pthread_mutex_unlock ( &outdb_mutex );
 
 		if ( !( row = (DB_row) DB_fetch_row ( res )))
 		{
-			pthread_mutex_unlock ( &outdb_mutex );
-			pthread_exit ((void*) 0);
-			return (void*) 0;
+			return;
 		}
 
 		latest_cluster_id = strtoul ( row[0], NULL, 10 );
@@ -434,7 +459,9 @@ AI_store_cluster_to_db_thread ( void *arg )
 			outdb_config[ALERTS_TABLE], latest_cluster_id,
 			alerts_couple->alert1->alert_id, alerts_couple->alert2->alert_id );
 
+		pthread_mutex_lock ( &outdb_mutex );
 		DB_free_result ((DB_result) DB_out_query ( query ));
+		pthread_mutex_unlock ( &outdb_mutex );
 	} else {
 		/* Update the alert marked as 'not clustered' */
 		if ( !cluster1 )
@@ -444,14 +471,18 @@ AI_store_cluster_to_db_thread ( void *arg )
 				"UPDATE %s SET cluster_id=%lu WHERE alert_id=%lu",
 				outdb_config[ALERTS_TABLE], cluster2, alerts_couple->alert1->alert_id );
 
+			pthread_mutex_lock ( &outdb_mutex );
 			DB_free_result ((DB_result) DB_out_query ( query ));
+			pthread_mutex_unlock ( &outdb_mutex );
 		} else {
 			memset ( query, 0, sizeof ( query ));
 			snprintf ( query, sizeof ( query ),
 				"UPDATE %s SET cluster_id=%lu WHERE alert_id=%lu",
 				outdb_config[ALERTS_TABLE], cluster1, alerts_couple->alert2->alert_id );
 
+			pthread_mutex_lock ( &outdb_mutex );
 			DB_free_result ((DB_result) DB_out_query ( query ));
+			pthread_mutex_unlock ( &outdb_mutex );
 		}
 	}
 
@@ -462,11 +493,7 @@ AI_store_cluster_to_db_thread ( void *arg )
 	found->alerts_couple = alerts_couple;
 	found->cluster_id = cluster1;
 	HASH_ADD ( hh, couples_cache, alerts_couple, sizeof ( AI_alerts_couple ), found );
-
-	pthread_mutex_unlock ( &outdb_mutex );
-	pthread_exit ((void*) 0);
-	return (void*) 0;
-}		/* -----  end of function AI_store_cluster_to_db_thread  ----- */
+}		/* -----  end of function AI_store_cluster_to_db  ----- */
 
 
 /**
@@ -474,17 +501,21 @@ AI_store_cluster_to_db_thread ( void *arg )
  * \param  arg 	Structure containing the two alerts to be saved and their correlation
  */
 
-void*
-AI_store_correlation_to_db_thread ( void *arg )
+void
+AI_store_correlation_to_db ( AI_alert_correlation *corr )
 {
 	char query[1024] = { 0 };
-	AI_alert_correlation *corr = (AI_alert_correlation*) arg;
-
-	pthread_mutex_lock ( &outdb_mutex );
 
 	/* Initialize the database (it just does nothing if it is already initialized) */
+	pthread_mutex_lock ( &outdb_mutex );
+
 	if ( !DB_out_init() )
+	{
+		pthread_mutex_unlock ( &outdb_mutex );
 		AI_fatal_err ( "Unable to connect to the specified output database", __FILE__, __LINE__ );
+	}
+
+	pthread_mutex_unlock ( &outdb_mutex );
 
 	memset ( query, 0, sizeof ( query ));
 	snprintf ( query, sizeof ( query ),
@@ -494,12 +525,11 @@ AI_store_correlation_to_db_thread ( void *arg )
 		corr->key.a->alert_id,
 		corr->key.b->alert_id,
 		corr->correlation );
-	DB_free_result ((DB_result) DB_out_query ( query ));
 
+	pthread_mutex_lock ( &outdb_mutex );
+	DB_free_result ((DB_result) DB_out_query ( query ));
 	pthread_mutex_unlock ( &outdb_mutex );
-	pthread_exit ((void*) 0);
-	return 0;
-}		/* -----  end of function AI_store_correlation_to_db_thread  ----- */
+}		/* -----  end of function AI_store_correlation_to_db  ----- */
 
 #endif
 

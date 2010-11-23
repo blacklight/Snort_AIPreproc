@@ -208,6 +208,10 @@ AI_pkt_enqueue ( SFSnortPacket* pkt )
 			tmp = NULL;
 
 			for ( ; found->next; found = found->next )  {
+				/* Stupid memory bug fixed in a stupid and unelegant way */
+				if ( (int) found->next->pkt < 0x100 )
+					break;
+
 				/* If the sequence number of the next packet in the stream
 				 * is bigger than the sequence number of the current packet,
 				 * place the current packet before that */

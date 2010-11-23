@@ -79,20 +79,6 @@ __mysql_do_init ( MYSQL **__DB, BOOL is_out )
 	return (void*) *__DB;
 }
 
-PRIVATE MYSQL_RES*
-__mysql_do_query ( MYSQL *__DB, const char *query )
-{
-	MYSQL_RES *res = NULL;
-
-	if ( mysql_query ( __DB, query ))
-		return NULL;
-
-	if ( !( res = mysql_store_result ( __DB )))
-		return NULL;
-
-	return res;
-}
-
 PRIVATE void
 __mysql_do_close ( MYSQL **__DB )
 {
@@ -101,6 +87,22 @@ __mysql_do_close ( MYSQL **__DB )
 
 	free ( *__DB );
 	*__DB = NULL;
+}
+
+PRIVATE MYSQL_RES*
+__mysql_do_query ( MYSQL *__DB, const char *query )
+{
+	MYSQL_RES *res = NULL;
+
+	if ( mysql_query ( __DB, query ))
+	{
+		return NULL;
+	}
+
+	if ( !( res = mysql_store_result ( __DB )))
+		return NULL;
+
+	return res;
 }
 
 /* End of private functions */
@@ -121,9 +123,18 @@ mysql_do_init ()
 	return __mysql_do_init ( &db, false );
 }
 
+BOOL
+mysql_is_gone ()
+{
+	return (( mysql_errno ( db ) == CR_SERVER_GONE_ERROR ) || ( mysql_errno ( db ) == CR_SERVER_LOST ));
+}
+
 MYSQL_RES*
 mysql_do_query ( const char *query )
 {
+	if ( !db )
+		mysql_do_init();
+
 	return __mysql_do_query ( db, query );
 }
 
@@ -143,12 +154,6 @@ const char*
 mysql_do_error ()
 {
 	return mysql_error ( db );
-}
-
-BOOL
-mysql_is_gone ()
-{
-	return (( mysql_errno ( db ) == CR_SERVER_GONE_ERROR ) || ( mysql_errno ( db ) == CR_SERVER_LOST ));
 }
 
 void
@@ -171,9 +176,18 @@ mysql_do_out_init ()
 	return __mysql_do_init ( &outdb, true );
 }
 
+BOOL
+mysql_is_out_gone ()
+{
+	return (( mysql_errno ( outdb ) == CR_SERVER_GONE_ERROR ) || ( mysql_errno ( outdb ) == CR_SERVER_LOST ));
+}
+
 MYSQL_RES*
 mysql_do_out_query ( const char *query )
 {
+	if ( !outdb )
+		mysql_do_out_init();
+
 	return __mysql_do_query ( outdb, query );
 }
 
@@ -193,12 +207,6 @@ const char*
 mysql_do_out_error ()
 {
 	return mysql_error ( outdb );
-}
-
-BOOL
-mysql_is_out_gone ()
-{
-	return (( mysql_errno ( outdb ) == CR_SERVER_GONE_ERROR ) || ( mysql_errno ( outdb ) == CR_SERVER_LOST ));
 }
 
 void

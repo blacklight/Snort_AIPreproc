@@ -107,13 +107,18 @@ AI_deserialize_alerts ()
 			if ( j == 0 )
 			{
 				if ( !( event_list = ( AI_alert_event* ) malloc ( sizeof ( AI_alert_event ))))
+				{
 					AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+				}
 				
 				memset ( event_list, 0, sizeof ( AI_alert_event ));
 				event_iterator = event_list;
 			} else {
 				if ( !( event_iterator = ( AI_alert_event* ) malloc ( sizeof ( AI_alert_event ))))
+				{
 					AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+				}
+
 				memset ( event_iterator, 0, sizeof ( AI_alert_event ));
 			}
 
@@ -169,7 +174,9 @@ AI_serialize_alerts ( AI_snort_alert **alerts_pool, unsigned int alerts_pool_cou
 	for ( i=0; i < alerts_pool_count; i++ )
 	{
 		if ( !( event = ( AI_alert_event* ) malloc ( sizeof ( AI_alert_event ))))
+		{
 			AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+		}
 
 		memset ( event, 0, sizeof ( AI_alert_event ));
 		key.gid = alerts_pool[i]->gid;

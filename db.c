@@ -78,24 +78,27 @@ AI_db_alertparser_thread ( void *arg )
 	while ( 1 )
 	{
 		sleep ( config->databaseParsingInterval );
-		pthread_mutex_lock ( &mutex );
 
 		memset ( query, 0, sizeof ( query ));
 		snprintf ( query, sizeof (query), "select cid, unix_timestamp(timestamp), signature from event where cid > %d "
 				"and unix_timestamp(timestamp) > %ld order by cid", latest_cid, latest_time );
 
+		pthread_mutex_lock ( &mutex );
+
 		if ( !( res = (DB_result) DB_query ( query )))
 		{
+			pthread_mutex_unlock ( &mutex );
 			DB_close();
 			AI_fatal_err ( "Fatal error while executing a query on the database", __FILE__, __LINE__ );
 		}
+
+		pthread_mutex_unlock ( &mutex );
 
 		if (( rows = DB_num_rows ( res )) < 0 )
 		{
 			DB_close();
 			AI_fatal_err ( "Could not store the query result", __FILE__, __LINE__ );
 		} else if ( rows == 0 ) {
-			pthread_mutex_unlock ( &mutex );
 			continue;
 		}
 
@@ -115,11 +118,16 @@ AI_db_alertparser_thread ( void *arg )
 			snprintf ( query, sizeof ( query ), "select sig_gid, sig_sid, sig_rev, sig_name, sig_priority from signature "
 					"where sig_id='%ld'", strtol ( row[2], NULL, 0 ));
 
+			pthread_mutex_lock ( &mutex );
+
 			if ( !( res2 = (DB_result) DB_query ( query )))
 			{
+				pthread_mutex_unlock ( &mutex );
 				DB_close();
 				AI_fatal_err ( "Fatal error while executing a query on the database", __FILE__, __LINE__ );
 			}
+
+			pthread_mutex_unlock ( &mutex );
 
 			if (( rows = DB_num_rows ( res2 )) < 0 ) {
 				DB_close();
@@ -142,11 +150,16 @@ AI_db_alertparser_thread ( void *arg )
 			snprintf ( query, sizeof ( query ), "select ip_tos, ip_len, ip_id, ip_ttl, ip_proto, ip_src, ip_dst "
 					"from iphdr where cid='%d'", latest_cid);
 
+			pthread_mutex_lock ( &mutex );
+
 			if ( !( res2 = (DB_result) DB_query ( query )))
 			{
+				pthread_mutex_unlock ( &mutex );
 				DB_close();
 				AI_fatal_err ( "Fatal error while executing a query on the database", __FILE__, __LINE__ );
 			}
+
+			pthread_mutex_unlock ( &mutex );
 
 			if (( rows = DB_num_rows ( res2 )) < 0 ) {
 				DB_close();
@@ -171,11 +184,16 @@ AI_db_alertparser_thread ( void *arg )
 			snprintf ( query, sizeof ( query ), "select tcp_sport, tcp_dport, tcp_seq, tcp_ack, tcp_flags, tcp_win "
 					"from tcphdr where cid='%d'", latest_cid );
 
+			pthread_mutex_lock ( &mutex );
+
 			if ( !( res2 = (DB_result) DB_query ( query )))
 			{
+				pthread_mutex_unlock ( &mutex );
 				DB_close();
 				AI_fatal_err ( "Fatal error while executing a query on the database", __FILE__, __LINE__ );
 			}
+
+			pthread_mutex_unlock ( &mutex );
 
 			if (( rows = DB_num_rows ( res2 )) < 0 ) {
 				DB_close();
@@ -218,14 +236,10 @@ AI_db_alertparser_thread ( void *arg )
 			}
 		}
 		
-		pthread_mutex_unlock ( &mutex );
 		DB_free_result ( res );
 		latest_time = time ( NULL );
 
-		if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, alert ) != 0 )
-		{
-			AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__ );
-		}
+		AI_serializer_thread ((void*) alert);
 	}
 
 	DB_close();

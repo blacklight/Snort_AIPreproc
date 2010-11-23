@@ -552,9 +552,9 @@ double                 AI_neural_correlation_weight ();
 double                 AI_bayesian_correlation_weight ();
 
 void                   AI_outdb_mutex_initialize ();
-void*                  AI_store_alert_to_db_thread ( void* );
-void*                  AI_store_cluster_to_db_thread ( void* );
-void*                  AI_store_correlation_to_db_thread ( void* );
+void                   AI_store_alert_to_db ( AI_snort_alert* );
+void                   AI_store_cluster_to_db ( AI_alerts_couple* );
+void                   AI_store_correlation_to_db ( AI_alert_correlation* );
 void*                  AI_neural_clustering_thread ( void* );
 AI_alerts_per_neuron*  AI_get_alerts_per_neuron ();
 
