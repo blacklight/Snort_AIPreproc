@@ -161,8 +161,6 @@ AI_serialize_alerts ( AI_snort_alert **alerts_pool, unsigned int alerts_pool_cou
 					*event_next     = NULL,
 					*event_iterator = NULL;
 
-	return;
-
 	if ( !alerts_hash )
 	{
 		AI_deserialize_alerts();
