@@ -130,6 +130,12 @@ mysql_do_query ( const char *query )
 unsigned long
 mysql_do_escape_string ( char **to, const char *from, unsigned long length )
 {
+	if ( !from )
+		return 0;
+
+	if ( strlen ( from ) == 0 )
+		return 0;
+
 	return mysql_real_escape_string ( db, *to, from, length );
 }
 
@@ -174,6 +180,12 @@ mysql_do_out_query ( const char *query )
 unsigned long
 mysql_do_out_escape_string ( char **to, const char *from, unsigned long length )
 {
+	if ( !from )
+		return 0;
+
+	if ( strlen ( from ) == 0 )
+		return 0;
+
 	return mysql_real_escape_string ( outdb, *to, from, length );
 }
 

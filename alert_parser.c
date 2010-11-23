@@ -96,7 +96,14 @@ AI_alerts_pool_thread ( void *arg )
 			continue;
 
 		if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, NULL ) != 0 )
+		{
 			AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__ );
+		}
+
+		/* if ( pthread_join ( serializer_thread, NULL ) != 0 ) */
+		/* { */
+		/* 	AI_fatal_err ( "Could not join the alerts' serializer thread", __FILE__, __LINE__ ); */
+		/* } */
 	}
 
 	pthread_exit ((void*) 0);
@@ -163,7 +170,9 @@ AI_file_alertparser_thread ( void* arg )
 
 	/* Initialize the thread for managing the serialization of alerts' pool */
 	if ( pthread_create ( &alerts_pool_thread, NULL, AI_alerts_pool_thread, NULL ) != 0 )
+	{
 		AI_fatal_err ( "Failed to create the alerts' pool management thread", __FILE__, __LINE__ );
+	}
 
 	while ( 1 )
 	{
@@ -285,12 +294,21 @@ AI_file_alertparser_thread ( void* arg )
 					}
 
 					if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, alert ) != 0 )
+					{
 						AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__  );
+					}
 
+					if ( pthread_join ( serializer_thread, NULL ) != 0 )
+					{
+						AI_fatal_err ( "Failed to join the alerts' serializer thread", __FILE__, __LINE__  );
+					}
+					
 					if ( config->outdbtype != outdb_none )
 					{
 						if ( pthread_create ( &db_thread, NULL, AI_store_alert_to_db_thread, alert ) != 0 )
+						{
 							AI_fatal_err ( "Failed to create the alert to db storing thread", __FILE__, __LINE__ );
+						}
 					}
 
 					in_alert = false;

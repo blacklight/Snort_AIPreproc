@@ -117,6 +117,7 @@ AI_store_alert_to_db_thread ( void *arg )
 	{
 		pthread_mutex_unlock ( &outdb_mutex );
 		pthread_exit ((void*) 0);
+		return (void*) 0;
 	}
 
 	latest_ip_hdr_id = strtoul ( row[0], NULL, 10 );
@@ -147,12 +148,14 @@ AI_store_alert_to_db_thread ( void *arg )
 			_dpd.logMsg ( "AIPreproc: Warning: error in executing query: '%s'\n", query );
 			pthread_mutex_unlock ( &outdb_mutex );
 			pthread_exit ((void*) 0);
+			return (void*) 0;
 		}
 
 		if ( !( row = (DB_row) DB_fetch_row ( res )))
 		{
 			pthread_mutex_unlock ( &outdb_mutex );
 			pthread_exit ((void*) 0);
+			return (void*) 0;
 		}
 
 		latest_tcp_hdr_id = strtoul ( row[0], NULL, 10 );
@@ -213,12 +216,14 @@ AI_store_alert_to_db_thread ( void *arg )
 		_dpd.logMsg ( "AIPreproc: Warning: error in executing query: '%s'\n", query );
 		pthread_mutex_unlock ( &outdb_mutex );
 		pthread_exit ((void*) 0);
+		return (void*) 0;
 	}
 
 	if ( !( row = (DB_row) DB_fetch_row ( res )))
 	{
 		pthread_mutex_unlock ( &outdb_mutex );
 		pthread_exit ((void*) 0);
+		return (void*) 0;
 	}
 
 	latest_alert_id = strtoul ( row[0], NULL, 10 );

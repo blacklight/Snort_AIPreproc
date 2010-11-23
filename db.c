@@ -71,7 +71,9 @@ AI_db_alertparser_thread ( void *arg )
 
 	/* Initialize the thread for managing the serialization of alerts' pool */
 	if ( pthread_create ( &alerts_pool_thread, NULL, AI_alerts_pool_thread, NULL ) != 0 )
+	{
 		AI_fatal_err ( "Failed to create the alerts' pool management thread", __FILE__, __LINE__ );
+	}
 
 	while ( 1 )
 	{
@@ -221,7 +223,9 @@ AI_db_alertparser_thread ( void *arg )
 		latest_time = time ( NULL );
 
 		if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, alert ) != 0 )
+		{
 			AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__ );
+		}
 	}
 
 	DB_close();
