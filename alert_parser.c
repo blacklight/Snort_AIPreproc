@@ -45,22 +45,19 @@ unsigned int     alerts_pool_count = 0;
  * \param  arg   void* pointer to the alert to be added to the pool, if any
  */
 
-void*
-AI_serializer_thread ( void *arg )
+void
+AI_serializer ( AI_snort_alert *alert )
 {
 	unsigned int    i      = 0;
-	AI_snort_alert  *alert = NULL;
 
-	if ( arg )
+	if ( alert )
 	{
-		alert = ( AI_snort_alert* ) arg;
-
 		pthread_mutex_lock ( &alerts_pool_mutex );
 		alerts_pool [ alerts_pool_count++ ] = alert;
 		pthread_mutex_unlock ( &alerts_pool_mutex );
 	}
 
-	if ( !arg || ( arg && alerts_pool_count >= config->alert_bufsize ))
+	if ( !alert || ( alert && alerts_pool_count >= config->alert_bufsize ))
 	{
 		pthread_mutex_lock ( &alerts_pool_mutex );
 		AI_serialize_alerts ( alerts_pool, alerts_pool_count );
@@ -73,10 +70,7 @@ AI_serializer_thread ( void *arg )
 		alerts_pool_count = 0;
 		pthread_mutex_unlock ( &alerts_pool_mutex );
 	}
-
-	/* pthread_exit ((void*) 0); */
-	return (void*) 0;
-}		/* -----  end of function AI_serializer_thread  ----- */
+}		/* -----  end of function AI_serializer  ----- */
 
 
 /**
@@ -95,17 +89,7 @@ AI_alerts_pool_thread ( void *arg )
 		if ( !alerts_pool || alerts_pool_count == 0 )
 			continue;
 
-		AI_serializer_thread((void*) 0);
-
-		/* if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, NULL ) != 0 ) */
-		/* { */
-		/* 	AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__ ); */
-		/* } */
-
-		/* if ( pthread_join ( serializer_thread, NULL ) != 0 ) */
-		/* { */
-		/* 	AI_fatal_err ( "Could not join the alerts' serializer thread", __FILE__, __LINE__ ); */
-		/* } */
+		AI_serializer ( NULL );
 	}
 
 	pthread_exit ((void*) 0);
@@ -295,18 +279,8 @@ AI_file_alertparser_thread ( void* arg )
 						tmp->next = alert;
 					}
 
-					AI_serializer_thread ((void*) alert);
+					AI_serializer ( alert );
 
-					/* if ( pthread_create ( &serializer_thread, NULL, AI_serializer_thread, alert ) != 0 ) */
-					/* { */
-					/* 	AI_fatal_err ( "Failed to create the alerts' serializer thread", __FILE__, __LINE__  ); */
-					/* } */
-
-					/* if ( pthread_join ( serializer_thread, NULL ) != 0 ) */
-					/* { */
-					/* 	AI_fatal_err ( "Failed to join the alerts' serializer thread", __FILE__, __LINE__  ); */
-					/* } */
-					
 					if ( config->outdbtype != outdb_none )
 					{
 						AI_store_alert_to_db ( alert );

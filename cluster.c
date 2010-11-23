@@ -290,16 +290,6 @@ __AI_merge_alerts ( AI_snort_alert **log )
 								alerts_couple->alert2 = tmp2->next;
 
 								AI_store_cluster_to_db ( alerts_couple );
-
-								/* if ( pthread_create ( &db_thread, NULL, AI_store_cluster_to_db_thread, alerts_couple ) != 0 ) */
-								/* { */
-								/* 	AI_fatal_err ( "Failed to create the cluster-to-database thread", __FILE__, __LINE__ ); */
-								/* } */
-
-								/* if ( pthread_join ( db_thread, NULL ) != 0 ) */
-								/* { */
-								/* 	AI_fatal_err ( "Could not join the cluster-to-database thread", __FILE__, __LINE__ ); */
-								/* } */
 							}
 
 							/* Merge the two alerts */

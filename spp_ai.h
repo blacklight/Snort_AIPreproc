@@ -540,9 +540,9 @@ AI_snort_alert*    AI_get_alerts ( void );
 AI_snort_alert*    AI_get_clustered_alerts ( void );
 
 void                   AI_serialize_alerts ( AI_snort_alert**, unsigned int );
+void                   AI_serializer ( AI_snort_alert* );
 void*                  AI_deserialize_alerts ();
 void*                  AI_alerts_pool_thread ( void* );
-void*                  AI_serializer_thread ( void* );
 void*                  AI_neural_thread ( void* );
 const AI_alert_event*  AI_get_alert_events_by_key ( AI_alert_event_key );
 unsigned int           AI_get_history_alert_number ();

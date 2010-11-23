@@ -239,7 +239,7 @@ AI_db_alertparser_thread ( void *arg )
 		DB_free_result ( res );
 		latest_time = time ( NULL );
 
-		AI_serializer_thread ((void*) alert);
+		AI_serializer ( alert );
 	}
 
 	DB_close();

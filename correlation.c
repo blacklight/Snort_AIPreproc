@@ -1469,16 +1469,6 @@ AI_alert_correlation_thread ( void *arg )
 					if ( config->outdbtype != outdb_none )
 					{
 						AI_store_correlation_to_db ( corr );
-
-						/* if ( pthread_create ( &db_thread, NULL, AI_store_correlation_to_db_thread, corr ) != 0 ) */
-						/* { */
-						/* 	AI_fatal_err ( "Failed to create the correlation-to-database storing thread", __FILE__, __LINE__ ); */
-						/* } */
-
-						/* if ( pthread_join ( db_thread, NULL ) != 0 ) */
-						/* { */
-						/* 	AI_fatal_err ( "Failed to join the correlation-to-database storing thread", __FILE__, __LINE__ ); */
-						/* } */
 					}
 				}
 			}
