@@ -262,7 +262,6 @@ __AI_merge_alerts ( AI_snort_alert **log )
 {
 	AI_snort_alert *tmp, *tmp2, *tmp3;
 	AI_alerts_couple *alerts_couple;
-	pthread_t db_thread;
 	int count = 0;
 
 	for ( tmp = *log; tmp; tmp = tmp->next )

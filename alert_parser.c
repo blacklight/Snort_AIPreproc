@@ -80,8 +80,6 @@ AI_serializer ( AI_snort_alert *alert )
 void*
 AI_alerts_pool_thread ( void *arg )
 {
-	pthread_t  serializer_thread;
-
 	while ( 1 )
 	{
 		sleep ( config->alertSerializationInterval );
@@ -138,8 +136,6 @@ AI_file_alertparser_thread ( void* arg )
 	BOOL           in_alert = false;
 
 	pthread_t      alerts_pool_thread;
-	pthread_t      serializer_thread;
-	pthread_t      db_thread;
 
 	/* Initialize the mutex lock, so nobody can read the alerts while we write there */
 	pthread_mutex_init ( &alert_mutex, NULL );

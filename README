@@ -188,12 +188,14 @@ preprocessor ai: \
 	database_parsing_interval 30 \
 	hashtable_cleanup_interval 300 \
 	manual_correlations_parsing_interval 120 \
+	max_hash_pkt_number 1000 \
 	neural_clustering_interval 1200 \
 	neural_network_training_interval 43200 \
 	neural_train_steps 10 \
 	output_database ( type="dbtype", name="snort", user="snortusr", password="snortpass", host="dbhost" ) \
 	output_neurons_per_side 20 \
 	tcp_stream_expire_interval 300 \
+	use_stream_hash_table 1 \
 	webserv_banner "Snort AIPreprocessor module" \
 	webserv_dir "/prefix/share/htdocs" \
 	webserv_port 7654
@@ -323,7 +325,13 @@ the alerts from database and the next one (default if not specified: 30 seconds)
 
 - hashtable_cleanup_interval: The interval that should occur from the cleanup of
 the  hashtable  of  TCP  streams and the next one (default if not specified: 300
- seconds)
+seconds).  Set  this  option  to  0 for performing no cleanup on the stream hash
+table
+
+
+- max_hash_pkt_number: Maximum number of packets that each element of the stream
+hash  table  should  hold,  set  it  to  0  for  no  limit (default value if not
+specified: 1000)
 
 
 - manual_correlations_parsing_interval: Interval in seconds between an execution
@@ -368,6 +376,12 @@ and    evaluation    algorithms   (default   value   if   not   specified:   20)
 - tcp_stream_expire_interval:  The  interval that should occur for marking a TCP
 stream as "expired", if no more packets are received inside of that and it's not
 "marked"    as    suspicious   (default   if   not   specified:   300   seconds)
+
+
+- use_stream_hash_table: Set this option to 0 if you do not want to use the hash
+table for storing the streams of packets associated to alerts, this is a good
+choice on a system where many alerts are triggered (default value if not
+specified: 1)
 
 
 - webserv_banner:  Banner of the web server, to be placed on the error pages and

@@ -1238,8 +1238,7 @@ AI_alert_correlation_thread ( void *arg )
 	AI_snort_alert            *alert_iterator       = NULL,
 					      *alert_iterator2      = NULL;
 
-	pthread_t                 db_thread,
-						 manual_corr_thread;
+	pthread_t                 manual_corr_thread;
 
 	#ifdef                    HAVE_LIBGVC
 	char                      corr_png_file[4096]   = { 0 };

@@ -218,11 +218,13 @@ static AI_config * AI_parse(char *args)
 			     correlation_graph_interval           = 0,
 			     database_parsing_interval            = 0,
 				manual_correlations_parsing_interval = 0,
+				max_hash_pkt_number                  = 0,
 				neural_clustering_interval           = 0,
 				neural_network_training_interval     = 0,
 				neural_train_steps                   = 0,
 				output_neurons_per_side              = 0,
 			     stream_expire_interval               = 0,
+				use_stream_hash_table                = 0,
 				webserv_banner_len                   = 0,
 				webserv_dir_len                      = 0;
 
@@ -590,6 +592,48 @@ static AI_config * AI_parse(char *args)
 
 	config->neural_train_steps = neural_train_steps;
 	_dpd.logMsg( "    Neural train steps: %u\n", config->neural_train_steps );
+
+	/* Parsing the max_hash_pkt_number option */
+	if (( arg = (char*) strcasestr( args, "max_hash_pkt_number" ) ))
+	{
+		for ( arg += strlen("max_hash_pkt_number");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			AI_fatal_err ( "max_hash_pkt_number option used but "
+				"no value specified", __FILE__, __LINE__ );
+		}
+
+		max_hash_pkt_number = strtoul ( arg, NULL, 10 );
+	} else {
+		max_hash_pkt_number = DEFAULT_MAX_HASH_PKT_NUMBER;
+	}
+
+	config->max_hash_pkt_number = max_hash_pkt_number;
+	_dpd.logMsg( "    Maximum number of packets stored in the hash table: %u\n", config->max_hash_pkt_number );
+
+	/* Parsing the use_stream_hash_table option */
+	if (( arg = (char*) strcasestr( args, "use_stream_hash_table" ) ))
+	{
+		for ( arg += strlen("use_stream_hash_table");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			AI_fatal_err ( "use_stream_hash_table option used but "
+				"no value specified", __FILE__, __LINE__ );
+		}
+
+		use_stream_hash_table = strtoul ( arg, NULL, 10 );
+	} else {
+		use_stream_hash_table = DEFAULT_USE_STREAM_HASH_TABLE;
+	}
+
+	config->use_stream_hash_table = use_stream_hash_table;
+	_dpd.logMsg( "    Using the stream hash table: %u\n", config->use_stream_hash_table );
 
 	/* Parsing the alert_correlation_weight option */
 	if (( arg = (char*) strcasestr( args, "alert_correlation_weight" ) ))

@@ -98,10 +98,17 @@
 /** Default number of steps used for training the neural network */
 #define 	DEFAULT_NEURAL_TRAIN_STEPS 			10
 
+/** Default maximum number of packets that an observed stream in the hash table should hold */
+#define 	DEFAULT_MAX_HASH_PKT_NUMBER 			1000
+
 /** Default number of alerts needed in the history file or database for letting a certain
  * heuristic correlation index weight be =~ 0.95 (the weight monotonically increases
  * with the number of alerts according to a hyperbolic tangent function) */
 #define 	DEFAULT_ALERT_CORRELATION_WEIGHT 		5000
+
+/** Default setting for the use of the hash table for holding streams of packets
+ * associated to a certain alert (0 = do not use, 1 or any value != 0: use) */
+#define 	DEFAULT_USE_STREAM_HASH_TABLE 		1
 
 /** Default web server port */
 #define 	DEFAULT_WEBSERV_PORT 				7654
@@ -164,6 +171,9 @@ struct pkt_info
 	/** Flag set if the packet is observed, i.e. associated to a security alert */
 	BOOL              observed;
 
+	/** Number of packets in the current flow, if available */
+	unsigned int      n_packets;
+
 	/** Make the struct 'hashable' */
 	UT_hash_handle    hh;
 };
@@ -218,11 +228,18 @@ typedef struct
 	 * with the number of alerts according to a hyperbolic tangent function) */
 	unsigned long  alert_correlation_weight;
 
+	/** Maximum number of packets that an observed stream in the hash table should hold */
+	unsigned long  max_hash_pkt_number;
+
 	/** Number of steps used for training the neural network */
 	unsigned long  neural_train_steps;
 
 	/** Size of the alerts' buffer to be periodically sent to the serialization thread */
 	unsigned long  alert_bufsize;
+	
+	/** Setting for the use of the hash table for holding streams of packets
+	 * associated to a certain alert (0 = do not use, 1 or any value != 0: use) */
+	unsigned long  use_stream_hash_table;
 
 	/** Correlation threshold coefficient for correlating two hyperalerts. Two hyperalerts
 	 * are 'correlated' to each other in a multi-step attack graph if and only if their

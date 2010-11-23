@@ -45,7 +45,6 @@ AI_db_alertparser_thread ( void *arg )
 	int            latest_cid  = 0;
 	time_t         latest_time = time ( NULL );
 	pthread_t      alerts_pool_thread;
-	pthread_t      serializer_thread;
 
 	DB_result      res, res2;
 	DB_row         row, row2;

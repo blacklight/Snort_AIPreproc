@@ -98,8 +98,16 @@ __AI_stream_free ( struct pkt_info* stream )
 void*
 AI_hashcleanup_thread ( void* arg )
 {
-	struct pkt_info  *h, *stream;
-	time_t           max_timestamp;
+	struct pkt_info  *h, *stream, *tmp;
+	time_t  max_timestamp;
+	int   pkt_count, pkt_rm;
+	BOOL  has_old_streams;
+
+	if ( config->hashCleanupInterval == 0 )
+	{
+		pthread_exit ((void*) 0);
+		return (void*) 0;
+	}
 
 	while ( 1 )  {
 		/* Sleep for the specified number of seconds */
@@ -109,31 +117,69 @@ AI_hashcleanup_thread ( void* arg )
 		if ( !hash || !HASH_COUNT(hash) )
 			continue;
 
-		/* Check all the streams in the hash */
-		for ( h = hash; h; h = (struct pkt_info*) h->next )  {
-			if ( h->observed ) continue;
-			max_timestamp = 0;
+		has_old_streams = true;
 
-			/* Find the maximum timestamp in the flow */
-			for ( stream = h; stream; stream = (struct pkt_info*) stream->next )  {
-				if ( stream->timestamp > max_timestamp )
-					max_timestamp = stream->timestamp;
-			}
+		while ( has_old_streams )
+		{
+			has_old_streams = false;
 
-			/* If the most recent packet in the stream is older than the specified threshold, remove that stream */
-			if ( time(NULL) - max_timestamp > config->streamExpireInterval )  {
-				stream = h;
-
-				if ( stream )
+			/* Check all the streams in the hash */
+			for ( h = hash; h; h = (struct pkt_info*) h->next )  {
+				if ( h->observed )
 				{
-					/* XXX This, sometimes, randomly, leads to the crash of the module.
-					 * WHY??? Why can't computer science be deterministic, and if a
-					 * certain not-NULL stream exists in a not-NULL hash table why
-					 * should there be a crash, one day yes and the next one no? Until
-					 * I won't find an answer to these enigmatic questions, I will leave
-					 * this code commented, so if a certain stream goes timeout it won't
-					 * be removed. I'm sorry but it's not my fault. Ask the karma about this */
-					/* __AI_stream_free ( stream ); */
+					continue;
+				}
+
+				if ( h->next )
+				{
+					if ( h->next->observed )
+					{
+						if ( config->max_hash_pkt_number != 0 )
+						{
+							if ( h->next->n_packets == 0 )
+							{
+								for ( stream = h->next, pkt_count=0; stream; stream = (struct pkt_info*) stream->next, pkt_count++ );
+								h->next->n_packets = pkt_count;
+							} else {
+								pkt_count = h->next->n_packets;
+							}
+
+							/* If this stream has too many packets inside, remove the oldest ones */
+							if ( pkt_count > config->max_hash_pkt_number )
+							{
+								for ( stream = h->next, pkt_rm = 0;
+										stream && pkt_rm < pkt_count - config->max_hash_pkt_number;
+										stream = stream->next, pkt_rm++ )
+								{
+									tmp = stream->next;
+									__AI_stream_free ( stream );
+									stream = tmp;
+								}
+
+								h->next = stream;
+							}
+						}
+					}
+				}
+
+				max_timestamp = 0;
+
+				/* Find the maximum timestamp in the flow */
+				for ( stream = h; stream; stream = (struct pkt_info*) stream->next )  {
+					if ( stream->timestamp > max_timestamp )
+						max_timestamp = stream->timestamp;
+				}
+
+				/* If the most recent packet in the stream is older than the specified threshold, remove that stream */
+
+				if ( time (NULL) - max_timestamp > config->streamExpireInterval )  {
+					has_old_streams = true;
+					stream = h;
+
+					if ( stream )
+					{
+						__AI_stream_free ( stream );
+					}
 				}
 			}
 		}
@@ -163,12 +209,18 @@ AI_pkt_enqueue ( SFSnortPacket* pkt )
 	if ( start_time == 0 )
 		start_time = time (NULL);
 
+	/* If we are not using the stream hash table, just return */
+	if ( config->use_stream_hash_table == 0 )
+		return;
+
 	/* If this is not an IP and/or TCP packet, it's not for me */
 	if ( !( pkt->ip4_header && pkt->tcp_header ))
 		return;
 
 	if ( !( info = (struct pkt_info*) malloc( sizeof(struct pkt_info) )) )
+	{
 		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+	}
 
 	memset ( &key, 0, sizeof(struct pkt_key));
 	key.src_ip   = pkt->ip4_header->source.s_addr;
@@ -177,10 +229,13 @@ AI_pkt_enqueue ( SFSnortPacket* pkt )
 	info->key       = key;
 	info->timestamp = time(NULL);
 	info->observed  = false;
+	info->n_packets = 0;
 	info->next      = NULL;
 
 	if ( !( info->pkt = (SFSnortPacket*) malloc ( sizeof (SFSnortPacket) )) )
+	{
 		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+	}
 
 	memcpy ( info->pkt, pkt, sizeof (SFSnortPacket) );
 
@@ -193,8 +248,12 @@ AI_pkt_enqueue ( SFSnortPacket* pkt )
 	/* If there is already an element of this traffic stream in my hash table,
 	 * append the packet just received to this stream*/
 	if ( found )  {
-		/* If the current packet contains a RST, just deallocate the stream */
-		if ( info->pkt->tcp_header->flags & TCPHEADER_RST )  {
+		/* If the current packet contains a RST or a FIN, just deallocate the stream */
+		if (
+			( info->pkt->tcp_header->flags & TCPHEADER_RST ) ||
+			(( info->pkt->tcp_header->flags & TCPHEADER_FIN ) &&
+			 ( info->pkt->tcp_header->flags & TCPHEADER_ACK ))
+		)  {
 			pthread_mutex_lock ( &hash_mutex );
 			HASH_FIND ( hh, hash, &key, sizeof(struct pkt_key), found );
 			pthread_mutex_unlock ( &hash_mutex );
@@ -227,23 +286,6 @@ AI_pkt_enqueue ( SFSnortPacket* pkt )
 			if ( !tmp )  {
 				found->next = info;
 			}
-
-			/* If the current packet contains an ACK and the latest one
-			 * in this stream contained a FIN, then the communication
-			 * on this stream is over */
-			if ( found->pkt->tcp_header->flags & TCPHEADER_FIN )  {
-				if ( info->pkt->tcp_header->flags & TCPHEADER_ACK )  {
-					pthread_mutex_unlock ( &hash_mutex );
-					HASH_FIND ( hh, hash, &key, sizeof(struct pkt_key), found );
-					pthread_mutex_unlock ( &hash_mutex );
-
-					if ( found )  {
-						if ( !found->observed )  {
-							__AI_stream_free ( found );
-						}
-					}
-				}
-			}	
 		}
 	} else {
 		/* If the packet contains the ACK flag, no payload and it is
