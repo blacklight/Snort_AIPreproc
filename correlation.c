@@ -1447,14 +1447,28 @@ AI_alert_correlation_thread ( void *arg )
 				HASH_FIND ( hh, manual_correlations, &pair_key, sizeof ( pair_key ), pair );
 				HASH_FIND ( hh, manual_uncorrelations, &pair_key, sizeof ( pair_key ), unpair );
 
+				/* Yes, BlackLight wrote this line of code in a pair of minutes and immediately
+				 * compiled it without a single error */
 				if ( !unpair && ( pair || (
 						corr->correlation >= corr_threshold &&
 						corr_threshold != 0.0 &&
 						corr->key.a->timestamp <= corr->key.b->timestamp && ! (
 						corr->key.a->gid == corr->key.b->gid &&
 						corr->key.a->sid == corr->key.b->sid &&
-						corr->key.a->rev == corr->key.b->rev ))))
-				{
+						corr->key.a->rev == corr->key.b->rev ) && (
+							corr->key.a->ip_src_addr == corr->key.b->ip_src_addr || (
+								(corr->key.a->h_node[src_addr] && corr->key.b->h_node[src_addr]) ?
+									( corr->key.a->h_node[src_addr]->max_val == corr->key.b->h_node[src_addr]->max_val &&
+									corr->key.a->h_node[src_addr]->min_val == corr->key.b->h_node[src_addr]->min_val ) : 0
+							)) && (
+							corr->key.a->ip_dst_addr == corr->key.b->ip_dst_addr || (
+								(corr->key.a->h_node[dst_addr] && corr->key.b->h_node[dst_addr]) ?
+									( corr->key.a->h_node[dst_addr]->max_val == corr->key.b->h_node[dst_addr]->max_val &&
+									corr->key.a->h_node[dst_addr]->min_val == corr->key.b->h_node[dst_addr]->min_val ) : 0
+							))
+						)
+					)
+				)  {
 					if ( !( corr->key.a->derived_alerts = ( AI_snort_alert** ) realloc ( corr->key.a->derived_alerts, (++corr->key.a->n_derived_alerts) * sizeof ( AI_snort_alert* ))))
 						AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
