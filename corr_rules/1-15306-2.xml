@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hyperalert PUBLIC "-//blacklight//DTD HYPERALERT SNORT MODEL//EN" "http://0x00.ath.cx/hyperalert.dtd">
+
+<hyperalert>
+	<snort-id>1.15306.2</snort-id>
+	<desc>WEB-CLIENT Portable Executable binary file transfer</desc>
+
+	<pre>HostExists(+DST_ADDR+)</pre>
+	<pre>HasService(+DST_ADDR+, +DST_PORT+)</pre>
+	<pre>HasHttpInfo(+SRC_ADDR+, +DST_ADDR+)</pre>
+
+	<post>HasRemoteAccess(+SRC_ADDR+, +DST_ADDR+)</post>
+</hyperalert>
+

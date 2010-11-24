@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hyperalert PUBLIC "-//blacklight//DTD HYPERALERT SNORT MODEL//EN" "http://0x00.ath.cx/hyperalert.dtd">
+
+<hyperalert>
+	<snort-id>1.1201.8</snort-id>
+	<desc>ATTACK-RESPONSES 403 Forbidden</desc>
+
+	<pre>HostExists(+DST_ADDR+)</pre>
+	<pre>HasService(+DST_ADDR+, +DST_PORT+)</pre>
+
+	<post>HasHttpInfo(+SRC_ADDR+, +DST_ADDR+)</post>
+</hyperalert>
+

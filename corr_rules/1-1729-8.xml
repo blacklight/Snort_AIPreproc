@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hyperalert PUBLIC "-//blacklight//DTD HYPERALERT SNORT MODEL//EN" "http://0x00.ath.cx/hyperalert.dtd">
+
+<hyperalert>
+	<snort-id>1.1729.8</snort-id>
+	<desc>CHAT IRC channel join</desc>
+
+	<pre>HostExists(+DST_ADDR+)</pre>
+	<pre>HasService(+DST_ADDR+, +DST_PORT+)</pre>
+	<pre>IRCConnected(+SRC_ADDR+, +DST_ADDR+)</pre>
+
+	<post>ChannelConnected(+SRC_ADDR+, +DST_ADDR+)</post>
+</hyperalert>
+

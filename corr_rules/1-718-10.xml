@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hyperalert PUBLIC "-//blacklight//DTD HYPERALERT SNORT MODEL//EN" "http://0x00.ath.cx/hyperalert.dtd">
+
+<hyperalert>
+	<snort-id>1.718.10</snort-id>
+	<desc>TELNET login incorrect</desc>
+
+	<pre>HostExists(+DST_ADDR+)</pre>
+	<pre>HasService(+DST_ADDR+, +DST_PORT+)</pre>
+
+	<post>HasRemoteAccess(+SRC_ADDR+, +DST_ADDR+)</post>
+</hyperalert>
+

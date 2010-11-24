@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hyperalert PUBLIC "-//blacklight//DTD HYPERALERT SNORT MODEL//EN" "http://0x00.ath.cx/hyperalert.dtd">
+
+<hyperalert>
+	<snort-id>122.23.0</snort-id>
+	<desc>(portscan) UDP Filtered Portsweep</desc>
+
+	<pre>HostExists(+DST_ADDR+)</pre>
+	<post>HasService(+DST_ADDR+, +ANY_PORT+)</post>
+</hyperalert>
+
