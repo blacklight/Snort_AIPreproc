@@ -28,6 +28,7 @@
 #include 	"sf_dynamic_preprocessor.h"
 #include	"uthash.h"
 
+#include	<netinet/in.h>
 #include	<pthread.h>
 
 #define 	PRIVATE 		static
@@ -420,6 +421,10 @@ typedef struct _AI_snort_alert  {
 	 * and post-conditions*/
 	AI_hyperalert_info  *hyperalert;
 
+	/** Latitude and longitude of the attacker IP,
+	 * if available */
+	double geocoord[2];
+
 	/* Parent alerts in the chain, if any */
 	struct _AI_snort_alert  **parent_alerts;
 
@@ -509,6 +514,13 @@ typedef struct  {
 	UT_hash_handle            hh;
 } AI_alerts_per_neuron;
 /*****************************************************************/
+/** Hash table holding analyzed geographical IP info */ 
+typedef struct  {
+	char            ip[INET_ADDRSTRLEN];
+	double          geocoord[2];
+	UT_hash_handle  hh;
+} AI_geoip_cache;
+/*****************************************************************/
 
 
 /** Enumeration for describing the table in the output database */
@@ -567,6 +579,7 @@ double                 AI_alert_bayesian_correlation ( const AI_snort_alert*, co
 double                 AI_alert_neural_som_correlation ( const AI_snort_alert*, const AI_snort_alert* );
 double                 AI_neural_correlation_weight ();
 double                 AI_bayesian_correlation_weight ();
+int                    AI_geoinfobyaddr ( const char*, double** );
 
 void                   AI_outdb_mutex_initialize ();
 void                   AI_store_alert_to_db ( AI_snort_alert* );

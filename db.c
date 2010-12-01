@@ -30,6 +30,7 @@
 
 
 PRIVATE AI_snort_alert   *alerts   = NULL;
+PRIVATE AI_geoip_cache   *geoip    = NULL;
 PRIVATE pthread_mutex_t  mutex;
 
 /**
@@ -40,9 +41,11 @@ void*
 AI_db_alertparser_thread ( void *arg )
 {
 	unsigned int   i           = 0;
+	char           ip[INET_ADDRSTRLEN] = { 0 };
 	char           query[1024] = { 0 };
 	int            rows        = 0;
 	int            latest_cid  = 0;
+	double         *geocoord = NULL;
 	time_t         latest_time = time ( NULL );
 	pthread_t      alerts_pool_thread;
 
@@ -53,6 +56,7 @@ AI_db_alertparser_thread ( void *arg )
 	struct pkt_info *info  = NULL;
 	AI_snort_alert  *alert = NULL;
 	AI_snort_alert  *tmp   = NULL;
+	AI_geoip_cache  *found = NULL;
 
 	pthread_mutex_init ( &mutex, NULL );
 
@@ -235,6 +239,40 @@ AI_db_alertparser_thread ( void *arg )
 			}
 		}
 		
+		/* Get, if available, the geographical coordinates of the attacking IP address */
+		if ( alert->ip_src_addr )
+		{
+			memset ( ip, 0, sizeof ( ip ));
+			inet_ntop ( AF_INET, &(alert->ip_src_addr), ip, sizeof ( ip ));
+			HASH_FIND_STR ( geoip, ip, found );
+
+			if ( !found )
+			{
+				if ( !( found = (AI_geoip_cache*) malloc ( sizeof ( AI_geoip_cache ))))
+				{
+					AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+				}
+
+				geocoord = NULL;
+				strcpy ( found->ip, ip );
+
+				if ( AI_geoinfobyaddr ( ip, &geocoord ) > 0 )
+				{
+					found->geocoord[0] = geocoord[0];
+					found->geocoord[1] = geocoord[1];
+				} else {
+					found->geocoord[0] = 0.0;
+					found->geocoord[1] = 0.0;
+				}
+
+				HASH_ADD_STR ( geoip, ip, found );
+				free ( geocoord );
+			}
+
+			alert->geocoord[0] = found->geocoord[0];
+			alert->geocoord[1] = found->geocoord[1];
+		}
+
 		DB_free_result ( res );
 		latest_time = time ( NULL );
 

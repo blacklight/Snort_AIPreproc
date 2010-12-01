@@ -190,7 +190,9 @@ __AI_correlated_alerts_to_json ()
 			"\t\"date\": \"%s\",\n"
 			"\t\"clusteredAlertsCount\": %u,\n"
 			"\t\"from\": \"%s:%s\",\n"
-			"\t\"to\": \"%s:%s\"",
+			"\t\"to\": \"%s:%s\",\n"
+			"\t\"latitude\": \"%f\",\n"
+			"\t\"longitude\": \"%f\"",
 			alert_iterator->alert_id,
 			alert_iterator->sid,
 			alert_iterator->gid,
@@ -198,7 +200,9 @@ __AI_correlated_alerts_to_json ()
 			alert_iterator->desc,
 			strtime,
 			alert_iterator->grouped_alerts_count,
-			srcip, srcport, dstip, dstport
+			srcip, srcport, dstip, dstport,
+			alert_iterator->geocoord[0],
+			alert_iterator->geocoord[1]
 		);
 
 		if ( alert_iterator->stream )
@@ -255,11 +259,15 @@ __AI_correlated_alerts_to_json ()
 						"\t\t\t\"label\": \"%s\",\n"
 						"\t\t\t\"date\": \"%s\",\n"
 						"\t\t\t\"from\": \"%s:%s\",\n"
-						"\t\t\t\"to\": \"%s:%s\"%s",
+						"\t\t\t\"to\": \"%s:%s\",\n"
+						"\t\t\t\"latitude\": \"%f\",\n"
+						"\t\t\t\"longitude\": \"%f\"%s",
 						alert_iterator->grouped_alerts[i]->alert_id,
 						alert_iterator->grouped_alerts[i]->desc,
 						strtime,
 						srcip, srcport, dstip, dstport,
+						alert_iterator->grouped_alerts[i]->geocoord[0],
+						alert_iterator->grouped_alerts[i]->geocoord[1],
 						(( alert_iterator->grouped_alerts[i]->stream ) ? ",\n" : "\n" )
 					);
 

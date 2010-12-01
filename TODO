@@ -4,7 +4,9 @@ AVERAGE/HIGH PRIORITY:
 
 - Code profiling
 - Comment all the code!!!
-- Testing more scenarios, making more hyperalert models
+- Support for more logs
+- Geographical IP localization and visualization
+- True bayesian temporal correlation
 
 =============
 LOW PRIORITY:
@@ -35,4 +37,5 @@ DONE:
 + Manual alert correlation from the web interface
 + Neural network for alert correlation
 + Supporting extra modules for alert correlation
++ Testing more scenarios, making more hyperalert models
 

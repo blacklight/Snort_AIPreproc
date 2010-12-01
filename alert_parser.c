@@ -31,6 +31,7 @@
 /** \defgroup alert_parser Parse the alert log into binary structures
  * @{ */
 
+PRIVATE AI_geoip_cache   *geoip            = NULL;
 PRIVATE AI_snort_alert   *alerts           = NULL;
 PRIVATE FILE             *alert_fp         = NULL;
 PRIVATE pthread_mutex_t  alert_mutex;
@@ -124,16 +125,19 @@ AI_file_alertparser_thread ( void* arg )
 	int             nmatches = 0;
 	char            line[8192];
 	char            strtime[256];
+	char            ip[INET_ADDRSTRLEN] = { 0 };
 	char            **matches = NULL;
+	double          *geocoord = NULL;
 	time_t          stamp;
 	struct tm       *_tm;
 	struct logtime  ltime;
 	struct pkt_key  key;
 	struct pkt_info *info;
 
-	AI_snort_alert *alert   = NULL;
-	AI_snort_alert *tmp     = NULL;
-	BOOL           in_alert = false;
+	AI_geoip_cache *found    = NULL;
+	AI_snort_alert *alert    = NULL;
+	AI_snort_alert *tmp      = NULL;
+	BOOL           in_alert  = false;
 
 	pthread_t      alerts_pool_thread;
 
@@ -264,6 +268,37 @@ AI_file_alertparser_thread ( void* arg )
 								alert->stream = info;
 							}
 						}
+
+						/* GeoIP stuff */
+						memset ( ip, 0, sizeof ( ip ));
+						inet_ntop ( AF_INET, &(alert->ip_src_addr), ip, sizeof ( ip ));
+						HASH_FIND_STR ( geoip, ip, found );
+
+						if ( !found )
+						{
+							if ( !( found = (AI_geoip_cache*) malloc ( sizeof ( AI_geoip_cache ))))
+							{
+								AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+							}
+
+							geocoord = NULL;
+							strcpy ( found->ip, ip );
+
+							if ( AI_geoinfobyaddr ( ip, &geocoord ) > 0 )
+							{
+								found->geocoord[0] = geocoord[0];
+								found->geocoord[1] = geocoord[1];
+							} else {
+								found->geocoord[0] = 0.0;
+								found->geocoord[1] = 0.0;
+							}
+
+							HASH_ADD_STR ( geoip, ip, found );
+							free ( geocoord );
+						}
+
+						alert->geocoord[0] = found->geocoord[0];
+						alert->geocoord[1] = found->geocoord[1];
 					}
 
 					if ( alerts == NULL )

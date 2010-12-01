@@ -85,8 +85,8 @@ am_libsf_ai_preproc_la_OBJECTS = libsf_ai_preproc_la-alert_history.lo \
 	libsf_ai_preproc_la-cluster.lo \
 	libsf_ai_preproc_la-correlation.lo libsf_ai_preproc_la-db.lo \
 	libsf_ai_preproc_la-kmeans.lo libsf_ai_preproc_la-fsom.lo \
-	libsf_ai_preproc_la-modules.lo libsf_ai_preproc_la-mysql.lo \
-	libsf_ai_preproc_la-neural.lo \
+	libsf_ai_preproc_la-geo.lo libsf_ai_preproc_la-modules.lo \
+	libsf_ai_preproc_la-mysql.lo libsf_ai_preproc_la-neural.lo \
 	libsf_ai_preproc_la-neural_cluster.lo \
 	libsf_ai_preproc_la-outdb.lo libsf_ai_preproc_la-postgresql.lo \
 	libsf_ai_preproc_la-regex.lo libsf_ai_preproc_la-spp_ai.lo \
@@ -271,6 +271,7 @@ correlation.c \
 db.c \
 fkmeans/kmeans.c \
 fsom/fsom.c \
+geo.c \
 modules.c \
 mysql.c \
 neural.c \
@@ -425,6 +426,9 @@ libsf_ai_preproc_la-kmeans.lo: fkmeans/kmeans.c
 
 libsf_ai_preproc_la-fsom.lo: fsom/fsom.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-fsom.lo `test -f 'fsom/fsom.c' || echo '$(srcdir)/'`fsom/fsom.c
+
+libsf_ai_preproc_la-geo.lo: geo.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-geo.lo `test -f 'geo.c' || echo '$(srcdir)/'`geo.c
 
 libsf_ai_preproc_la-modules.lo: modules.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-modules.lo `test -f 'modules.c' || echo '$(srcdir)/'`modules.c

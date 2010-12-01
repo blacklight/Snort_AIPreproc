@@ -375,7 +375,17 @@ window.onload = function()  {
 							}
 							
 							content += '</td><td>' +
-								json_element.from + '</td><td>' + json_element.to + '</td>' +
+								json_element.from;
+
+							if ( parseFloat(json_element.latitude) != 0.0 ||
+									parseFloat(json_element.longitude) != 0.0 )
+							{
+								content += ' (<a href="http://maps.google.com/maps?geocode=&q=' +
+										json_element.latitude + ',' + json_element.longitude +
+										'" target="_blank">locate</a>)';
+							}
+							
+							content += '</td><td>' + json_element.to + '</td>' +
 								'<td>' + json_element.date + '</td></tr>';
 
 							if ( json_element.clusteredAlerts )
@@ -433,7 +443,18 @@ window.onload = function()  {
 									}
 									
 									content += '</td>' +
-										'<td>' + json_element.clusteredAlerts[j].from + '</td>' +
+										'<td>' + json_element.clusteredAlerts[j].from;
+									
+									if ( parseFloat(json_element.clusteredAlerts[j].latitude) != 0.0 ||
+											parseFloat(json_element.clusteredAlerts[j].longitude) != 0.0 )
+									{
+										content += ' (<a href="http://maps.google.com/maps?geocode=&q=' +
+												json_element.clusteredAlerts[j].latitude + ',' +
+												json_element.clusteredAlerts[j].longitude +
+												'" target="_blank">locate</a>)';
+									}
+							
+									content += '</td>' +
 										'<td>' + json_element.clusteredAlerts[j].to + '</td>' +
 										'<td>' + json_element.clusteredAlerts[j].date + '</td></tr>';
 								}

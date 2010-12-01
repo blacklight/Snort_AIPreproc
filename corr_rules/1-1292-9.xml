@@ -2,12 +2,13 @@
 <!DOCTYPE hyperalert PUBLIC "-//blacklight//DTD HYPERALERT SNORT MODEL//EN" "http://0x00.ath.cx/hyperalert.dtd">
 
 <hyperalert>
-	<snort-id>1.1390.8</snort-id>
-	<desc>Shellcode x86 inc ebx NOOP</desc>
+	<snort-id>1.1292.9</snort-id>
+	<desc>ATTACK-RESPONSES directory listing</desc>
 
 	<pre>HostExists(+DST_ADDR+)</pre>
 	<pre>HasService(+DST_ADDR+, +DST_PORT+)</pre>
+	<pre>HasHttpInfo(+SRC_ADDR+, +DST_ADDR+)</pre>
 
-	<post>HasRemoteAccess(+SRC_ADDR+, +DST_ADDR+)</post>
+	<post>HasFileInfo(+SRC_ADDR+, +DST_ADDR+)</post>
 </hyperalert>
 

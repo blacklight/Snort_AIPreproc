@@ -27,6 +27,7 @@ correlation.c \
 db.c \
 fkmeans/kmeans.c \
 fsom/fsom.c \
+geo.c \
 modules.c \
 mysql.c \
 neural.c \
