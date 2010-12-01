@@ -2,10 +2,8 @@
 AVERAGE/HIGH PRIORITY:
 ======================
 
-- Code profiling
 - Comment all the code!!!
 - Support for more logs
-- Geographical IP localization and visualization
 - True bayesian temporal correlation
 
 =============
@@ -38,4 +36,6 @@ DONE:
 + Neural network for alert correlation
 + Supporting extra modules for alert correlation
 + Testing more scenarios, making more hyperalert models
++ Code profiling
++ Geographical IP localization and visualization
 
