@@ -195,6 +195,7 @@ preprocessor ai: \
 	output_database ( type="dbtype", name="snort", user="snortusr", password="snortpass", host="dbhost" ) \
 	output_neurons_per_side 20 \
 	tcp_stream_expire_interval 300 \
+	use_knowledge_base_correlation_index 1 \
 	use_stream_hash_table 1 \
 	webserv_banner "Snort AIPreprocessor module" \
 	webserv_dir "/prefix/share/htdocs" \
@@ -378,18 +379,25 @@ stream as "expired", if no more packets are received inside of that and it's not
 "marked"    as    suspicious   (default   if   not   specified:   300   seconds)
 
 
-- use_stream_hash_table: Set this option to 0 if you do not want to use the hash
-table for storing the streams of packets associated to alerts, this is a good
-choice on a system where many alerts are triggered (default value if not
+- use_knowledge_base_correlation_index: Set this option to 0 if you do not want
+to use the knowledge base alert correlation index (default value if not
+specified: 1)
+
+
+- use_stream_hash_table: Set this option to 0 if you do not want to use the
+hash table for storing the streams of packets associated to alerts, this is a
+good choice on a system where many alerts are triggered (default value if not
 specified: 1)
 
 
 - webserv_banner:  Banner of the web server, to be placed on the error pages and
 in           the           "Server"          HTTP          reply          header
 
+
 - webserver_dir:  Directory  containing  the  contents of the web server running
 over      the      module      (default      if      none      is     specified:
 $PREFIX/share/snort_ai_preprocessor/htdocs)
+
 
 - webserver_port:  Port  where  the  web  server will listen (default if none is
 specified:  7654).  Set  this value to 0 if you don't want to run the web server

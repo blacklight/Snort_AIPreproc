@@ -752,6 +752,7 @@ LTLIBOBJS
 LIBOBJS
 ALLOCA
 LIBGRAPH_INCLUDES
+LIBPYTHON_INCLUDES
 LIBXML2_INCLUDES
 SHARE_PREFIX
 DOC_PREFIX
@@ -874,6 +875,7 @@ with_gnu_ld
 enable_libtool_lock
 with_mysql
 with_postgresql
+with_python
 with_graphviz
 '
       ac_precious_vars='build_alias
@@ -1526,6 +1528,7 @@ Optional Packages:
   --with-postgresql       Enable support for PostgreSQL alert logs
                           [default=no] WARNING: You cannot enable the support
                           for two databases at the same time
+  --with-python           Enable support for Python modules [default=no]
   --without-graphviz      Disable Graphviz support for rendering correlated
                           alerts as a PNG graph [default=yes]
 
@@ -4593,13 +4596,13 @@ if test "${lt_cv_nm_interface+set}" = set; then :
 else
   lt_cv_nm_interface="BSD nm"
   echo "int some_variable = 0;" > conftest.$ac_ext
-  (eval echo "\"\$as_me:4596: $ac_compile\"" >&5)
+  (eval echo "\"\$as_me:4599: $ac_compile\"" >&5)
   (eval "$ac_compile" 2>conftest.err)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4599: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+  (eval echo "\"\$as_me:4602: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
   cat conftest.err >&5
-  (eval echo "\"\$as_me:4602: output\"" >&5)
+  (eval echo "\"\$as_me:4605: output\"" >&5)
   cat conftest.out >&5
   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
     lt_cv_nm_interface="MS dumpbin"
@@ -5805,7 +5808,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5808 "configure"' > conftest.$ac_ext
+  echo '#line 5811 "configure"' > conftest.$ac_ext
   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7334,11 +7337,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7337: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7340: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7341: \$? = $ac_status" >&5
+   echo "$as_me:7344: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7673,11 +7676,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7676: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7679: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7680: \$? = $ac_status" >&5
+   echo "$as_me:7683: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7778,11 +7781,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7781: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7784: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7785: \$? = $ac_status" >&5
+   echo "$as_me:7788: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -7833,11 +7836,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7836: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7839: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7840: \$? = $ac_status" >&5
+   echo "$as_me:7843: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10217,7 +10220,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10220 "configure"
+#line 10223 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10313,7 +10316,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 10316 "configure"
+#line 10319 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11394,6 +11397,15 @@ fi
 
 
 
+# Check whether --with-python was given.
+if test "${with_python+set}" = set; then :
+  withval=$with_python; with_python=yes
+else
+  with_python=no
+fi
+
+
+
 # Check whether --with-graphviz was given.
 if test "${with_graphviz+set}" = set; then :
   withval=$with_graphviz;
@@ -11504,6 +11516,59 @@ else
   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "--with-postgresql option used, but libpq was not found - do not use --with-postgresql, or, on a Debian-based system, install libpq-dev
+See \`config.log' for more details" "$LINENO" 5 ; }
+fi
+
+fi
+
+if test "x$with_python" != xno; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Py_BuildValue in -lpython2.6" >&5
+$as_echo_n "checking for Py_BuildValue in -lpython2.6... " >&6; }
+if test "${ac_cv_lib_python2_6_Py_BuildValue+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpython2.6  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char Py_BuildValue ();
+int
+main ()
+{
+return Py_BuildValue ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_python2_6_Py_BuildValue=yes
+else
+  ac_cv_lib_python2_6_Py_BuildValue=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_python2_6_Py_BuildValue" >&5
+$as_echo "$ac_cv_lib_python2_6_Py_BuildValue" >&6; }
+if test "x$ac_cv_lib_python2_6_Py_BuildValue" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBPYTHON2_6 1
+_ACEOF
+
+  LIBS="-lpython2.6 $LIBS"
+
+else
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "--with-python option used, but libpython2.6 was not found - do not use --with-python, or, on a Debian-based system, install libpython2.6
 See \`config.log' for more details" "$LINENO" 5 ; }
 fi
 
@@ -11797,6 +11862,18 @@ else
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "libxml2 not found, okr pkg-config not working
 See \`config.log' for more details" "$LINENO" 5 ; }
+fi
+
+if test "x$with_python" != xno; then :
+  if test ! -z "`ls /usr/include/python2.6 2> /dev/null`"; then :
+  LIBPYTHON_INCLUDES="-I/usr/include/python2.6"
+
+else
+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "python support enabled, but the include directory /usr/include/python2.6 was not found
+See \`config.log' for more details" "$LINENO" 5 ; }
+fi
 fi
 
 if test "x$with_graphviz" != xno; then :

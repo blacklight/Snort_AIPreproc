@@ -85,7 +85,8 @@ am_libsf_ai_preproc_la_OBJECTS = libsf_ai_preproc_la-alert_history.lo \
 	libsf_ai_preproc_la-cluster.lo \
 	libsf_ai_preproc_la-correlation.lo libsf_ai_preproc_la-db.lo \
 	libsf_ai_preproc_la-kmeans.lo libsf_ai_preproc_la-fsom.lo \
-	libsf_ai_preproc_la-geo.lo libsf_ai_preproc_la-modules.lo \
+	libsf_ai_preproc_la-geo.lo libsf_ai_preproc_la-kb.lo \
+	libsf_ai_preproc_la-manual.lo libsf_ai_preproc_la-modules.lo \
 	libsf_ai_preproc_la-mysql.lo libsf_ai_preproc_la-neural.lo \
 	libsf_ai_preproc_la-neural_cluster.lo \
 	libsf_ai_preproc_la-outdb.lo libsf_ai_preproc_la-postgresql.lo \
@@ -165,6 +166,7 @@ LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBGRAPH_INCLUDES = @LIBGRAPH_INCLUDES@
 LIBOBJS = @LIBOBJS@
+LIBPYTHON_INCLUDES = @LIBPYTHON_INCLUDES@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIBXML2_INCLUDES = @LIBXML2_INCLUDES@
@@ -249,7 +251,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign no-dependencies
 lib_LTLIBRARIES = libsf_ai_preproc.la
-libsf_ai_preproc_la_CFLAGS = -I./uthash -I./base64 -I./fsom -I./include ${LIBXML2_INCLUDES} ${LIBGRAPH_INCLUDES} -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -pedantic -pedantic-errors -std=c99 -fstack-protector
+libsf_ai_preproc_la_CFLAGS = -I./uthash -I./base64 -I./fsom -I./include ${LIBXML2_INCLUDES} ${LIBGRAPH_INCLUDES} ${LIBPYTHON_INCLUDES} -DDYNAMIC_PLUGIN -D_XOPEN_SOURCE -D_GNU_SOURCE -fvisibility=hidden -fno-strict-aliasing -Wall -pedantic -pedantic-errors -std=c99 -fstack-protector
 libsf_ai_preproc_la_LDFLAGS = -module -export-dynamic
 BUILT_SOURCES = \
 include/sf_dynamic_preproc_lib.c \
@@ -272,6 +274,8 @@ db.c \
 fkmeans/kmeans.c \
 fsom/fsom.c \
 geo.c \
+kb.c \
+manual.c \
 modules.c \
 mysql.c \
 neural.c \
@@ -429,6 +433,12 @@ libsf_ai_preproc_la-fsom.lo: fsom/fsom.c
 
 libsf_ai_preproc_la-geo.lo: geo.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-geo.lo `test -f 'geo.c' || echo '$(srcdir)/'`geo.c
+
+libsf_ai_preproc_la-kb.lo: kb.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-kb.lo `test -f 'kb.c' || echo '$(srcdir)/'`kb.c
+
+libsf_ai_preproc_la-manual.lo: manual.c
+	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-manual.lo `test -f 'manual.c' || echo '$(srcdir)/'`manual.c
 
 libsf_ai_preproc_la-modules.lo: modules.c
 	$(LIBTOOL)  --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libsf_ai_preproc_la_CFLAGS) $(CFLAGS) -c -o libsf_ai_preproc_la-modules.lo `test -f 'modules.c' || echo '$(srcdir)/'`modules.c

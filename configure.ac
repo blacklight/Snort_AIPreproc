@@ -111,6 +111,12 @@ AC_ARG_WITH(postgresql,
 	[with_postgresql=yes],
 	[with_postgresql=no])
 
+AC_ARG_WITH(python,
+	AS_HELP_STRING([--with-python],
+		[Enable support for Python modules @<:@default=no@:>@]),
+	[with_python=yes],
+	[with_python=no])
+
 AC_ARG_WITH(graphviz,
 	AS_HELP_STRING([--without-graphviz],
 		[Disable Graphviz support for rendering correlated alerts as a PNG graph @<:@default=yes@:>@]),
@@ -125,6 +131,10 @@ AS_IF([test "x$with_mysql" != xno],
 AS_IF([test "x$with_postgresql" != xno],
 	[AC_CHECK_LIB([pq], [PQexec],,
 		[AC_MSG_FAILURE([--with-postgresql option used, but libpq was not found - do not use --with-postgresql, or, on a Debian-based system, install libpq-dev])])])
+
+AS_IF([test "x$with_python" != xno],
+	[AC_CHECK_LIB([python2.6], [Py_BuildValue],,
+		[AC_MSG_FAILURE([--with-python option used, but libpython2.6 was not found - do not use --with-python, or, on a Debian-based system, install libpython2.6])])])
 
 AS_IF([test "x$with_mysql" != xno -a "x$with_postgresql" != xno],
 	[AC_MSG_FAILURE([The support for an only DBMS can be enabled via ./configure, for example, you cannot enable MySQL and PostgreSQL support at the same time])], [])
@@ -152,6 +162,11 @@ AC_SUBST([SHARE_PREFIX], ["${prefix}/share/snort_ai_preprocessor"])
 AS_IF([test ! -z "`pkg-config --cflags libxml-2.0 2> /dev/null`"],
 	[AC_SUBST([LIBXML2_INCLUDES], ["$(pkg-config --cflags libxml-2.0 2> /dev/null)"])],
 	[AC_MSG_FAILURE([libxml2 not found, okr pkg-config not working])])
+
+AS_IF([test "x$with_python" != xno],
+	[AS_IF([test ! -z "`ls /usr/include/python2.6 2> /dev/null`"],
+		[AC_SUBST([LIBPYTHON_INCLUDES], ["-I/usr/include/python2.6"])],
+		[AC_MSG_FAILURE([python support enabled, but the include directory /usr/include/python2.6 was not found])])])
 
 AS_IF([test "x$with_graphviz" != xno],
 	[AS_IF([test ! -z "`pkg-config --cflags libgraph 2> /dev/null`"],

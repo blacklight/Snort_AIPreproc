@@ -109,6 +109,9 @@
 
 /** Default setting for the use of the hash table for holding streams of packets
  * associated to a certain alert (0 = do not use, 1 or any value != 0: use) */
+#define 	DEFAULT_USE_KNOWLEDGE_BASE_CORRELATION_INDEX 		1
+
+/** Default setting for the use of the knowledge base alert correlation index */
 #define 	DEFAULT_USE_STREAM_HASH_TABLE 		1
 
 /** Default web server port */
@@ -238,6 +241,10 @@ typedef struct
 	/** Size of the alerts' buffer to be periodically sent to the serialization thread */
 	unsigned long  alert_bufsize;
 	
+	/** Setting for the use of the knowledge base correlation index
+	 * (0 = do not use, 1 or any value != 0: use) */
+	unsigned long  use_knowledge_base_correlation_index;
+
 	/** Setting for the use of the hash table for holding streams of packets
 	 * associated to a certain alert (0 = do not use, 1 or any value != 0: use) */
 	unsigned long  use_stream_hash_table;
@@ -521,6 +528,22 @@ typedef struct  {
 	UT_hash_handle  hh;
 } AI_geoip_cache;
 /*****************************************************************/
+typedef struct  {
+	int from_gid;
+	int from_sid;
+	int from_rev;
+	int to_gid;
+	int to_sid;
+	int to_rev;
+} AI_alert_type_pair_key;
+/*****************************************************************/
+typedef struct  {
+	AI_alert_type_pair_key   key;
+	enum  { manuallyNone, manuallyCorrelated, manuallyNotCorrelated } corr_type;
+	UT_hash_handle             hh;
+} AI_alert_type_pair;
+/*****************************************************************/
+
 
 
 /** Enumeration for describing the table in the output database */
@@ -570,13 +593,20 @@ AI_snort_alert*    AI_get_clustered_alerts ( void );
 
 void                   AI_serialize_alerts ( AI_snort_alert**, unsigned int );
 void                   AI_serializer ( AI_snort_alert* );
+
 void*                  AI_deserialize_alerts ();
 void*                  AI_alerts_pool_thread ( void* );
 void*                  AI_neural_thread ( void* );
+void*                  AI_manual_correlations_parsing_thread ( void* );
+void*                  AI_neural_clustering_thread ( void* );
+
 const AI_alert_event*  AI_get_alert_events_by_key ( AI_alert_event_key );
 unsigned int           AI_get_history_alert_number ();
+
 double                 AI_alert_bayesian_correlation ( const AI_snort_alert*, const AI_snort_alert* );
 double                 AI_alert_neural_som_correlation ( const AI_snort_alert*, const AI_snort_alert* );
+double                 AI_kb_correlation_coefficient ( const AI_snort_alert*, const AI_snort_alert* );
+
 double                 AI_neural_correlation_weight ();
 double                 AI_bayesian_correlation_weight ();
 int                    AI_geoinfobyaddr ( const char*, double** );
@@ -585,7 +615,7 @@ void                   AI_outdb_mutex_initialize ();
 void                   AI_store_alert_to_db ( AI_snort_alert* );
 void                   AI_store_cluster_to_db ( AI_alerts_couple* );
 void                   AI_store_correlation_to_db ( AI_alert_correlation* );
-void*                  AI_neural_clustering_thread ( void* );
+void                   AI_kb_index_init ( AI_snort_alert* );
 AI_alerts_per_neuron*  AI_get_alerts_per_neuron ();
 
 double(**AI_get_corr_functions ( size_t* ))(const AI_snort_alert*, const AI_snort_alert*);
@@ -605,6 +635,9 @@ extern pthread_mutex_t  outdb_mutex;
 
 /** Configuration of the module */
 extern AI_config        *config;
+
+extern AI_alert_type_pair *manual_correlations;
+extern AI_alert_type_pair *manual_uncorrelations;
 
 #endif  /* _SPP_AI_H */
 

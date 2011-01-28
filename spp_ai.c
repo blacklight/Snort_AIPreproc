@@ -224,6 +224,7 @@ static AI_config * AI_parse(char *args)
 				neural_train_steps                   = 0,
 				output_neurons_per_side              = 0,
 			     stream_expire_interval               = 0,
+				use_knowledge_base_correlation_index = 0,
 				use_stream_hash_table                = 0,
 				webserv_banner_len                   = 0,
 				webserv_dir_len                      = 0;
@@ -613,6 +614,27 @@ static AI_config * AI_parse(char *args)
 
 	config->max_hash_pkt_number = max_hash_pkt_number;
 	_dpd.logMsg( "    Maximum number of packets stored in the hash table: %u\n", config->max_hash_pkt_number );
+
+	/* Parsing the use_knowledge_base_correlation_index option */
+	if (( arg = (char*) strcasestr( args, "use_knowledge_base_correlation_index" ) ))
+	{
+		for ( arg += strlen("use_knowledge_base_correlation_index");
+				*arg && (*arg < '0' || *arg > '9');
+				arg++ );
+
+		if ( !(*arg) )
+		{
+			AI_fatal_err ( "use_knowledge_base_correlation_index option used but "
+				"no value specified", __FILE__, __LINE__ );
+		}
+
+		use_knowledge_base_correlation_index = strtoul ( arg, NULL, 10 );
+	} else {
+		use_knowledge_base_correlation_index = DEFAULT_USE_KNOWLEDGE_BASE_CORRELATION_INDEX;
+	}
+
+	config->use_knowledge_base_correlation_index = use_knowledge_base_correlation_index;
+	_dpd.logMsg( "    Using knowledge base alert correlation index: %u\n", config->use_knowledge_base_correlation_index );
 
 	/* Parsing the use_stream_hash_table option */
 	if (( arg = (char*) strcasestr( args, "use_stream_hash_table" ) ))

@@ -81,6 +81,9 @@
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
 
+/* Define to 1 if you have the `python2.6' library (-lpython2.6). */
+#undef HAVE_LIBPYTHON2_6
+
 /* Define to 1 if you have the `xml2' library (-lxml2). */
 #undef HAVE_LIBXML2
 
