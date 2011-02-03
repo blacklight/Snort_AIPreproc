@@ -385,8 +385,8 @@ AI_alert_correlation_thread ( void *arg )
 	double (**corr_weights)() = NULL;
 
 	#ifdef HAVE_LIBPYTHON2_6
-	PyAlert *pyA = NULL,
-		   *pyB = NULL;
+	PyObject *pyA = NULL,
+		    *pyB = NULL;
 
 	PyObject *pArgs = NULL,
 		    *pRet  = NULL;
@@ -556,7 +556,8 @@ AI_alert_correlation_thread ( void *arg )
 								}
 							}
 
-							free ( pyA ); free ( pyB );
+							Py_DECREF ( pyA ); Py_DECREF ( pyB );
+							/* free ( pyA ); free ( pyB ); */
 							pyA = NULL; pyB = NULL;
 						}
 					}

@@ -17,6 +17,12 @@
  * =====================================================================================
  */
 
+/* This is the old C-based module for Python interface to SnortAI
+ * and it is now completely *DEPRECATED* and kept only for
+ * back-compatibility purposes. Use the pure Python interface
+ * instead, running python setup.py build && sudo python setup.py install
+ * will build and install the new Python module */
+
 #ifndef HAVE_LIBPYTHON2_6
 #define HAVE_LIBPYTHON2_6 1
 #endif

@@ -582,15 +582,16 @@ libsf_ai_preproc.la  if  you  want to use some of the functions from the module,
  database,       the       current       correlations,      and      so      on.
 
 It  is  also possible to write your own modules in Python language. See the file
-'example.py'  in  corr_modules/  for  a quick overview. All you need to do is to
-declare  in  your  module the functions AI_corr_index (taking two arguments, two
- alert    descriptions)   and   AI_corr_index_weight   (taking   no   argument),
- both   returning   a   real  value  descibing,  respectively,  the  correlation
- value  between  the  two  alerts  and  the  weight  of that index, both between
- 0 and  1.  You  can  also  access  the  alert  information  and  all the alerts
- acquired   so  far  by  the  module  by  importing  in  your  Python  code  the
- 'snortai'   module.   You   can   compile  it  and  install  it  by  moving  to
- 'pymodule/'                 directory                and                running
+'example_module.py'  in  corr_modules/  for  a  quick  overview. All you need to
+do  is  to  declare  in  your  module  the  functions  AI_corr_index (taking two
+arguments,      two     alert     descriptions)     and     AI_corr_index_weight
+(taking     no    argument),    both    returning   a   real   value   descibing,
+respectively,    the   correlation   value   between  the  two  alerts  and  the
+weight  of  that   index,  both  between  0  and  1.  You  can  also  access the
+alert   information    and  all  the  alerts  acquired  so  far  by  the  module
+by   importing   in    your   Python   code   the   'snortai'  module.  You  can
+compile     it     and      install     it     by    moving    to    'pymodule/'
+directory and running
 
 $ python setup.py build
 $ [sudo] python setup.py install
@@ -604,10 +605,10 @@ alerts = snortai.alerts()
 for alert in alerts:
 	# Access the alerts information
 
-The  fields  in  the  alert  class  can  be  viewed  in  pymodule/module.py  and
-corr_modules/example.py  examples.  Take  these  files as guides for interfacing
-your  Python  scripts  with SnortAI module or writing new correlation modules in
-Python.
+The     fields     in     the     alert     class     can     be    viewed    in
+pymodule/test.py   and   corr_modules/example_module.py   examples.  Take  these
+files  as  guides  for  interfacing  your  Python  scripts  with  SnortAI module
+or       writing       new       correlation       modules       in      Python.
 
 
 ===========================

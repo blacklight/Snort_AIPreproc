@@ -31,6 +31,25 @@
 #include	<netinet/in.h>
 #include	<pthread.h>
 
+/*******************************************/
+#ifdef HAVE_LIBPYTHON2_6
+/* Avoid conflicts with Snort header files */
+#ifdef _POSIX_C_SOURCE
+#undef _POSIX_C_SOURCE
+#endif
+
+#ifdef _XOPEN_C_SOURCE
+#undef _XOPEN_C_SOURCE
+#endif
+
+#ifdef _XOPEN_SOURCE
+#undef _XOPEN_SOURCE
+#endif
+
+#include	<Python.h>
+#endif
+/*******************************************/
+
 #define 	PRIVATE 		static
 
 /** Default interval in seconds for the thread cleaning up TCP streams */
@@ -543,61 +562,6 @@ typedef struct  {
 	UT_hash_handle             hh;
 } AI_alert_type_pair;
 /*****************************************************************/
-#ifdef HAVE_LIBPYTHON2_6
-
-/*******************************************/
-/* Avoid conflicts with Snort header files */
-#ifdef _POSIX_C_SOURCE
-#undef _POSIX_C_SOURCE
-#endif
-
-#ifdef _XOPEN_C_SOURCE
-#undef _XOPEN_C_SOURCE
-#endif
-
-#ifdef _XOPEN_SOURCE
-#undef _XOPEN_SOURCE
-#endif
-/*******************************************/
-
-#include	<Python.h>
-
-/** Definition of the alert type for Python binding */
-typedef struct _PyAlert
-{
-	PyObject_HEAD
-
-	unsigned int id;
-
-	/* Identifiers of the alert */
-	unsigned int gid;
-	unsigned int sid;
-	unsigned int rev;
-
-	/* Snort priority, description,
-	 * classification and timestamp
-	 * of the alert */
-	unsigned short  priority;
-	PyObject*       desc;
-	PyObject*       classification;
-	time_t          timestamp;
-
-	PyObject*       ip_src_addr;
-	PyObject*       ip_dst_addr;
-	unsigned short  tcp_src_port;
-	unsigned short  tcp_dst_port;
-
-	double          latitude;
-	double          longitude;
-
-	unsigned int    clusteredAlertsCount;
-
-	struct _PyAlert *next;
-} PyAlert;
-
-#endif
-/*****************************************************************/
-
 
 /** Enumeration for describing the table in the output database */
 enum  { ALERTS_TABLE, IPV4_HEADERS_TABLE, TCP_HEADERS_TABLE, PACKET_STREAMS_TABLE, CLUSTERED_ALERTS_TABLE, CORRELATED_ALERTS_TABLE, N_TABLES };
@@ -678,7 +642,7 @@ double(**AI_get_corr_weights ( size_t* ))( void );
 
 PyObject** AI_get_py_functions ( size_t* );
 PyObject** AI_get_py_weights ( size_t* );
-PyAlert* AI_alert_to_pyalert ( AI_snort_alert* );
+PyObject* AI_alert_to_pyalert ( AI_snort_alert* );
 
 #endif
 

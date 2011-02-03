@@ -12,9 +12,10 @@ alerts = snortai.alerts()
 
 for alert in alerts:
 	# Access the information
+	print alert.gid, alert.sid, alert.rev
 
 The alert class has the following members:
 
 # id, gid, sid, rev, description, priority, classification, timestamp
-# from, to, from_port, to_port, latitude, longitude, alerts_count
+# src_addr, dst_addr, src_port, dst_port, latitude, longitude
 

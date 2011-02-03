@@ -99,37 +99,61 @@ AI_get_py_weights ( size_t *n_functions )
 /**
  * \brief  Convert an AI_snort_alert object to a PyAlert object that can be managed by a Python module
  * \param  alert 	AI_snort_alert object to be converted
- * \return A PyAlert object wrapping the original AI_snort_alert object
+ * \return A PyObject object wrapping the original AI_snort_alert object
  */
 
-PyAlert*
+PyObject*
 AI_alert_to_pyalert ( AI_snort_alert *alert )
 {
-	PyAlert *pyalert = NULL;
+	PyObject *pyalert = NULL;
+
+	PyObject *pMod  = NULL,
+		    *pObj  = NULL,
+		    *pArgs = NULL;
+
 	char src_addr[INET_ADDRSTRLEN] = { 0 },
 		dst_addr[INET_ADDRSTRLEN] = { 0 };
 	
-	if ( !( pyalert = (PyAlert*) malloc ( sizeof ( PyAlert ))))
+	if ( !( pMod = PyImport_ImportModule ( "snortai" )))
 	{
-		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+		PyErr_Print();
+		AI_fatal_err ( "Could not load Python module 'snortai'", __FILE__, __LINE__ );
 	}
 
-	inet_ntop ( AF_INET, &(alert->ip_src_addr), src_addr, INET_ADDRSTRLEN );
-	inet_ntop ( AF_INET, &(alert->ip_dst_addr), dst_addr, INET_ADDRSTRLEN );
+	if ( !( pObj = PyObject_GetAttrString ( pMod, "alert" )))
+	{
+		PyErr_Print();
+		AI_fatal_err ( "'alert' object not found in the Python module 'snortai'", __FILE__, __LINE__ );
+	}
 
-	pyalert->classification = alert->classification ? PyString_FromString ( alert->classification ) : Py_None;
-	pyalert->clusteredAlertsCount = alert->grouped_alerts_count;
-	pyalert->desc = alert->desc ? PyString_FromString ( alert->desc ) : Py_None;
-	pyalert->gid = alert->gid;
-	pyalert->ip_src_addr = ( strlen ( src_addr ) > 0 ) ? PyString_FromString ( src_addr ) : Py_None;
-	pyalert->ip_dst_addr = ( strlen ( dst_addr ) > 0 ) ? PyString_FromString ( dst_addr ) : Py_None;
-	pyalert->priority = alert->priority;
-	pyalert->rev = alert->rev;
-	pyalert->sid = alert->sid;
-	pyalert->tcp_src_port = ntohs ( alert->tcp_src_port );
-	pyalert->tcp_dst_port = ntohs ( alert->tcp_dst_port );
-	pyalert->timestamp = alert->timestamp;
+	Py_DECREF ( pMod );
 
+	if ( !( pArgs = Py_BuildValue ( "(OOOOOOOOOOOOO)",
+		Py_None,
+		PyLong_FromUnsignedLong ( alert->gid ),
+		PyLong_FromUnsignedLong ( alert->sid ),
+		PyLong_FromUnsignedLong ( alert->rev ),
+		PyLong_FromUnsignedLong ((long int) alert->priority ),
+		alert->classification ? PyString_FromString ( alert->classification ) : Py_None,
+		alert->desc ? PyString_FromString ( alert->desc ) : Py_None,
+		PyString_FromString ( src_addr ),
+		PyString_FromString ( dst_addr ),
+		PyLong_FromLong ((long int) ntohs ( alert->tcp_src_port )),
+		PyLong_FromLong ((long int) ntohs ( alert->tcp_dst_port )),
+		Py_None,
+		Py_None )))
+	{
+		PyErr_Print();
+		AI_fatal_err ( "Could not initialize the argument list for calling the Python 'alert' constructor", __FILE__, __LINE__ );
+	}
+
+	if ( !( pyalert = PyObject_CallObject ( pObj, pArgs )))
+	{
+		PyErr_Print();
+		AI_fatal_err ( "Could not call the constructor over the Python object 'alert'", __FILE__, __LINE__ );
+	}
+
+	Py_DECREF ( pArgs ); Py_DECREF ( pObj );
 	return pyalert;
 }		/* -----  end of function AI_alert_to_pyalert  ----- */
 #endif
