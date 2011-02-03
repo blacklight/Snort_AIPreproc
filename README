@@ -132,7 +132,14 @@ by            tools           like             tcpdump         and     Wireshark
 
 - XML::Simple  Perl module (RECOMMENDED), used by 'correlate.cgi' CGI script for
 reading  and  writing  manual  (un)correlations  XML  files.  A  quick  way  for
-installing     it     on     a     Unix     system    is    by    using    CPAN:
+installing     it     on     a     Unix     system    is    by    using    CPAN.
+
+- Python  2.6  (OPTIONAL), used for interfacing SnortAI module to Python scripts
+through   snortai  module  (see  README  file  in  pymodule/)  and  writing  new
+correlation       modules      (see      example.py      in      corr_modules/).
+Compile the module passing --with-python option to the ./configure script if you
+want  this  feature.  You  need Python interpreter and libpython2.6 installed on
+your system.
 
 # cpan XML::Simple
 
@@ -573,6 +580,34 @@ directory  a  line  like  the one already present there for compiling, then type
 libsf_ai_preproc.la  if  you  want to use some of the functions from the module,
  for  example,  for  reading  the  alerts  stored  in  the  history file, in the
  database,       the       current       correlations,      and      so      on.
+
+It  is  also possible to write your own modules in Python language. See the file
+'example.py'  in  corr_modules/  for  a quick overview. All you need to do is to
+declare  in  your  module the functions AI_corr_index (taking two arguments, two
+ alert    descriptions)   and   AI_corr_index_weight   (taking   no   argument),
+ both   returning   a   real  value  descibing,  respectively,  the  correlation
+ value  between  the  two  alerts  and  the  weight  of that index, both between
+ 0 and  1.  You  can  also  access  the  alert  information  and  all the alerts
+ acquired   so  far  by  the  module  by  importing  in  your  Python  code  the
+ 'snortai'   module.   You   can   compile  it  and  install  it  by  moving  to
+ 'pymodule/'                 directory                and                running
+
+$ python setup.py build
+$ [sudo] python setup.py install
+
+You  can  acquire  the  current  alerts  by  writing  a code like the following:
+
+import snortai
+
+alerts = snortai.alerts()
+
+for alert in alerts:
+	# Access the alerts information
+
+The  fields  in  the  alert  class  can  be  viewed  in  pymodule/module.py  and
+corr_modules/example.py  examples.  Take  these  files as guides for interfacing
+your  Python  scripts  with SnortAI module or writing new correlation modules in
+Python.
 
 
 ===========================

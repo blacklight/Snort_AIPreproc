@@ -1,0 +1,20 @@
+Python module for interfacing with SnortAI. Compile it and install it through
+
+$ python setup.py build
+$ [sudo] python setup.py install
+
+You can then access the alerts information captured by Snort simply by writing a
+code like the following (also see module.py):
+
+import snortai
+
+alerts = snortai.alerts()
+
+for alert in alerts:
+	# Access the information
+
+The alert class has the following members:
+
+# id, gid, sid, rev, description, priority, classification, timestamp
+# from, to, from_port, to_port, latitude, longitude, alerts_count
+

@@ -543,7 +543,60 @@ typedef struct  {
 	UT_hash_handle             hh;
 } AI_alert_type_pair;
 /*****************************************************************/
+#ifdef HAVE_LIBPYTHON2_6
 
+/*******************************************/
+/* Avoid conflicts with Snort header files */
+#ifdef _POSIX_C_SOURCE
+#undef _POSIX_C_SOURCE
+#endif
+
+#ifdef _XOPEN_C_SOURCE
+#undef _XOPEN_C_SOURCE
+#endif
+
+#ifdef _XOPEN_SOURCE
+#undef _XOPEN_SOURCE
+#endif
+/*******************************************/
+
+#include	<Python.h>
+
+/** Definition of the alert type for Python binding */
+typedef struct _PyAlert
+{
+	PyObject_HEAD
+
+	unsigned int id;
+
+	/* Identifiers of the alert */
+	unsigned int gid;
+	unsigned int sid;
+	unsigned int rev;
+
+	/* Snort priority, description,
+	 * classification and timestamp
+	 * of the alert */
+	unsigned short  priority;
+	PyObject*       desc;
+	PyObject*       classification;
+	time_t          timestamp;
+
+	PyObject*       ip_src_addr;
+	PyObject*       ip_dst_addr;
+	unsigned short  tcp_src_port;
+	unsigned short  tcp_dst_port;
+
+	double          latitude;
+	double          longitude;
+
+	unsigned int    clusteredAlertsCount;
+
+	struct _PyAlert *next;
+} PyAlert;
+
+#endif
+/*****************************************************************/
 
 
 /** Enumeration for describing the table in the output database */
@@ -585,7 +638,7 @@ void               AI_pkt_enqueue ( SFSnortPacket* );
 void               AI_set_stream_observed ( struct pkt_key key );
 void               AI_hierarchies_build ( hierarchy_node**, int );
 void               AI_free_alerts ( AI_snort_alert *node );
-void               AI_init_corr_modules ();
+void               AI_init_corr_modules ( void );
 
 struct pkt_info*   AI_get_stream_by_key ( struct pkt_key );
 AI_snort_alert*    AI_get_alerts ( void );
@@ -594,32 +647,40 @@ AI_snort_alert*    AI_get_clustered_alerts ( void );
 void                   AI_serialize_alerts ( AI_snort_alert**, unsigned int );
 void                   AI_serializer ( AI_snort_alert* );
 
-void*                  AI_deserialize_alerts ();
+void*                  AI_deserialize_alerts ( void );
 void*                  AI_alerts_pool_thread ( void* );
 void*                  AI_neural_thread ( void* );
 void*                  AI_manual_correlations_parsing_thread ( void* );
 void*                  AI_neural_clustering_thread ( void* );
 
 const AI_alert_event*  AI_get_alert_events_by_key ( AI_alert_event_key );
-unsigned int           AI_get_history_alert_number ();
+unsigned int           AI_get_history_alert_number ( void );
 
 double                 AI_alert_bayesian_correlation ( const AI_snort_alert*, const AI_snort_alert* );
 double                 AI_alert_neural_som_correlation ( const AI_snort_alert*, const AI_snort_alert* );
 double                 AI_kb_correlation_coefficient ( const AI_snort_alert*, const AI_snort_alert* );
 
-double                 AI_neural_correlation_weight ();
-double                 AI_bayesian_correlation_weight ();
+double                 AI_neural_correlation_weight ( void );
+double                 AI_bayesian_correlation_weight ( void );
 int                    AI_geoinfobyaddr ( const char*, double** );
 
-void                   AI_outdb_mutex_initialize ();
+void                   AI_outdb_mutex_initialize ( void );
 void                   AI_store_alert_to_db ( AI_snort_alert* );
 void                   AI_store_cluster_to_db ( AI_alerts_couple* );
 void                   AI_store_correlation_to_db ( AI_alert_correlation* );
 void                   AI_kb_index_init ( AI_snort_alert* );
-AI_alerts_per_neuron*  AI_get_alerts_per_neuron ();
+AI_alerts_per_neuron*  AI_get_alerts_per_neuron ( void );
 
 double(**AI_get_corr_functions ( size_t* ))(const AI_snort_alert*, const AI_snort_alert*);
-double(**AI_get_corr_weights ( size_t* ))();
+double(**AI_get_corr_weights ( size_t* ))( void );
+
+#ifdef HAVE_LIBPYTHON2_6
+
+PyObject** AI_get_py_functions ( size_t* );
+PyObject** AI_get_py_weights ( size_t* );
+PyAlert* AI_alert_to_pyalert ( AI_snort_alert* );
+
+#endif
 
 /** Function pointer to the function used for getting the alert list (from log file, db, ...) */
 extern AI_snort_alert* (*get_alerts)(void);

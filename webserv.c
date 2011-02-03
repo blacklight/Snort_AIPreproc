@@ -385,6 +385,8 @@ __AI_webservlet_thread ( void *arg )
 				strncpy ( content_type, "application/x-javascript", sizeof ( content_type ));
 			} else if ( !strcasecmp ( extension, "json" )) {
 				strncpy ( content_type, "application/json", sizeof ( content_type ));
+			} else if ( !strcasecmp ( extension, "xml" )) {
+				strncpy ( content_type, "application/xml", sizeof ( content_type ));
 			} else if ( !strcasecmp ( extension, "jpg" ) || !strcasecmp ( extension, "jpeg" )) {
 				strncpy ( content_type, "image/jpeg", sizeof ( content_type ));
 			} else if ( !strcasecmp ( extension, "cgi" )) {

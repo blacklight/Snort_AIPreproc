@@ -33,6 +33,16 @@ PRIVATE size_t n_corr_functions = 0;
 PRIVATE double (**weight_functions)() = NULL;
 PRIVATE size_t n_weight_functions = 0;
 
+#ifdef HAVE_LIBPYTHON2_6
+
+PRIVATE PyObject **py_corr_functions = NULL;
+PRIVATE size_t   n_py_corr_functions = 0;
+
+PRIVATE PyObject **py_weight_functions = NULL;
+PRIVATE size_t   n_py_weight_functions = 0;
+
+#endif
+
 /**
  * \brief  Get the correlation functions from the extra correlation modules as array of function pointers
  * \param  n_functions 	Number of function pointers in the array
@@ -59,6 +69,71 @@ double
 	return weight_functions;
 }		/* -----  end of function AI_get_corr_weights  ----- */
 
+#ifdef HAVE_LIBPYTHON2_6
+/**
+ * \brief  Get the correlation functions from the Python modules, if Python support is enabled
+ * \param  n_functions 	Reference to the number of functions in the array
+ * \return The array of Python correlation functions as PyObject**
+ */
+
+PyObject**
+AI_get_py_functions ( size_t *n_functions )
+{
+	*n_functions = n_py_corr_functions;
+	return py_corr_functions;
+}		/* -----  end of function AI_get_py_functions  ----- */
+
+/**
+ * \brief  Get the correlation index weights from the Python modules, if Python support is enabled
+ * \param  n_functions 	Reference to the number of correlation weight functions in the array
+ * \return The array of correlation weight functions as PyObject**
+ */
+
+PyObject**
+AI_get_py_weights ( size_t *n_functions )
+{
+	*n_functions = n_py_weight_functions;
+	return py_weight_functions;
+}		/* -----  end of function AI_get_py_weights  ----- */
+
+/**
+ * \brief  Convert an AI_snort_alert object to a PyAlert object that can be managed by a Python module
+ * \param  alert 	AI_snort_alert object to be converted
+ * \return A PyAlert object wrapping the original AI_snort_alert object
+ */
+
+PyAlert*
+AI_alert_to_pyalert ( AI_snort_alert *alert )
+{
+	PyAlert *pyalert = NULL;
+	char src_addr[INET_ADDRSTRLEN] = { 0 },
+		dst_addr[INET_ADDRSTRLEN] = { 0 };
+	
+	if ( !( pyalert = (PyAlert*) malloc ( sizeof ( PyAlert ))))
+	{
+		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+	}
+
+	inet_ntop ( AF_INET, &(alert->ip_src_addr), src_addr, INET_ADDRSTRLEN );
+	inet_ntop ( AF_INET, &(alert->ip_dst_addr), dst_addr, INET_ADDRSTRLEN );
+
+	pyalert->classification = alert->classification ? PyString_FromString ( alert->classification ) : Py_None;
+	pyalert->clusteredAlertsCount = alert->grouped_alerts_count;
+	pyalert->desc = alert->desc ? PyString_FromString ( alert->desc ) : Py_None;
+	pyalert->gid = alert->gid;
+	pyalert->ip_src_addr = ( strlen ( src_addr ) > 0 ) ? PyString_FromString ( src_addr ) : Py_None;
+	pyalert->ip_dst_addr = ( strlen ( dst_addr ) > 0 ) ? PyString_FromString ( dst_addr ) : Py_None;
+	pyalert->priority = alert->priority;
+	pyalert->rev = alert->rev;
+	pyalert->sid = alert->sid;
+	pyalert->tcp_src_port = ntohs ( alert->tcp_src_port );
+	pyalert->tcp_dst_port = ntohs ( alert->tcp_dst_port );
+	pyalert->timestamp = alert->timestamp;
+
+	return pyalert;
+}		/* -----  end of function AI_alert_to_pyalert  ----- */
+#endif
+
 /**
  * \brief  Initialize the extra modules provided by the user
  */
@@ -72,6 +147,12 @@ AI_init_corr_modules ()
 	char   *fname       = NULL;
 	size_t n_dl_handles = 0;
 	struct dirent *dir_info = NULL;
+
+	#ifdef HAVE_LIBPYTHON2_6
+	char     *pyPath  = NULL;
+	PyObject *pObj    = NULL;
+	BOOL     isPyInit = false;
+	#endif
 
 	if ( !( dir = opendir ( config->corr_modules_dir )))
 	{
@@ -141,6 +222,58 @@ AI_init_corr_modules ()
 
 				AI_fatal_err ( "dlsym error", __FILE__, __LINE__ );
 			}
+		} else if ( preg_match ( "\\.py$", dir_info->d_name, NULL, NULL )) {
+			#ifdef HAVE_LIBPYTHON2_6
+
+			if ( !( pyPath = (char*) malloc ( strlen ( config->corr_modules_dir ) + strlen ( Py_GetPath() ) + 4 )))
+			{
+				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+			}
+
+			fname = strdup ( dir_info->d_name );
+			fname[strlen ( fname ) - 3] = 0;
+
+			if ( !isPyInit )
+			{
+				Py_Initialize();
+				isPyInit = true;
+			}
+
+			sprintf ( pyPath, "%s:%s", config->corr_modules_dir, Py_GetPath() );
+			PySys_SetPath ( pyPath );
+
+			if ( !( pObj = PyImport_ImportModule ( fname )))
+			{
+				PyErr_Print();
+				AI_fatal_err ( "Could not load a Python correlation module", __FILE__, __LINE__ );
+			}
+
+			free ( fname );
+			fname = NULL;
+
+			if ( !( py_corr_functions = (PyObject**) realloc ( py_corr_functions, (++n_py_corr_functions) * sizeof ( PyObject* ))))
+			{
+				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+			}
+
+			if ( !( py_corr_functions[ n_py_corr_functions - 1 ] = PyObject_GetAttrString ( pObj, "AI_corr_index" )))
+			{
+				AI_fatal_err ( "AI_corr_index() method not found in the Python correlation module", __FILE__, __LINE__ );
+			}
+
+			if ( !( py_weight_functions = (PyObject**) realloc ( py_weight_functions, (++n_py_weight_functions) * sizeof ( PyObject* ))))
+			{
+				AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
+			}
+
+			if ( !( py_weight_functions[ n_py_weight_functions - 1 ] = PyObject_GetAttrString ( pObj, "AI_corr_index_weight" )))
+			{
+				AI_fatal_err ( "AI_corr_index_weight() method not found in the Python correlation module", __FILE__, __LINE__ );
+			}
+
+			Py_DECREF ( pObj );
+
+			#endif
 		}
 	}
 

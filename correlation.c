@@ -32,6 +32,25 @@
 	#include	<gvc.h>
 #endif
 
+#ifdef HAVE_LIBPYTHON2_6
+/*******************************************/
+/* Avoid conflicts with Snort header files */
+#ifdef _POSIX_C_SOURCE
+#undef _POSIX_C_SOURCE
+#endif
+
+#ifdef _XOPEN_C_SOURCE
+#undef _XOPEN_C_SOURCE
+#endif
+
+#ifdef _XOPEN_SOURCE
+#undef _XOPEN_SOURCE
+#endif
+/*******************************************/
+
+#include	<Python.h>
+#endif
+
 /** \defgroup correlation Module for the correlation of security alerts
  * @{ */
 
@@ -365,8 +384,27 @@ AI_alert_correlation_thread ( void *arg )
 	double (**corr_functions)( const AI_snort_alert*, const AI_snort_alert* ) = NULL;
 	double (**corr_weights)() = NULL;
 
-	corr_functions = AI_get_corr_functions( &n_corr_functions );
+	#ifdef HAVE_LIBPYTHON2_6
+	PyAlert *pyA = NULL,
+		   *pyB = NULL;
+
+	PyObject *pArgs = NULL,
+		    *pRet  = NULL;
+
+	PyObject **py_corr_functions   = NULL;
+	PyObject **py_weight_functions = NULL;
+
+	size_t   n_py_corr_functions   = 0;
+	size_t   n_py_weight_functions = 0;
+
+	double   py_value  = 0.0,
+		    py_weight = 0.0;
+	#endif
+
+	corr_functions = AI_get_corr_functions ( &n_corr_functions );
 	corr_weights   = AI_get_corr_weights ( &n_corr_weights );
+	py_corr_functions = AI_get_py_functions ( &n_py_corr_functions );
+	py_weight_functions = AI_get_py_weights ( &n_py_weight_functions );
 
 	pthread_mutex_init ( &mutex, NULL );
 
@@ -466,6 +504,64 @@ AI_alert_correlation_thread ( void *arg )
 						}
 					}
 
+					#ifdef HAVE_LIBPYTHON2_6
+					if (( py_corr_functions ))
+					{
+						pyA = AI_alert_to_pyalert ( corr_key.a );
+						pyB = AI_alert_to_pyalert ( corr_key.b );
+
+						if ( pyA && pyB )
+						{
+							for ( i=0; i < n_py_corr_functions; i++ )
+							{
+								if ( !( pArgs = Py_BuildValue ( "(OO)", pyA, pyB )))
+								{
+									PyErr_Print();
+									AI_fatal_err ( "Could not initialize the Python arguments for the call", __FILE__, __LINE__ );
+								}
+
+								if ( !( pRet = PyEval_CallObject ( py_corr_functions[i], pArgs )))
+								{
+									PyErr_Print();
+									AI_fatal_err ( "Could not call the correlation function from the Python module", __FILE__, __LINE__ );
+								}
+
+								if ( !( PyArg_Parse ( pRet, "d", &py_value )))
+								{
+									PyErr_Print();
+									AI_fatal_err ( "Could not parse the correlation value out of the Python correlation function", __FILE__, __LINE__ );
+								}
+
+								Py_DECREF ( pRet );
+								Py_DECREF ( pArgs );
+
+								if ( !( pRet = PyEval_CallObject ( py_weight_functions[i], (PyObject*) NULL )))
+								{
+									PyErr_Print();
+									AI_fatal_err ( "Could not call the correlation function from the Python module", __FILE__, __LINE__ );
+								}
+
+								if ( !( PyArg_Parse ( pRet, "d", &py_weight )))
+								{
+									PyErr_Print();
+									AI_fatal_err ( "Could not parse the correlation weight out of the Python correlation function", __FILE__, __LINE__ );
+								}
+
+								Py_DECREF ( pRet );
+
+								if ( py_weight != 0.0 )
+								{
+									corr->correlation += py_weight * py_value;
+									n_correlations++;
+								}
+							}
+
+							free ( pyA ); free ( pyB );
+							pyA = NULL; pyB = NULL;
+						}
+					}
+					#endif
+
 					if ( n_correlations != 0 )
 					{
 						corr->correlation /= (double) n_correlations;
@@ -548,10 +644,12 @@ AI_alert_correlation_thread ( void *arg )
 						)
 					)
 				)  {
-					if ( !( corr->key.a->derived_alerts = ( AI_snort_alert** ) realloc ( corr->key.a->derived_alerts, (++corr->key.a->n_derived_alerts) * sizeof ( AI_snort_alert* ))))
+					if ( !( corr->key.a->derived_alerts = ( AI_snort_alert** ) realloc ( corr->key.a->derived_alerts,
+									(++corr->key.a->n_derived_alerts) * sizeof ( AI_snort_alert* ))))
 						AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
-					if ( !( corr->key.b->parent_alerts = ( AI_snort_alert** ) realloc ( corr->key.b->parent_alerts, (++corr->key.b->n_parent_alerts) * sizeof ( AI_snort_alert* ))))
+					if ( !( corr->key.b->parent_alerts = ( AI_snort_alert** ) realloc ( corr->key.b->parent_alerts,
+									(++corr->key.b->n_parent_alerts) * sizeof ( AI_snort_alert* ))))
 						AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
 					corr->key.a->derived_alerts[ corr->key.a->n_derived_alerts - 1 ] = corr->key.b;
