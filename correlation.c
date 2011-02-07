@@ -399,12 +399,13 @@ AI_alert_correlation_thread ( void *arg )
 
 	double   py_value  = 0.0,
 		    py_weight = 0.0;
+
+	py_corr_functions = AI_get_py_functions ( &n_py_corr_functions );
+	py_weight_functions = AI_get_py_weights ( &n_py_weight_functions );
 	#endif
 
 	corr_functions = AI_get_corr_functions ( &n_corr_functions );
 	corr_weights   = AI_get_corr_weights ( &n_corr_weights );
-	py_corr_functions = AI_get_py_functions ( &n_py_corr_functions );
-	py_weight_functions = AI_get_py_weights ( &n_py_weight_functions );
 
 	pthread_mutex_init ( &mutex, NULL );
 
