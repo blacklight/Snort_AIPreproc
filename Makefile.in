@@ -861,9 +861,11 @@ doc:
 fi
 
 install-data-hook:
-	if test ! -z "${PWD}/doc"; then \
+	if test -d "${PWD}/doc"; then \
 	mkdir -p "${SHARE_PREFIX}/doc"; \
-	cp -r "${PWD}/doc/"* "${SHARE_PREFIX}/doc"; \
+	if test -d "${PWD}/doc/html" -a "${PWD}/doc/latex"; then \
+		cp -r "${PWD}/doc/html" "${PWD}/doc/latex" "${SHARE_PREFIX}/doc"; \
+	fi \
 fi
 	mkdir -p "${SHARE_PREFIX}/htdocs"
 	mkdir -p "${SHARE_PREFIX}/htdocs/js"
