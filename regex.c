@@ -161,15 +161,15 @@ char*
 str_replace ( char *str, const char *pattern, const char *sub )
 {
 	char *new_s = NULL;
-	unsigned int pos = 0,
+	unsigned long int pos = 0,
 			   new_len = 0;
 
-	if ( !( pos = (unsigned int) strstr ( str, pattern )))
+	if ( !( pos = (unsigned long int) strstr ( str, pattern )))
 	{
 		return strdup ( str );
 	}
 
-	pos -= (unsigned int) str;
+	pos -= (unsigned long int) str;
 	new_len = strlen ( str ) - strlen ( pattern ) + ((sub) ? strlen ( sub ) : 0);
 
 	if ( !( new_s = (char*) malloc ( new_len + 1 )))
