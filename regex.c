@@ -161,8 +161,8 @@ char*
 str_replace ( char *str, char *orig, char *rep )
 {
 	char         *new_s  = NULL;
-	unsigned int new_len = 0;
-	unsigned int pos     = 0;
+	unsigned long int new_len = 0;
+	unsigned long int pos     = 0;
 
 	if ( !( pos = (int) strstr ( str, orig )))
 		return str;
@@ -173,17 +173,17 @@ str_replace ( char *str, char *orig, char *rep )
 		return NULL;
 
 	memset ( new_s, 0, new_len );
-	strncpy ( new_s, str, pos - (unsigned int) str );
-	new_s[ pos - (unsigned int) str] = 0;
+	strncpy ( new_s, str, pos - (unsigned long int) str );
+	new_s[ pos - (unsigned long int) str] = 0;
 
 	if ( rep )
 	{
 		if ( strlen ( rep ) != 0 )
-			sprintf ( new_s + pos - (unsigned int) str, "%s%s", rep, (char*) pos + strlen ( orig ));
+			sprintf ( new_s + pos - (unsigned long int) str, "%s%s", rep, (char*) pos + strlen ( orig ));
 		else
-			sprintf ( new_s + pos - (unsigned int) str, "%s", (char*) pos + strlen ( orig ));
+			sprintf ( new_s + pos - (unsigned long int) str, "%s", (char*) pos + strlen ( orig ));
 	} else {
-		sprintf ( new_s + pos - (unsigned int) str, "%s", (char*) pos + strlen ( orig ));
+		sprintf ( new_s + pos - (unsigned long int) str, "%s", (char*) pos + strlen ( orig ));
 	}
 
 	return new_s;
