@@ -33,7 +33,7 @@
 								"Date: %s\r\n" \
 								"Server: %s\r\n" \
 								"Content-Type: %s\r\n" \
-								"Content-Length: %u\r\n\r\n"
+								"Content-Length: %lu\r\n\r\n"
 
 #define 	HTTP_CGI_RESPONSE_HEADERS_FORMAT 	"%s %d %s\r\n" \
 									"Date: %s\r\n" \
@@ -42,7 +42,7 @@
 
 #define 	HTTP_ERR_RESPONSE_FORMAT 	"<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n" \
 								"<html><head>\n" \
-								"<title>%u %s</title>\n" \
+								"<title>%lu %s</title>\n" \
 								"</head><body>\n" \
 								"<h1>%s</h1>\n" \
 								"<p>%s</p>\n" \

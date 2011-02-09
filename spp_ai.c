@@ -186,8 +186,8 @@ static AI_config * AI_parse(char *args)
 	int  nmatches        = 0;
 
 	int      i;
-	int      offset;
 	int      len;
+	unsigned long int offset;
 	double   corr_threshold_coefficient = DEFAULT_CORR_THRESHOLD;
 	uint32_t netmask;
 
@@ -1174,7 +1174,7 @@ static AI_config * AI_parse(char *args)
 		type    = none;
 
 		match   = strdup ( matches[1] );
-		offset  = (int) strcasestr ( args, matches[0] ) - (int) args;
+		offset  = (unsigned long int) strcasestr ( args, matches[0] ) - (unsigned long int) args;
 		len     = strlen ( matches[0] );
 
 		for ( i=0; i < nmatches; i++ )
@@ -1339,7 +1339,7 @@ static AI_config * AI_parse(char *args)
 			}
 		}
 
-		for ( i=offset; i <= strlen(args); i++ )
+		for ( i = (int) offset; i <= strlen(args); i++ )
 			args[i] = args[ i+len ];
 
 		if ( min_val == -1 || max_val == -1 || type == none || strlen ( label ) == 0 )

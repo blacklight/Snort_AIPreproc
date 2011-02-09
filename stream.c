@@ -268,7 +268,7 @@ AI_pkt_enqueue ( SFSnortPacket* pkt )
 
 			for ( ; found->next; found = found->next )  {
 				/* Stupid memory bug fixed in a stupid and unelegant way */
-				if ( (int) found->next->pkt < 0x100 )
+				if ( (unsigned long int) found->next->pkt < 0x100 )
 					break;
 
 				/* If the sequence number of the next packet in the stream

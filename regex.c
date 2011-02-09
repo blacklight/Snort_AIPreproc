@@ -164,7 +164,7 @@ str_replace ( char *str, char *orig, char *rep )
 	unsigned long int new_len = 0;
 	unsigned long int pos     = 0;
 
-	if ( !( pos = (int) strstr ( str, orig )))
+	if ( !( pos = (unsigned long int) strstr ( str, orig )))
 		return str;
 
 	new_len = strlen(str) - strlen(orig) + ((rep) ? strlen(rep) : 0) + 1;

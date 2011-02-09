@@ -44,7 +44,7 @@ PRIVATE AI_hyperalert_info *hyperalerts = NULL;
 PRIVATE char*
 __AI_get_function_name ( const char *orig_stmt )
 {
-	int parenthesis_pos, function_name_len;
+	unsigned long int parenthesis_pos, function_name_len;
 	char function_name[4096];
 	char *stmt = NULL;
 
@@ -54,10 +54,10 @@ __AI_get_function_name ( const char *orig_stmt )
 
 	memset ( function_name, 0, sizeof ( function_name ));
 
-	if ( !( parenthesis_pos = (int) strstr ( stmt, "(" )))
+	if ( !( parenthesis_pos = (unsigned long int) strstr ( stmt, "(" )))
 		return NULL;
 
-	parenthesis_pos -= (int) stmt;
+	parenthesis_pos -= (unsigned long int) stmt;
 	function_name_len = ( parenthesis_pos < sizeof ( function_name )) ? parenthesis_pos : sizeof ( function_name );
 	strncpy ( function_name, stmt, function_name_len );
 
@@ -78,17 +78,17 @@ __AI_get_function_arguments ( char *orig_stmt, int *n_args )
 	char **args  = NULL;
 	char *tok    = NULL;
 	char *stmt   = NULL;
-	int  par_pos = 0;
+	unsigned long int  par_pos = 0;
 	     *n_args = 0;
 
 	if ( !( stmt = (char*) alloca ( strlen ( orig_stmt ))))
 		return NULL;
 	strcpy ( stmt, orig_stmt );
 
-	if ( !( par_pos = (int) strstr ( stmt, "(" )))
+	if ( !( par_pos = (unsigned long int) strstr ( stmt, "(" )))
 		return NULL;
 	
-	par_pos -= (int) stmt;
+	par_pos -= (unsigned long int) stmt;
 	stmt += par_pos + 1;
 
 	if ( stmt [ strlen(stmt) - 1 ] == ')' )

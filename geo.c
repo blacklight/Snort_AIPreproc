@@ -90,7 +90,7 @@ AI_geoinfobyaddr ( const char *ip, double **coord )
 	fprintf ( fp,
 		"POST /index.html HTTP/1.1\r\n"
 		"Host: www.hostip.info\r\n"
-		"Content-Length: %u\r\n"
+		"Content-Length: %lu\r\n"
 		"Content-Type: application/x-www-form-urlencoded; charset=utf-8\r\n"
 		"Connection: close\r\n\r\n"
 		"%s\r\n",
