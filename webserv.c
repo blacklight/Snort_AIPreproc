@@ -42,7 +42,7 @@
 
 #define 	HTTP_ERR_RESPONSE_FORMAT 	"<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n" \
 								"<html><head>\n" \
-								"<title>%lu %s</title>\n" \
+								"<title>%d %s</title>\n" \
 								"</head><body>\n" \
 								"<h1>%s</h1>\n" \
 								"<p>%s</p>\n" \
@@ -304,7 +304,7 @@ __AI_webservlet_thread ( void *arg )
 				strtime [ strlen(strtime) - 1 ] = 0;
 				snprintf ( http_headers, max_headers_length, HTTP_RESPONSE_HEADERS_FORMAT,
 					"HTTP/1.1", 400, "Bad Request", strtime,
-					config->webserv_banner, "text/html", strlen ( http_response ));
+					config->webserv_banner, "text/html", (unsigned long int) strlen ( http_response ));
 				free ( strtime );
 				free ( line );
 				line = NULL;
@@ -343,7 +343,7 @@ __AI_webservlet_thread ( void *arg )
 				strtime [ strlen(strtime) - 1 ] = 0;
 				snprintf ( http_headers, max_headers_length, HTTP_RESPONSE_HEADERS_FORMAT,
 						http_ver, 404, "Not Found", strtime,
-						config->webserv_banner, "text/html", strlen ( http_response ));
+						config->webserv_banner, "text/html", (unsigned long int) strlen ( http_response ));
 				free ( strtime );
 				free ( line );
 				line = NULL;
@@ -361,7 +361,7 @@ __AI_webservlet_thread ( void *arg )
 				strtime [ strlen(strtime) - 1 ] = 0;
 				snprintf ( http_headers, max_headers_length, HTTP_RESPONSE_HEADERS_FORMAT,
 						http_ver, 403, "Forbidden", strtime,
-						config->webserv_banner, "text/html", strlen ( http_response ));
+						config->webserv_banner, "text/html", (unsigned long int) strlen ( http_response ));
 				free ( strtime );
 				free ( line );
 				line = NULL;
@@ -483,7 +483,7 @@ __AI_webservlet_thread ( void *arg )
 						http_ver, 200, "Found", strtime, config->webserv_banner,
 						content_type,
 						/* strlen ( http_response )); */
-					     read_bytes );
+					     (unsigned long int) read_bytes );
 			}
 
 			free ( strtime );
@@ -503,7 +503,7 @@ __AI_webservlet_thread ( void *arg )
 				strtime [ strlen(strtime) - 1 ] = 0;
 				snprintf ( http_headers, max_headers_length, HTTP_RESPONSE_HEADERS_FORMAT,
 						"HTTP/1.1", 405, "Method Not Allowed", strtime, "text/html",
-						config->webserv_banner, strlen ( http_response ));
+						config->webserv_banner, (unsigned long int) strlen ( http_response ));
 				free ( strtime );
 				free ( line );
 				line = NULL;

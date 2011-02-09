@@ -94,7 +94,7 @@ AI_geoinfobyaddr ( const char *ip, double **coord )
 		"Content-Type: application/x-www-form-urlencoded; charset=utf-8\r\n"
 		"Connection: close\r\n\r\n"
 		"%s\r\n",
-		strlen ( query ), query
+		(unsigned long int) strlen ( query ), query
 	);
 
 	do

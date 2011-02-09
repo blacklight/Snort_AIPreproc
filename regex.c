@@ -158,36 +158,72 @@ preg_match ( const char* expr, char* str, char*** matches, int *nmatches )
  */
 
 char*
-str_replace ( char *str, char *orig, char *rep )
+str_replace ( char *str, const char *pattern, const char *sub )
 {
-	char         *new_s  = NULL;
-	unsigned long int new_len = 0;
-	unsigned long int pos     = 0;
+	char *new_s = NULL;
+	unsigned int pos = 0,
+			   new_len = 0;
 
-	if ( !( pos = (unsigned long int) strstr ( str, orig )))
-		return str;
+	if ( !( pos = (unsigned int) strstr ( str, pattern )))
+	{
+		return strdup ( str );
+	}
 
-	new_len = strlen(str) - strlen(orig) + ((rep) ? strlen(rep) : 0) + 1;
+	pos -= (unsigned int) str;
+	new_len = strlen ( str ) - strlen ( pattern ) + ((sub) ? strlen ( sub ) : 0);
 
-	if ( !( new_s = (char*) malloc ( new_len )))
+	if ( !( new_s = (char*) malloc ( new_len + 1 )))
+	{
 		return NULL;
+	}
 
 	memset ( new_s, 0, new_len );
-	strncpy ( new_s, str, pos - (unsigned long int) str );
-	new_s[ pos - (unsigned long int) str] = 0;
+	strncpy ( new_s, str, pos );
 
-	if ( rep )
+	if ( sub )
 	{
-		if ( strlen ( rep ) != 0 )
-			sprintf ( new_s + pos - (unsigned long int) str, "%s%s", rep, (char*) pos + strlen ( orig ));
-		else
-			sprintf ( new_s + pos - (unsigned long int) str, "%s", (char*) pos + strlen ( orig ));
-	} else {
-		sprintf ( new_s + pos - (unsigned long int) str, "%s", (char*) pos + strlen ( orig ));
+		if ( strlen ( sub ) > 0 )
+		{
+			strcat ( new_s, sub );
+		}
 	}
+
+	strcat ( new_s, str + pos + strlen ( pattern ) );
 
 	return new_s;
 }		/* -----  end of function str_replace  ----- */
+
+/* char* */
+/* str_replace ( char *str, char *orig, char *rep ) */
+/* { */
+/* 	char         *new_s  = NULL; */
+/* 	unsigned long int new_len = 0; */
+/* 	unsigned long int pos     = 0; */
+/*  */
+/* 	if ( !( pos = (unsigned long int) strstr ( str, orig ))) */
+/* 		return str; */
+/*  */
+/* 	new_len = strlen(str) - strlen(orig) + ((rep) ? strlen(rep) : 0) + 1; */
+/*  */
+/* 	if ( !( new_s = (char*) malloc ( new_len ))) */
+/* 		return NULL; */
+/*  */
+/* 	memset ( new_s, 0, new_len ); */
+/* 	strncpy ( new_s, str, pos - (unsigned long int) str ); */
+/* 	new_s[ pos - (unsigned long int) str] = 0; */
+/*  */
+/* 	if ( rep ) */
+/* 	{ */
+/* 		if ( strlen ( rep ) != 0 ) */
+/* 			sprintf ( new_s + pos - (unsigned long int) str, "%s%s", rep, (char*) pos + strlen ( orig )); */
+/* 		else */
+/* 			sprintf ( new_s + pos - (unsigned long int) str, "%s", (char*) pos + strlen ( orig )); */
+/* 	} else { */
+/* 		sprintf ( new_s + pos - (unsigned long int) str, "%s", (char*) pos + strlen ( orig )); */
+/* 	} */
+/*  */
+/* 	return new_s; */
+/* } */
 
 /**
  * \brief  Replace all of the occurrences of 'orig' in 'str' with 'rep'
@@ -198,7 +234,7 @@ str_replace ( char *str, char *orig, char *rep )
  */
 
 char*
-str_replace_all ( char *str, char *orig, char *rep )
+str_replace_all ( char *str, const char *orig, const char *rep )
 {
 	char *buf = strdup ( str );
 	char *tmp = NULL;

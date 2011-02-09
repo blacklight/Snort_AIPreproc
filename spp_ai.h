@@ -581,8 +581,8 @@ static const char *outdb_config[] __attribute__ (( unused )) = {
 /*****************************************************************/
 
 int                preg_match ( const char*, char*, char***, int* );
-char*              str_replace ( char*, char*, char *);
-char*              str_replace_all ( char*, char*, char* );
+char*              str_replace ( char*, const char*, const char* );
+char*              str_replace_all ( char*, const char*, const char* );
 void               base64_encode ( const char*, size_t, char** );
 void               base64_decode ( const char*, char** );
 
