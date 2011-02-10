@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hyperalert PUBLIC "-//blacklight//DTD HYPERALERT SNORT MODEL//EN" "http://0x00.ath.cx/hyperalert.dtd">
+
+<hyperalert>
+	<snort-id>1.368.6</snort-id>
+	<desc>ICMP PING BSDtype</desc>
+	<post>HostExists(+DST_ADDR+)</post>
+</hyperalert>
+
