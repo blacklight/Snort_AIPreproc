@@ -53,7 +53,9 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 
 	char src_ip[INET_ADDRSTRLEN] = { 0 },
 		dst_ip[INET_ADDRSTRLEN] = { 0 },
-		*timestamp = NULL;
+		*timestamp = NULL,
+		*tmp = NULL,
+		*buf = NULL;
 
 	AI_alerts_per_neuron_key key;
 	AI_alerts_per_neuron *alert_iterator = NULL;
@@ -114,9 +116,14 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 						timestamp = ctime ( &( alert_iterator->alerts[k].timestamp ));
 						timestamp[ strlen ( timestamp ) - 1 ] = 0;
 
+						tmp = str_replace ( alert_iterator->alerts[k].desc, "<", "&lt;" );
+						buf = str_replace ( tmp, ">", "&gt;" );
+						free ( tmp );
+						tmp = NULL;
+
 						fprintf ( fp, "\t\t<alert desc=\"%s\" gid=\"%d\" sid=\"%d\" rev=\"%d\" src_ip=\"%s\" src_port=\"%d\" "
 							"dst_ip=\"%s\" dst_port=\"%d\" timestamp=\"%s\" xcoord=\"%d\" ycoord=\"%d\"/>\n",
-							alert_iterator->alerts[k].desc,
+							buf,
 							alert_iterator->alerts[k].gid,
 							alert_iterator->alerts[k].sid,
 							alert_iterator->alerts[k].rev,
@@ -124,6 +131,9 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 							dst_ip, alert_iterator->alerts[k].dst_port,
 							timestamp,
 							alert_iterator->key.x, alert_iterator->key.y );
+
+						free ( buf );
+						buf = NULL;
 					}
 				}
 			}
