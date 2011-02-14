@@ -673,13 +673,22 @@ AI_alert_correlation_thread ( void *arg )
 				snprintf ( corr_ps_file , sizeof ( corr_ps_file  ), "%s/correlated_alerts.ps" , config->corr_alerts_dir );
 
 				if ( !( gvc = gvContext() ))
+				{
+					pthread_mutex_unlock ( &mutex );
 					continue;
+				}
 
 				if ( !( fp = fopen ( corr_dot_file, "r" )))
+				{
+					pthread_mutex_unlock ( &mutex );
 					continue;
+				}
 
 				if ( !( g = agread ( fp )))
+				{
+					pthread_mutex_unlock ( &mutex );
 					continue;
+				}
 
 				gvLayout ( gvc, g, "dot" );
 				gvRenderFilename ( gvc, g, "png", corr_png_file );
