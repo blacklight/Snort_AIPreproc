@@ -45,7 +45,7 @@
 PRIVATE void
 __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neuron )
 {
-	int i, j, k, l, are_equal;
+	int i, j, k, l, m, n, are_equal;
 	FILE *fp = NULL;
 
 	uint32_t src_addr = 0,
@@ -57,8 +57,9 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 		*tmp = NULL,
 		*buf = NULL;
 
-	AI_alerts_per_neuron_key key;
-	AI_alerts_per_neuron *alert_iterator = NULL;
+	AI_alerts_per_neuron_key key, tmp_key;
+	AI_alerts_per_neuron *alert_iterator = NULL,
+					 *tmp_iterator = NULL;
 
 	if ( !( fp = fopen ( config->neural_clusters_log, "w" )))
 	{
@@ -102,6 +103,40 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 								alert_iterator->alerts[k].timestamp == alert_iterator->alerts[l].timestamp )
 							{
 								are_equal = 1;
+							}
+						}
+					}
+
+					/* If no duplicate alert was found on the same neuron, check
+					 * that there is no duplicate alert on other neurons */
+					if ( !are_equal )
+					{
+						for ( l=0; l <= i && !are_equal; l++ )
+						{
+							for ( m=0; m < j && !are_equal; m++ )
+							{
+								tmp_key.x = km->clusters[l][m][0];
+								tmp_key.y = km->clusters[l][m][1];
+								HASH_FIND ( hh, alerts_per_neuron, &tmp_key, sizeof ( tmp_key ), tmp_iterator );
+
+								if ( tmp_iterator )
+								{
+									for ( n=0; n < tmp_iterator->n_alerts && !are_equal; n++ )
+									{
+										if (
+											alert_iterator->alerts[k].gid == tmp_iterator->alerts[n].gid &&
+											alert_iterator->alerts[k].sid == tmp_iterator->alerts[n].sid &&
+											alert_iterator->alerts[k].rev == tmp_iterator->alerts[n].rev &&
+											alert_iterator->alerts[k].src_ip_addr == tmp_iterator->alerts[n].src_ip_addr &&
+											alert_iterator->alerts[k].dst_ip_addr == tmp_iterator->alerts[n].dst_ip_addr &&
+											alert_iterator->alerts[k].src_port == tmp_iterator->alerts[n].src_port &&
+											alert_iterator->alerts[k].dst_port == tmp_iterator->alerts[n].dst_port &&
+											alert_iterator->alerts[k].timestamp == tmp_iterator->alerts[n].timestamp )
+										{
+											are_equal = 1;
+										}
+									}
+								}
 							}
 						}
 					}
