@@ -41,6 +41,11 @@
 			<xsl:value-of select="@dst_ip"/>
 			<xsl:text>:</xsl:text>
 			<xsl:value-of select="@dst_port"/></i>
+			<xsl:text> at coordinates (</xsl:text>
+			<i><xsl:value-of select="@xcoord"/>
+			<xsl:text>, </xsl:text>
+			<xsl:value-of select="@ycoord"/></i>
+			<xsl:text>)</xsl:text>
 		</li>
 	</xsl:template>
 </xsl:stylesheet>
