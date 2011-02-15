@@ -111,46 +111,32 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 					 * that there is no duplicate alert on other neurons */
 					if ( !are_equal )
 					{
-						for ( l=0; l <= i && !are_equal; l++ )
+						for ( l=0; l < km->k && !are_equal; l++ )
 						{
-							for ( m=0; m < j && !are_equal; m++ )
+							for ( m=0; m < km->cluster_sizes[l] && !are_equal; m++ )
 							{
-								/* Yeah, dirty horrible way for avoiding some SEGFAULTs for invalid memory access,
-								 * but it's the only working way on some 64-bits architectures */
-								if ((unsigned long int) km->clusters < 0x100 )
+								if ( l <= i && m < j )
 								{
-									continue;
-								}
+									tmp_key.x = km->clusters[l][m][0];
+									tmp_key.y = km->clusters[l][m][1];
+									HASH_FIND ( hh, alerts_per_neuron, &tmp_key, sizeof ( tmp_key ), tmp_iterator );
 
-								if ((unsigned long int) km->clusters[l] < 0x100 )
-								{
-									continue;
-								}
-
-								if ((unsigned long int) km->clusters[l][m] < 0x100 )
-								{
-									continue;
-								}
-
-								tmp_key.x = km->clusters[l][m][0];
-								tmp_key.y = km->clusters[l][m][1];
-								HASH_FIND ( hh, alerts_per_neuron, &tmp_key, sizeof ( tmp_key ), tmp_iterator );
-
-								if ( tmp_iterator )
-								{
-									for ( n=0; n < tmp_iterator->n_alerts && !are_equal; n++ )
+									if ( tmp_iterator )
 									{
-										if (
-											alert_iterator->alerts[k].gid == tmp_iterator->alerts[n].gid &&
-											alert_iterator->alerts[k].sid == tmp_iterator->alerts[n].sid &&
-											alert_iterator->alerts[k].rev == tmp_iterator->alerts[n].rev &&
-											alert_iterator->alerts[k].src_ip_addr == tmp_iterator->alerts[n].src_ip_addr &&
-											alert_iterator->alerts[k].dst_ip_addr == tmp_iterator->alerts[n].dst_ip_addr &&
-											alert_iterator->alerts[k].src_port == tmp_iterator->alerts[n].src_port &&
-											alert_iterator->alerts[k].dst_port == tmp_iterator->alerts[n].dst_port &&
-											alert_iterator->alerts[k].timestamp == tmp_iterator->alerts[n].timestamp )
+										for ( n=0; n < tmp_iterator->n_alerts && !are_equal; n++ )
 										{
-											are_equal = 1;
+											if (
+													alert_iterator->alerts[k].gid == tmp_iterator->alerts[n].gid &&
+													alert_iterator->alerts[k].sid == tmp_iterator->alerts[n].sid &&
+													alert_iterator->alerts[k].rev == tmp_iterator->alerts[n].rev &&
+													alert_iterator->alerts[k].src_ip_addr == tmp_iterator->alerts[n].src_ip_addr &&
+													alert_iterator->alerts[k].dst_ip_addr == tmp_iterator->alerts[n].dst_ip_addr &&
+													alert_iterator->alerts[k].src_port == tmp_iterator->alerts[n].src_port &&
+													alert_iterator->alerts[k].dst_port == tmp_iterator->alerts[n].dst_port &&
+													alert_iterator->alerts[k].timestamp == tmp_iterator->alerts[n].timestamp )
+											{
+												are_equal = 1;
+											}
 										}
 									}
 								}
