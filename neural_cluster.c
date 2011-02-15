@@ -115,6 +115,21 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 						{
 							for ( m=0; m < j && !are_equal; m++ )
 							{
+								if ( !( km->clusters ))
+								{
+									continue;
+								}
+
+								if ( !( km->clusters[l] ))
+								{
+									continue;
+								}
+
+								if ( !( km->clusters[l][m] ))
+								{
+									continue;
+								}
+
 								tmp_key.x = km->clusters[l][m][0];
 								tmp_key.y = km->clusters[l][m][1];
 								HASH_FIND ( hh, alerts_per_neuron, &tmp_key, sizeof ( tmp_key ), tmp_iterator );
