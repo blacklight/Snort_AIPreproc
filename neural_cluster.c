@@ -115,17 +115,19 @@ __AI_neural_clusters_to_xml ( kmeans_t *km, AI_alerts_per_neuron *alerts_per_neu
 						{
 							for ( m=0; m < j && !are_equal; m++ )
 							{
-								if ( !( km->clusters ))
+								/* Yeah, dirty horrible way for avoiding some SEGFAULTs for invalid memory access,
+								 * but it's the only working way on some 64-bits architectures */
+								if ( km->clusters < 0x100 )
 								{
 									continue;
 								}
 
-								if ( !( km->clusters[l] ))
+								if ( km->clusters[l] < 0x100 )
 								{
 									continue;
 								}
 
-								if ( !( km->clusters[l][m] ))
+								if ( km->clusters[l][m] < 0x100 )
 								{
 									continue;
 								}
