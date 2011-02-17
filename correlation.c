@@ -111,22 +111,22 @@ __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 	fprintf ( fp,
 		"\t\"[%d.%d.%d] %s\\n"
 		"%s:%s -> %s:%s\\n"
-		"starting from %lu"
+		"starting from %s "
 		"(%d alerts grouped)\" -> "
 
 		"\"[%d.%d.%d] %s\\n"
 		"%s:%s -> %s:%s\\n"
-		"starting from %lu"
+		"starting from %s "
 		"(%d alerts grouped)\";\n",
 
 		corr->key.a->gid, corr->key.a->sid, corr->key.a->rev, corr->key.a->desc,
 		src_addr1, src_port1, dst_addr1, dst_port1,
-		corr->key.a->timestamp,
+		ctime ( &(corr->key.a->timestamp )),
 		corr->key.a->grouped_alerts_count,
 
 		corr->key.b->gid, corr->key.b->sid, corr->key.b->rev, corr->key.b->desc,
 		src_addr2, src_port2, dst_addr2, dst_port2,
-		corr->key.b->timestamp,
+		ctime ( &(corr->key.b->timestamp )),
 		corr->key.b->grouped_alerts_count
 	);
 }		/* -----  end of function __AI_correlated_alerts_to_dot  ----- */
