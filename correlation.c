@@ -93,6 +93,9 @@ __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 		 src_port2[10],
 		 dst_port2[10];
 
+	char *time1 = NULL,
+		*time2 = NULL;
+
 	if ( !corr )
 		return;
 
@@ -108,25 +111,30 @@ __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 	snprintf ( src_port2, sizeof ( src_port2 ), "%d", ntohs ( corr->key.b->tcp_src_port ));
 	snprintf ( dst_port2, sizeof ( dst_port2 ), "%d", ntohs ( corr->key.b->tcp_dst_port ));
 
+	time1 = strdup ( ctime ( &(corr->key.a->timestamp )) );
+	time2 = strdup ( ctime ( &(corr->key.b->timestamp )) );
+	time1[strlen(time1)-1] = 0;
+	time2[strlen(time2)-1] = 0;
+
 	fprintf ( fp,
 		"\t\"[%d.%d.%d] %s\\n"
 		"%s:%s -> %s:%s\\n"
-		"starting from %s "
+		"starting from %s\n"
 		"(%d alerts grouped)\" -> "
 
 		"\"[%d.%d.%d] %s\\n"
 		"%s:%s -> %s:%s\\n"
-		"starting from %s "
+		"starting from %s\n"
 		"(%d alerts grouped)\";\n",
 
 		corr->key.a->gid, corr->key.a->sid, corr->key.a->rev, corr->key.a->desc,
 		src_addr1, src_port1, dst_addr1, dst_port1,
-		ctime ( &(corr->key.a->timestamp )),
+		time1,
 		corr->key.a->grouped_alerts_count,
 
 		corr->key.b->gid, corr->key.b->sid, corr->key.b->rev, corr->key.b->desc,
 		src_addr2, src_port2, dst_addr2, dst_port2,
-		ctime ( &(corr->key.b->timestamp )),
+		time2,
 		corr->key.b->grouped_alerts_count
 	);
 }		/* -----  end of function __AI_correlated_alerts_to_dot  ----- */
