@@ -272,8 +272,10 @@ __AI_som_alert_distance ( const AI_som_alert_tuple alert1, const AI_som_alert_tu
 
 	/* Return the normalized euclidean distance in [0,1] (the normalization is made considering that the maximum distance
 	 * between two points on the output neurons matrix is the distance between the upper-left and bottom-right points) */
-	return sqrt ((double) ( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) )) /
-		sqrt ((double) ( 2 * (config->outputNeuronsPerSide-1) * (config->outputNeuronsPerSide-1) ));
+	/* return sqrt ((double) ( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) )) / */
+	/* 	sqrt ((double) ( 2 * (config->outputNeuronsPerSide-1) * (config->outputNeuronsPerSide-1) )); */
+	
+	return sqrt ((double) ( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) ));
 }		/* -----  end of function __AI_som_alert_distance  ----- */
 
 /**
@@ -308,7 +310,7 @@ AI_alert_neural_som_correlation ( const AI_snort_alert *a, const AI_snort_alert 
 	t2.timestamp = b->timestamp;
 	t2.desc = b->desc;
 
-	return __AI_som_alert_distance ( t1, t2 );
+	return 1.0 / ( 1.0 + __AI_som_alert_distance ( t1, t2 ));
 }		/* -----  end of function AI_alert_neural_som_correlation  ----- */
 
 /**
