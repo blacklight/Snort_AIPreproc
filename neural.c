@@ -289,6 +289,8 @@ double
 AI_alert_neural_som_correlation ( const AI_snort_alert *a, const AI_snort_alert *b )
 {
 	AI_som_alert_tuple t1, t2;
+	double distance = 0.0,
+		  max_distance = 0.0;
 
 	t1.gid = a->gid;
 	t1.sid = a->sid;
@@ -310,7 +312,9 @@ AI_alert_neural_som_correlation ( const AI_snort_alert *a, const AI_snort_alert 
 	t2.timestamp = b->timestamp;
 	t2.desc = b->desc;
 
-	return 1.0 / ( 1.0 + __AI_som_alert_distance ( t1, t2 ));
+	distance = __AI_som_alert_distance ( t1, t2 );
+	max_distance = sqrt ((double) ( 2 * (config->outputNeuronsPerSide-1) * (config->outputNeuronsPerSide-1) ));
+	return (( distance == max_distance ) ? 0.0 : ( 1.0 / ( 1.0 + distance )));
 }		/* -----  end of function AI_alert_neural_som_correlation  ----- */
 
 /**
