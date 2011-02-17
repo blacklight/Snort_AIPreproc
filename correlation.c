@@ -84,6 +84,8 @@ __AI_correlation_table_cleanup ()
 PRIVATE void
 __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 {
+	int   i;
+
 	char  src_addr1[INET_ADDRSTRLEN],
 		 dst_addr1[INET_ADDRSTRLEN],
 		 src_addr2[INET_ADDRSTRLEN],
@@ -112,10 +114,28 @@ __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 	snprintf ( dst_port2, sizeof ( dst_port2 ), "%d", ntohs ( corr->key.b->tcp_dst_port ));
 
 	time1 = strdup ( ctime ( &(corr->key.a->timestamp )) );
-	time1[strlen(time1)-1] = 0;
+
+	for ( i = strlen ( time1 ) - 1; i >= 0; i-- )
+	{
+		if ( time1[i] == '\n' || time1[i] == '\r' || time1[i] == ' ' )
+		{
+			time1[i] = 0;
+		} else {
+			break;
+		}
+	}
 
 	time2 = strdup ( ctime ( &(corr->key.b->timestamp )) );
-	time2[strlen(time2)-1] = 0;
+
+	for ( i = strlen ( time2 ) - 1; i >= 0; i-- )
+	{
+		if ( time2[i] == '\n' || time2[i] == '\r' || time2[i] == ' ' )
+		{
+			time2[i] = 0;
+		} else {
+			break;
+		}
+	}
 
 	fprintf ( fp,
 		"\t\"[%d.%d.%d] %s\\n"
