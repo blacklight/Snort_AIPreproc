@@ -112,8 +112,9 @@ __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 	snprintf ( dst_port2, sizeof ( dst_port2 ), "%d", ntohs ( corr->key.b->tcp_dst_port ));
 
 	time1 = strdup ( ctime ( &(corr->key.a->timestamp )) );
-	time2 = strdup ( ctime ( &(corr->key.b->timestamp )) );
 	time1[strlen(time1)-1] = 0;
+
+	time2 = strdup ( ctime ( &(corr->key.b->timestamp )) );
 	time2[strlen(time2)-1] = 0;
 
 	fprintf ( fp,
@@ -137,6 +138,9 @@ __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 		time2,
 		corr->key.b->grouped_alerts_count
 	);
+
+	free ( time1 );
+	free ( time2 );
 }		/* -----  end of function __AI_correlated_alerts_to_dot  ----- */
 
 /**
