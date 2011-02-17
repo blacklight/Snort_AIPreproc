@@ -120,12 +120,12 @@ __AI_correlated_alerts_to_dot ( AI_alert_correlation *corr, FILE *fp )
 	fprintf ( fp,
 		"\t\"[%d.%d.%d] %s\\n"
 		"%s:%s -> %s:%s\\n"
-		"starting from %s\n"
+		"starting from %s\\n"
 		"(%d alerts grouped)\" -> "
 
 		"\"[%d.%d.%d] %s\\n"
 		"%s:%s -> %s:%s\\n"
-		"starting from %s\n"
+		"starting from %s\\n"
 		"(%d alerts grouped)\";\n",
 
 		corr->key.a->gid, corr->key.a->sid, corr->key.a->rev, corr->key.a->desc,
