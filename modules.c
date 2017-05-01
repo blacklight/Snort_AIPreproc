@@ -113,7 +113,7 @@ AI_alert_to_pyalert ( AI_snort_alert *alert )
 
 	char src_addr[INET_ADDRSTRLEN] = { 0 },
 		dst_addr[INET_ADDRSTRLEN] = { 0 };
-	
+
 	if ( !( pMod = PyImport_ImportModule ( "snortai" )))
 	{
 		PyErr_Print();
@@ -175,7 +175,7 @@ AI_init_corr_modules ()
 	#ifdef HAVE_LIBPYTHON2_6
 	char     *pyPath  = NULL;
 	PyObject *pObj    = NULL;
-	BOOL     isPyInit = false;
+	bool     isPyInit = false;
 	#endif
 
 	if ( !( dir = opendir ( config->corr_modules_dir )))
@@ -305,4 +305,3 @@ AI_init_corr_modules ()
 }		/* -----  end of function AI_init_corr_modules  ----- */
 
 /** @} */
-

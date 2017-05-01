@@ -35,14 +35,14 @@ PRIVATE MYSQL *outdb = NULL;
 /*************************************************************/
 /* Private functions (operating on the database descriptors) */
 
-PRIVATE BOOL
+PRIVATE bool
 __mysql_is_init ( MYSQL *__DB )
 {
 	return ( __DB != NULL );
 }
 
 PRIVATE void*
-__mysql_do_init ( MYSQL **__DB, BOOL is_out )
+__mysql_do_init ( MYSQL **__DB, bool is_out )
 {
 	if ( __mysql_is_init ( *__DB ) )
 		return (void*) *__DB;
@@ -111,7 +111,7 @@ __mysql_do_query ( MYSQL *__DB, const char *query )
 /********************/
 /* Public functions */
 
-BOOL
+bool
 mysql_is_init ()
 {
 	return __mysql_is_init ( db );
@@ -123,7 +123,7 @@ mysql_do_init ()
 	return __mysql_do_init ( &db, false );
 }
 
-BOOL
+bool
 mysql_is_gone ()
 {
 	return (( mysql_errno ( db ) == CR_SERVER_GONE_ERROR ) || ( mysql_errno ( db ) == CR_SERVER_LOST ));
@@ -164,7 +164,7 @@ mysql_do_close ()
 
 /* Output database functions */
 
-BOOL
+bool
 mysql_is_out_init ()
 {
 	return __mysql_is_init ( outdb );
@@ -176,7 +176,7 @@ mysql_do_out_init ()
 	return __mysql_do_init ( &outdb, true );
 }
 
-BOOL
+bool
 mysql_is_out_gone ()
 {
 	return (( mysql_errno ( outdb ) == CR_SERVER_GONE_ERROR ) || ( mysql_errno ( outdb ) == CR_SERVER_LOST ));
@@ -221,4 +221,3 @@ mysql_do_out_close ()
 /** @} */
 
 #endif
-

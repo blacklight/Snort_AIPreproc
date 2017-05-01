@@ -24,6 +24,7 @@
 #include	"config.h"
 #endif
 
+#include	"sf_types.h"
 #include 	"sf_snort_packet.h"
 #include 	"sf_dynamic_preprocessor.h"
 #include	"uthash.h"
@@ -156,12 +157,12 @@
 #endif
 /****************************/
 
-extern DynamicPreprocessorData _dpd;
-typedef unsigned char   uint8_t;
-typedef unsigned short  uint16_t;
-typedef unsigned int    uint32_t;
-
-typedef enum { false, true } BOOL;
+// extern DynamicPreprocessorData _dpd;
+// typedef unsigned char   uint8_t;
+// typedef unsigned short  uint16_t;
+// typedef unsigned int    uint32_t;
+//
+// typedef enum { false, true } BOOL;
 
 /*****************************************************************/
 /** Possible types of clustering attributes */
@@ -192,7 +193,7 @@ struct pkt_info
 	struct pkt_info*  next;
 
 	/** Flag set if the packet is observed, i.e. associated to a security alert */
-	BOOL              observed;
+	bool              observed;
 
 	/** Number of packets in the current flow, if available */
 	unsigned int      n_packets;
@@ -218,7 +219,7 @@ typedef struct
 
 	/** Interval in seconds for running the thread for building alert correlation graphs */
 	unsigned long  correlationGraphInterval;
-	
+
 	/** Interval in seconds between a serialization of the alerts' buffer and the next one */
 	unsigned long  alertSerializationInterval;
 
@@ -259,7 +260,7 @@ typedef struct
 
 	/** Size of the alerts' buffer to be periodically sent to the serialization thread */
 	unsigned long  alert_bufsize;
-	
+
 	/** Setting for the use of the knowledge base correlation index
 	 * (0 = do not use, 1 or any value != 0: use) */
 	unsigned long  use_knowledge_base_correlation_index;
@@ -540,7 +541,7 @@ typedef struct  {
 	UT_hash_handle            hh;
 } AI_alerts_per_neuron;
 /*****************************************************************/
-/** Hash table holding analyzed geographical IP info */ 
+/** Hash table holding analyzed geographical IP info */
 typedef struct  {
 	char            ip[INET_ADDRSTRLEN];
 	double          geocoord[2];
@@ -665,4 +666,3 @@ extern AI_alert_type_pair *manual_correlations;
 extern AI_alert_type_pair *manual_uncorrelations;
 
 #endif  /* _SPP_AI_H */
-

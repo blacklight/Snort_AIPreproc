@@ -1,5 +1,6 @@
 /******************************************************************************
- * Copyright (C) 2009-2010 Sourcefire, Inc.
+ * Copyright (C) 2014-2016 Cisco and/or its affiliates. All rights reserved.
+ * Copyright (C) 2009-2013 Sourcefire, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License Version 2 as
@@ -14,16 +15,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  ******************************************************************************/
 
 #ifndef __OBFUSCATION_H__
 #define __OBFUSCATION_H__
 
-#include "sf_types.h"
+#include <daq.h>
 #include "sf_snort_packet.h"
-#include <pcap.h>
 
 
 /*******************************************************************************
@@ -69,7 +69,7 @@ typedef enum _ObRet
  * obfuscation character.
  *
  * Arguments
- *  struct pcap_pkthdr *pkth
+ *  DAQ_PktHdr_t *pkth
  *   The pcap header that contains the packet caplen and timestamps
  *  uint8_t *packet_data
  *   A pointer to the current offset into the packet data.  NULL if
@@ -89,7 +89,7 @@ typedef enum _ObRet
  ******************************************************************************/
 typedef ObRet (*ObfuscationCallback)
     (
-     const struct pcap_pkthdr *pkth,
+     const DAQ_PktHdr_t *pkth,
      const uint8_t *packet_data,
      ob_size_t length,
      ob_char_t ob_char,

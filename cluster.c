@@ -68,7 +68,7 @@ __AI_heuristic_func ( cluster_type type )
 	attribute_value *value  = NULL;
 	attribute_value *found  = NULL;
 	int             max     = 0;
-	
+
 	if ( type == none || !alert_log || !h_root[type] )
 		return -1;
 
@@ -200,7 +200,7 @@ __AI_get_min_hierarchy_node ( int val, hierarchy_node *root )
 
 	if ( !next )
 		return root;
-	
+
 	return __AI_get_min_hierarchy_node ( val, next );
 }		/* -----  end of function __AI_get_min_hierarchy_node  ----- */
 
@@ -211,7 +211,7 @@ __AI_get_min_hierarchy_node ( int val, hierarchy_node *root )
  * \return True if they are equal, false otherwise
  */
 
-PRIVATE BOOL
+PRIVATE bool
 __AI_equal_alerts ( AI_snort_alert *a1, AI_snort_alert *a2 )
 {
 	if ( a1->gid != a2->gid || a1->sid != a2->sid || a1->rev != a2->rev )
@@ -470,7 +470,7 @@ __AI_cluster_thread ( void* arg )
 			AI_free_alerts ( alert_log );
 			alert_log = NULL;
 		}
-		
+
 		/* get_alerts() is a function pointer that can point to the function for getting the alerts from
 		 * the plain alert log file or from the database. Calling it the source of the alerts is
 		 * completely transparent to this level */
@@ -599,11 +599,11 @@ __AI_cluster_thread ( void* arg )
  * \return True if 'node' is already in 'root', false otherwise
  */
 
-PRIVATE BOOL
+PRIVATE bool
 __AI_check_duplicate ( hierarchy_node *node, hierarchy_node *root )
 {
 	int i;
-	
+
 	if ( !node || !root )
 		return false;
 
@@ -651,7 +651,7 @@ AI_hierarchies_build ( hierarchy_node **nodes, int n_nodes )
 			case dst_addr:
 				if ( !h_root[ nodes[i]->type ] )
 					h_root[ nodes[i]->type ] = __AI_hierarchy_node_new ( "0.0.0.0/0", 0x0, 0xffffffff );
-				
+
 				min_range = 0xffffffff;
 				break;
 
@@ -754,4 +754,3 @@ AI_get_clustered_alerts ()
 }		/* -----  end of function AI_get_clustered_alerts  ----- */
 
 /** @} */
-

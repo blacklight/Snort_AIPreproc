@@ -182,7 +182,7 @@ __AI_webservlet_thread ( void *arg )
 {
 	time_t ltime     = time ( NULL );
 	struct stat st;
-	BOOL   is_cgi    = false;
+	bool   is_cgi    = false;
 
 	FILE *sock = NULL,
 		*fp   = NULL,
@@ -686,4 +686,3 @@ AI_webserv_thread ( void *arg )
 }		/* -----  end of function AI_webserv_thread  ----- */
 
 /** @} */
-

@@ -1,5 +1,6 @@
 /*
-** Copyright (C) 2007-2010 Sourcefire, Inc.
+** Copyright (C) 2014-2016 Cisco and/or its affiliates. All rights reserved.
+** Copyright (C) 2007-2013 Sourcefire, Inc.
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License Version 2 as
@@ -14,28 +15,13 @@
 **
 ** You should have received a copy of the GNU General Public License
 ** along with this program; if not, write to the Free Software
-** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+** Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 #ifndef __PCAP_PKTHDR32_H__
 #define __PCAP_PKTHDR32_H__
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#ifdef WIN32
-#include <winsock2.h>
-#else
-#include <sys/time.h>
-#endif
-
-#include <stdlib.h>
-#include <time.h>
-#include <sys/types.h>
-
 #include "sf_types.h"
-
 
 /* we must use fixed size of 32 bits, because on-disk
  * format of savefiles uses 32-bit tv_sec (and tv_usec)
@@ -52,10 +38,10 @@ struct sf_timeval32
 struct pcap_pkthdr32
 {
     struct sf_timeval32 ts;   /* packet timestamp */
-    uint32_t caplen;      /* packet capture length */
-    uint32_t pktlen;      /* packet "real" length */
+    uint32_t caplen;          /* packet capture length */
+    uint32_t len;             /* packet "real" length */
 };
 
 
-#endif /*  __PCAP_PKTHDR32_H__ */
+#endif // __PCAP_PKTHDR32_H__
 

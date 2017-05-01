@@ -97,7 +97,7 @@ AI_alert_bayesian_correlation ( const AI_snort_alert *a, const AI_snort_alert *b
 	unsigned int          corr_count   = 0,
 					  corr_count_a = 0;
 
-	BOOL                         is_a_correlated = false;
+	bool                         is_a_correlated = false;
 	AI_bayesian_correlation_key  bayesian_key;
 	AI_bayesian_correlation      *found  = NULL;
 
@@ -181,4 +181,3 @@ AI_alert_bayesian_correlation ( const AI_snort_alert *a, const AI_snort_alert *b
 }		/* -----  end of function AI_alert_bayesian_correlation  ----- */
 
 /** @} */
-

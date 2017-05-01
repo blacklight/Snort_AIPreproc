@@ -87,7 +87,7 @@ __AI_get_function_arguments ( char *orig_stmt, int *n_args )
 
 	if ( !( par_pos = (unsigned long int) strstr ( stmt, "(" )))
 		return NULL;
-	
+
 	par_pos -= (unsigned long int) stmt;
 	stmt += par_pos + 1;
 
@@ -212,7 +212,7 @@ AI_kb_correlation_coefficient ( const AI_snort_alert *a, const AI_snort_alert *b
 											AI_fatal_err ( "Invalid base IP address in configuration", __FILE__, __LINE__ );
 
 										ipaddr = inet_addr ( args2[k] );
-										
+
 										if ( ipaddr == INADDR_NONE )
 											AI_fatal_err ( "Invalid base IP address in configuration", __FILE__, __LINE__ );
 
@@ -273,7 +273,7 @@ AI_kb_correlation_coefficient ( const AI_snort_alert *a, const AI_snort_alert *b
 							{
 								if ( strlen ( new_stmt1 ) + strlen ( args1[k] ) + 1 < sizeof ( new_stmt1 ))
 									sprintf ( new_stmt1, "%s%s%s", new_stmt1, args1[k], ( k < n_args1 - 1 ) ? "," : ")" );
-								
+
 								if ( strlen ( new_stmt2 ) + strlen ( args2[k] ) + 1 < sizeof ( new_stmt2 ))
 									sprintf ( new_stmt2, "%s%s%s", new_stmt2, args2[k], ( k < n_args2 - 1 ) ? "," : ")" );
 							}
@@ -366,21 +366,21 @@ __AI_macro_subst ( AI_snort_alert **alert )
 			(*alert)->hyperalert->preconds[i] = str_replace ( (*alert)->hyperalert->preconds[i], "+SRC_ADDR+", src_addr );
 			free ( tmp );
 		}
-		
+
 		if ( strstr ( (*alert)->hyperalert->preconds[i], "+DST_ADDR+" )) {
 			inet_ntop ( AF_INET, &((*alert)->ip_dst_addr), dst_addr, INET_ADDRSTRLEN );
 			tmp = (*alert)->hyperalert->preconds[i];
 			(*alert)->hyperalert->preconds[i] = str_replace ( (*alert)->hyperalert->preconds[i], "+DST_ADDR+", dst_addr );
 			free ( tmp );
 		}
-		
+
 		if ( strstr ( (*alert)->hyperalert->preconds[i], "+SRC_PORT+" )) {
 			snprintf ( src_port, sizeof ( src_port ), "%d", ntohs ((*alert)->tcp_src_port) );
 			tmp = (*alert)->hyperalert->preconds[i];
 			(*alert)->hyperalert->preconds[i] = str_replace ( (*alert)->hyperalert->preconds[i], "+SRC_PORT+", src_port );
 			free ( tmp );
 		}
-		
+
 		if ( strstr ( (*alert)->hyperalert->preconds[i], "+DST_PORT+" )) {
 			snprintf ( dst_port, sizeof ( dst_port ), "%d", ntohs ((*alert)->tcp_dst_port) );
 			tmp = (*alert)->hyperalert->preconds[i];
@@ -402,21 +402,21 @@ __AI_macro_subst ( AI_snort_alert **alert )
 			(*alert)->hyperalert->postconds[i] = str_replace ( (*alert)->hyperalert->postconds[i], "+SRC_ADDR+", src_addr );
 			free ( tmp );
 		}
-		
+
 		if ( strstr ( (*alert)->hyperalert->postconds[i], "+DST_ADDR+" )) {
 			inet_ntop ( AF_INET, &((*alert)->ip_dst_addr), dst_addr, INET_ADDRSTRLEN );
 			tmp = (*alert)->hyperalert->postconds[i];
 			(*alert)->hyperalert->postconds[i] = str_replace ( (*alert)->hyperalert->postconds[i], "+DST_ADDR+", dst_addr );
 			free ( tmp );
 		}
-		
+
 		if ( strstr ( (*alert)->hyperalert->postconds[i], "+SRC_PORT+" )) {
 			snprintf ( src_port, sizeof ( src_port ), "%d", ntohs ((*alert)->tcp_src_port) );
 			tmp = (*alert)->hyperalert->postconds[i];
 			(*alert)->hyperalert->postconds[i] = str_replace ( (*alert)->hyperalert->postconds[i], "+SRC_PORT+", src_port );
 			free ( tmp );
 		}
-		
+
 		if ( strstr ( (*alert)->hyperalert->postconds[i], "+DST_PORT+" )) {
 			snprintf ( dst_port, sizeof ( dst_port ), "%d", ntohs ((*alert)->tcp_dst_port) );
 			tmp = (*alert)->hyperalert->postconds[i];
@@ -437,7 +437,7 @@ __AI_hyperalert_from_XML ( AI_hyperalert_key key )
 {
 	char                  hyperalert_file[1024] = {0};
 	char                  snort_id[1024]        = {0};
-	BOOL                  xmlFlags[HYP_TAG_NUM]     = { false };
+	bool                  xmlFlags[HYP_TAG_NUM]     = { false };
 	struct stat           st;
 	xmlTextReaderPtr      xml;
 	const xmlChar         *tagname, *tagvalue;
@@ -450,7 +450,7 @@ __AI_hyperalert_from_XML ( AI_hyperalert_key key )
 
 	memset ( hyp, 0, sizeof ( AI_hyperalert_info ));
 	memset ( hyperalert_file, 0, sizeof ( hyperalert_file ));
-	
+
 	hyp->key = key;
 	snprintf ( hyperalert_file, sizeof ( hyperalert_file ), "%s/%d-%d-%d.xml",
 			config->corr_rules_dir, key.gid, key.sid, key.rev );
@@ -624,4 +624,3 @@ AI_kb_index_init ( AI_snort_alert *alerts )
 }		/* -----  end of function AI_kb_index_init  ----- */
 
 /** @} */
-

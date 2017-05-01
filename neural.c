@@ -66,7 +66,7 @@ AI_neural_correlation_weight ()
 	char      query[1024] = { 0 };
 	double    x = 0,
 			k = (double) config->alert_correlation_weight / HYPERBOLIC_TANGENT_SOLUTION;
-	
+
 	pthread_mutex_lock ( &outdb_mutex );
 
 	if ( !DB_out_init() )
@@ -132,9 +132,9 @@ __AI_som_alert_distance ( const AI_som_alert_tuple alert1, const AI_som_alert_tu
 		  y1 = 0,
 		  x2 = 0,
 		  y2 = 0;
-	
+
 	int i;
-	BOOL is_found = false;
+	bool is_found = false;
 	AI_alerts_per_neuron *found = NULL;
 	AI_alerts_per_neuron_key key;
 
@@ -274,7 +274,7 @@ __AI_som_alert_distance ( const AI_som_alert_tuple alert1, const AI_som_alert_tu
 	 * between two points on the output neurons matrix is the distance between the upper-left and bottom-right points) */
 	/* return sqrt ((double) ( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) )) / */
 	/* 	sqrt ((double) ( 2 * (config->outputNeuronsPerSide-1) * (config->outputNeuronsPerSide-1) )); */
-	
+
 	return sqrt ((double) ( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) ));
 }		/* -----  end of function __AI_som_alert_distance  ----- */
 
@@ -447,7 +447,7 @@ void*
 AI_neural_thread ( void *arg )
 {
 	struct stat st;
-	BOOL do_train = false;
+	bool do_train = false;
 	pthread_t neural_clustering_thread;
 
 	pthread_mutex_init ( &neural_mutex, NULL );
@@ -503,4 +503,3 @@ AI_neural_thread ( void *arg )
 #endif
 
 /** @} */
-
