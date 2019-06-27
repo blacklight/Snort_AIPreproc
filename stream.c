@@ -101,7 +101,7 @@ AI_hashcleanup_thread ( void* arg )
 	struct pkt_info  *h, *stream, *tmp;
 	time_t  max_timestamp;
 	int   pkt_count, pkt_rm;
-	BOOL  has_old_streams;
+	bool  has_old_streams;
 
 	if ( config->hashCleanupInterval == 0 )
 	{
@@ -311,7 +311,7 @@ AI_pkt_enqueue ( SFSnortPacket* pkt )
  * \return A pkt_info pointer to the stream if found, NULL otherwise
  */
 
-struct pkt_info* 
+struct pkt_info*
 AI_get_stream_by_key ( struct pkt_key key )
 {
 	struct pkt_info *info = NULL;
@@ -355,4 +355,3 @@ AI_set_stream_observed ( struct pkt_key key )
 }		/* -----  end of function AI_set_stream_observed  ----- */
 
 /** @} */
-

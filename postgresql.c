@@ -37,14 +37,14 @@ PRIVATE PGconn *outdb = NULL;
 /*************************************************************/
 /* Private functions (operating on the database descriptors) */
 
-PRIVATE BOOL
+PRIVATE bool
 __postgresql_is_init ( PGconn *__DB )
 {
 	return ( __DB != NULL );
 }
 
 PRIVATE void*
-__postgresql_do_init ( PGconn **__DB, BOOL is_out )
+__postgresql_do_init ( PGconn **__DB, bool is_out )
 {
 	char *conninfo = NULL;
 	int  conninfo_max_length =
@@ -61,7 +61,7 @@ __postgresql_do_init ( PGconn **__DB, BOOL is_out )
 
 	if ( __postgresql_is_init ( *__DB ))
 		return (void*) *__DB;
-	
+
 	if ( !( conninfo = (char*) alloca ( conninfo_max_length )))
 		AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
 
@@ -178,7 +178,7 @@ __postgresql_do_close ( PGconn **__DB )
 /********************/
 /* Public functions */
 
-BOOL
+bool
 postgresql_is_init ()
 {
 	return __postgresql_is_init ( db );
@@ -219,7 +219,7 @@ postgresql_do_close ()
 
 /* Output database functions */
 
-BOOL
+bool
 postgresql_is_out_init ()
 {
 	return __postgresql_is_init ( outdb );
@@ -299,4 +299,3 @@ postgresql_free_result ( PSQL_result *res )
 /* @} */
 
 #endif
-

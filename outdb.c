@@ -251,7 +251,7 @@ AI_store_alert_to_db ( AI_snort_alert *alert )
 
 			if ( !pkt->pkt->ip4_header )
 			{
-				pkt_size = pkt->pkt->pcap_header->len +
+				pkt_size = pkt->pkt->pcap_header->caplen +
 					pkt->pkt->tcp_options_length +
 					pkt->pkt->payload_size;
 			} else {
@@ -281,7 +281,7 @@ AI_store_alert_to_db ( AI_snort_alert *alert )
 							"VALUES (%lu, %u, from_unixtime('%lu'), '%s')",
 							outdb_config[PACKET_STREAMS_TABLE],
 							latest_alert_id,
-							pkt->pkt->pcap_header->len + pkt->pkt->payload_size,
+							pkt->pkt->pcap_header->caplen + pkt->pkt->payload_size,
 							pkt->timestamp,
 							pkt_data );
 						#elif 	HAVE_LIBPQ
@@ -328,7 +328,7 @@ AI_store_cluster_to_db ( AI_alerts_couple *alerts_couple )
 	AI_couples_cache *found         = NULL;
 	DB_result res;
 	DB_row    row;
-	BOOL      new_cluster = false;
+	bool      new_cluster = false;
 
 	/* Check if the couple of alerts is already in our cache, so it already
 	 * belongs to the same cluster. If so, just return */
@@ -399,7 +399,7 @@ AI_store_cluster_to_db ( AI_alerts_couple *alerts_couple )
 	{
 		if ( !( found = ( AI_couples_cache* ) malloc ( sizeof ( AI_couples_cache ))))
 			AI_fatal_err ( "Fatal dynamic memory allocation error", __FILE__, __LINE__ );
-		
+
 		found->alerts_couple = alerts_couple;
 		found->cluster_id = cluster1;
 		HASH_ADD ( hh, couples_cache, alerts_couple, sizeof ( AI_alerts_couple ), found );
@@ -534,4 +534,3 @@ AI_store_correlation_to_db ( AI_alert_correlation *corr )
 #endif
 
 /** @} */
-

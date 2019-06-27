@@ -137,7 +137,7 @@ AI_file_alertparser_thread ( void* arg )
 	AI_geoip_cache *found    = NULL;
 	AI_snort_alert *alert    = NULL;
 	AI_snort_alert *tmp      = NULL;
-	BOOL           in_alert  = false;
+	bool           in_alert  = false;
 
 	pthread_t      alerts_pool_thread;
 
@@ -231,12 +231,12 @@ AI_file_alertparser_thread ( void* arg )
 		{
 			fstats ( fd, &stats );
 		}
-		
+
 		last_mod_time = stats.st_mtime;
-		
+
 		fseek ( alert_fp, 0, SEEK_END );
 #endif
-		
+
 		pthread_mutex_lock ( &alert_mutex );
 
 		while ( !feof ( alert_fp ))
@@ -450,8 +450,8 @@ AI_file_alertparser_thread ( void* arg )
 			} else if ( preg_match ( "^([\\*CEUAPRSF]{8})\\s+Seq:\\s*0x([0-9A-F]+)\\s+Ack:\\s*0x([0-9A-F]+)\\s+Win:\\s*0x([0-9A-F]+)\\s+TcpLen:\\s*([0-9]+)",
 						line, &matches, &nmatches ) > 0 ) {
 				alert->tcp_flags = 0;
-				alert->tcp_flags |= ( strstr ( matches[0], "C" ) ) ? TCPHEADER_RES1 : 0;
-				alert->tcp_flags |= ( strstr ( matches[0], "E" ) ) ? TCPHEADER_RES2 : 0;
+				alert->tcp_flags |= ( strstr ( matches[0], "C" ) ) ? TCPHEADER_CWR	: 0;
+				alert->tcp_flags |= ( strstr ( matches[0], "E" ) ) ? TCPHEADER_ECE	: 0;
 				alert->tcp_flags |= ( strstr ( matches[0], "U" ) ) ? TCPHEADER_URG  : 0;
 				alert->tcp_flags |= ( strstr ( matches[0], "A" ) ) ? TCPHEADER_ACK  : 0;
 				alert->tcp_flags |= ( strstr ( matches[0], "P" ) ) ? TCPHEADER_PUSH : 0;
@@ -584,4 +584,3 @@ AI_free_alerts ( AI_snort_alert *node )
 }		/* -----  end of function AI_free_alerts  ----- */
 
 /** @} */
-

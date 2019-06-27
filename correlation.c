@@ -239,7 +239,7 @@ __AI_correlated_alerts_to_json ()
 			for ( pkt_iterator = alert_iterator->stream; pkt_iterator; pkt_iterator = pkt_iterator->next )
 			{
 				encoded_pkt = NULL;
-				pkt_len = pkt_iterator->pkt->pcap_header->len + pkt_iterator->pkt->payload_size;
+				pkt_len = pkt_iterator->pkt->pcap_header->caplen + pkt_iterator->pkt->payload_size;
 
 				if ( !( encoded_pkt = (char*) calloc ( 4*pkt_len + 1, sizeof ( char ))))
 				{
@@ -305,7 +305,7 @@ __AI_correlated_alerts_to_json ()
 						{
 							if ( !pkt_iterator->pkt->ip4_header )
 							{
-								pkt_len = pkt_iterator->pkt->pcap_header->len +
+								pkt_len = pkt_iterator->pkt->pcap_header->caplen +
 									pkt_iterator->pkt->tcp_options_length +
 									pkt_iterator->pkt->payload_size;
 							} else {
@@ -632,7 +632,7 @@ AI_alert_correlation_thread ( void *arg )
 			std_deviation = sqrt ( std_deviation / (double) HASH_COUNT ( correlation_table ));
 			corr_threshold = avg_correlation + ( config->correlationThresholdCoefficient * std_deviation );
 			snprintf ( corr_dot_file, sizeof ( corr_dot_file ), "%s/correlated_alerts.dot", config->corr_alerts_dir );
-			
+
 			if ( stat ( config->corr_alerts_dir, &st ) < 0 )
 			{
 				if ( mkdir ( config->corr_alerts_dir, 0755 ) < 0 )
@@ -754,4 +754,3 @@ AI_alert_correlation_thread ( void *arg )
 }		/* -----  end of function AI_alert_correlation_thread  ----- */
 
 /** @} */
-

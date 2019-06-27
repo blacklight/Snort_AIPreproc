@@ -17,13 +17,24 @@
  * =====================================================================================
  */
 
+#include "sf_types.h"
+#include "preprocids.h"
+#include "sf_snort_packet.h"
+#include "sf_dynamic_preproc_lib.h"
+#include "sf_dynamic_preprocessor.h"
+#include "snort_debug.h"
+#include "sfPolicy.h"
+
 #include "spp_ai.h"
 #include "sfPolicyUserData.h"
 #include "sf_preproc_info.h"
 
+#include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+#include <sys/types.h>
 
 /** \defgroup spp_ai Main file for spp_ai module
  * @{ */
@@ -31,21 +42,24 @@
 AI_snort_alert* (*get_alerts)(void);
 AI_config *config = NULL;
 
-tSfPolicyUserContextId ex_config = NULL;
 static void* (*alertparser_thread)(void*) = NULL;
 
 #ifdef SNORT_RELOAD
 tSfPolicyUserContextId ex_swap_config = NULL;
 #endif
 
-static void AI_init(char *);
+tSfPolicyUserContextId ex_config = NULL;
+AI_config *ex_eval_config = NULL;
+
+static void AI_init(struct _SnortConfig *, char *);
 static void AI_process(void *, void *);
 static AI_config * AI_parse(char *);
 #ifdef SNORT_RELOAD
-static void AI_reload(char *);
-static int AI_reloadSwapPolicyFree(tSfPolicyUserContextId, tSfPolicyId, void *);
-static void * AI_reloadSwap(void);
-static void AI_reloadSwapFree(void *);
+static void AI_Reload(struct _SnortConfig *, char *);
+static int AI_ReloadVerify(struct _SnortConfig *, void *);
+static int AI_ReloadSwapPolicyFree(tSfPolicyUserContextId, tSfPolicyId, void *);
+static void * AI_ReloadSwap(struct _SnortConfig *, void *);
+static void AI_ReloadSwapFree(void *);
 #endif
 
 
@@ -73,8 +87,8 @@ void AI_setup(void)
 #ifndef SNORT_RELOAD
 	_dpd.registerPreproc("ai", AI_init);
 #else
-	_dpd.registerPreproc("ai", AI_init, AI_reload,
-			AI_reloadSwap, AI_reloadSwapFree);
+	_dpd.registerPreproc("ai", AI_init, AI_Reload, AI_ReloadVerify,
+			AI_ReloadSwap, AI_ReloadSwapFree);
 #endif
 
 	DEBUG_WRAP(_dpd.debugMsg(DEBUG_PLUGIN, "Preprocessor: AI is setup\n"););
@@ -86,7 +100,7 @@ void AI_setup(void)
  * \param  args 	Configuration arguments passed to the module
  */
 
-static void AI_init(char *args)
+static void AI_init(struct _SnortConfig *sc, char *args)
 {
 	pthread_t  cleanup_thread,
 			 logparse_thread,
@@ -94,7 +108,7 @@ static void AI_init(char *args)
 			 neural_thread,
 			 correlation_thread;
 
-	tSfPolicyId policy_id = _dpd.getParserPolicy();
+	tSfPolicyId policy_id = _dpd.getParserPolicy(sc);
 
 	_dpd.logMsg("AI dynamic preprocessor configuration\n");
 
@@ -158,8 +172,8 @@ static void AI_init(char *args)
 		}
 	}
 
-	/* Register the preprocessor function, Transport layer, ID 10000 */
-	_dpd.addPreproc(AI_process, PRIORITY_TRANSPORT, 10000, PROTO_BIT__TCP | PROTO_BIT__UDP);
+	/* Register the preprocessor function, Transport layer, ID 10240 */
+	_dpd.addPreproc(sc, AI_process, PRIORITY_TRANSPORT, 10240, PROTO_BIT__TCP | PROTO_BIT__UDP);
 	DEBUG_WRAP(_dpd.debugMsg(DEBUG_PLUGIN, "Preprocessor: AI is initialized\n"););
 } 		/* -----  end of function AI_init  ----- */
 
@@ -200,7 +214,7 @@ static AI_config * AI_parse(char *args)
 	int            n_hierarchy_nodes = 0;
 
 	unsigned short webserv_port                         = 0;
-	
+
 	unsigned long  alertfile_len                        = 0,
 			     alert_bufsize                        = 0,
 			     alert_clustering_interval            = 0,
@@ -229,7 +243,7 @@ static AI_config * AI_parse(char *args)
 				webserv_banner_len                   = 0,
 				webserv_dir_len                      = 0;
 
-	BOOL has_cleanup_interval        = false,
+	bool has_cleanup_interval        = false,
 		has_stream_expire_interval  = false,
 		has_correlation_interval    = false,
 		has_corr_alerts_dir         = false,
@@ -1198,7 +1212,7 @@ static AI_config * AI_parse(char *args)
 
 			for ( i=0; i < nmatches; i++ )
 				free ( matches[i] );
-			
+
 			free ( matches );
 			matches = NULL;
 		}
@@ -1243,7 +1257,7 @@ static AI_config * AI_parse(char *args)
 
 						for ( i=0; i < nmatches; i++ )
 							free ( matches[i] );
-				
+
 						free ( matches );
 						matches = NULL;
 					} else if ( preg_match ( "^([0-9]+)$", arg, &matches, &nmatches ) > 0 ) {
@@ -1252,7 +1266,7 @@ static AI_config * AI_parse(char *args)
 
 						for ( i=0; i < nmatches; i++ )
 							free ( matches[i] );
-				
+
 						free ( matches );
 						matches = NULL;
 					} else {
@@ -1397,7 +1411,7 @@ static AI_config * AI_parse(char *args)
 	{
 		config->databaseParsingInterval = DEFAULT_DATABASE_INTERVAL;
 	}
-	
+
 	if ( !has_alertfile && !has_database_log )
 	{
 		strncpy ( config->alertfile, DEFAULT_ALERT_LOG_FILE, sizeof ( config->alertfile ));
@@ -1501,7 +1515,7 @@ void AI_process(void *pkt, void *context)
 	SFSnortPacket *p = (SFSnortPacket *) pkt;
 	AI_config *_config;
 
-	sfPolicyUserPolicySet(ex_config, _dpd.getRuntimePolicy());
+	sfPolicyUserPolicySet(ex_config, _dpd.getNapRuntimePolicy());
 	_config = (AI_config * ) sfPolicyUserDataGetCurrent (ex_config);
 
 	if (_config == NULL)
@@ -1517,10 +1531,11 @@ void AI_process(void *pkt, void *context)
 } 		/* -----  end of function AI_process  ----- */
 
 #ifdef SNORT_RELOAD
-static void AI_reload(char *args)
+static void AI_Reload(struct _SnortConfig *sc, char *args, void **new_config)
 {
 	/* AI_config *config; */
-	tSfPolicyId policy_id = _dpd.getParserPolicy();
+	tSfPolicyUserContextId ex_swap_config;
+	tSfPolicyId policy_id = _dpd.getParserPolicy(sc);
 
 	_dpd.logMsg("AI dynamic preprocessor configuration\n");
 
@@ -1535,13 +1550,25 @@ static void AI_reload(char *args)
 	sfPolicyUserPolicySet(ex_swap_config, policy_id);
 	sfPolicyUserDataSetCurrent(ex_swap_config, config);
 
-	/* Register the preprocessor function, Transport layer, ID 10000 */
-	_dpd.addPreproc(AI_process, PRIORITY_TRANSPORT, 10000, PROTO_BIT__TCP | PROTO_BIT__UDP);
+	/* Register the preprocessor function, Transport layer, ID 10240 */
+	_dpd.addPreproc(AI_process, PRIORITY_TRANSPORT, 10240, PROTO_BIT__TCP | PROTO_BIT__UDP);
 
+	*new_config = (void *)ex_swap_config;
 	DEBUG_WRAP(_dpd.debugMsg(DEBUG_PLUGIN, "Preprocessor: AI is initialized\n"););
 }
 
-static int AI_reloadSwapPolicyFree(tSfPolicyUserContextId config, tSfPolicyId policyId, void *data)
+static int AI_ReloadVerify(struct _SnortConfig *sc, void *swap_config)
+{
+    if (!_dpd.isPreprocEnabled(sc, PP_STREAM))
+    {
+        _dpd.errMsg("Streaming & reassembly must be enabled for KMeans preprocessor\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+static int AI_ReloadSwapPolicyFree(tSfPolicyUserContextId config, tSfPolicyId policyId, void *data)
 {
 	AI_config *policy_config = (AI_config *)data;
 
@@ -1550,30 +1577,29 @@ static int AI_reloadSwapPolicyFree(tSfPolicyUserContextId config, tSfPolicyId po
 	return 0;
 }
 
-static void * AI_reloadSwap(void)
+static void * AI_ReloadSwap(struct _SnortConfig *sc, void *swap_config)
 {
+	tSfPolicyUserContextId ex_swap_config = (tSfPolicyUserContextId)swap_config;
 	tSfPolicyUserContextId old_config = ex_config;
 
 	if (ex_swap_config == NULL)
 		return NULL;
 
 	ex_config = ex_swap_config;
-	ex_swap_config = NULL;
 
 	return (void *)old_config;
 }
 
-static void AI_reloadSwapFree(void *data)
+static void AI_ReloadSwapFree(void *data)
 {
 	tSfPolicyUserContextId config = (tSfPolicyUserContextId)data;
 
 	if (data == NULL)
 		return;
 
-	sfPolicyUserDataIterate(config, AI_reloadSwapPolicyFree);
+	sfPolicyUserDataIterate(config, AI_ReloadSwapPolicyFree);
 	sfPolicyConfigDelete(config);
 }
 #endif
 
 /** @} */
-

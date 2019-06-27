@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (C) 2008-2010 Sourcefire, Inc.
+ * Copyright (C) 2014-2016 Cisco and/or its affiliates. All rights reserved.
+ * Copyright (C) 2008-2013 Sourcefire, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License Version 2 as
@@ -14,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  ****************************************************************************/
 
@@ -25,7 +26,6 @@
 #include "ipv6_port.h"
 #include "sfPolicy.h"
 #include "sf_dynamic_preprocessor.h"
-extern DynamicPreprocessorData _dpd;
 
 typedef struct
 {
@@ -37,11 +37,11 @@ typedef struct
      */
     unsigned int numAllocatedPolicies;
 
-    /**Number of policies active. Since we use an array of policy pointers, 
+    /**Number of policies active. Since we use an array of policy pointers,
      * number of allocated policies may be more than active policies. */
     unsigned int numActivePolicies;
 
-    /**user configuration for a policy. This is a pointer to an array of pointers 
+    /**user configuration for a policy. This is a pointer to an array of pointers
      * to user configuration.
     */
     void **userConfig;
@@ -51,94 +51,68 @@ typedef struct
 typedef tSfPolicyUserContext * tSfPolicyUserContextId;
 
 
-tSfPolicyUserContextId sfPolicyConfigCreate(
-        void
-        );
+tSfPolicyUserContextId sfPolicyConfigCreate( void );
+void sfPolicyConfigDelete( tSfPolicyUserContextId pContext );
 
-void sfPolicyConfigDelete(
-        tSfPolicyUserContextId pContext
-        );
-
-/* Functions for setting, getting and clearing policy ids */
-static INLINE void sfPolicyUserPolicySet (
-        tSfPolicyUserContextId pContext, 
-        tSfPolicyId policyId 
-        )
+//Functions for setting, getting and clearing policy ids
+static inline void sfPolicyUserPolicySet ( tSfPolicyUserContextId pContext, tSfPolicyId policyId )
 {
     pContext->currentPolicyId = policyId;
 }
 
-static INLINE tSfPolicyId sfPolicyUserPolicyGet (
-        tSfPolicyUserContextId pContext 
-        )
+static inline tSfPolicyId sfPolicyUserPolicyGet ( tSfPolicyUserContextId pContext )
 {
     return pContext->currentPolicyId;
 }
 
-static INLINE unsigned int sfPolicyUserPolicyGetActive (
-        tSfPolicyUserContextId pContext
-        )
+static inline unsigned int sfPolicyUserPolicyGetActive ( tSfPolicyUserContextId pContext )
 {
     return (pContext->numActivePolicies);
 }
 
-/* Functions for setting, getting and clearing user data specific to policies. */
-int sfPolicyUserDataSet (
-        tSfPolicyUserContextId pContext, 
-        tSfPolicyId policyId, 
-        void *config
-        );
-static INLINE void * sfPolicyUserDataGet (
-        tSfPolicyUserContextId pContext, 
-        tSfPolicyId policyId
-        )
+//Functions for setting, getting and clearing user data specific to policies.
+int sfPolicyUserDataSet ( tSfPolicyUserContextId pContext, tSfPolicyId policyId, void *config );
+
+static inline void * sfPolicyUserDataGet ( tSfPolicyUserContextId pContext, tSfPolicyId policyId )
 {
-    if ((pContext != NULL) && (policyId < pContext->numAllocatedPolicies))
-    {
+    if (pContext && policyId < pContext->numAllocatedPolicies)
         return pContext->userConfig[policyId];
-    }
 
     return NULL;
 }
 
-static INLINE int sfPolicyUserDataSetDefault (
-        tSfPolicyUserContextId pContext, 
-        void *config
-        )
+static inline int sfPolicyUserDataSetDefault ( tSfPolicyUserContextId pContext, void *config )
 {
     return sfPolicyUserDataSet (pContext, _dpd.getDefaultPolicy(), config);
 }
 
-static INLINE void * sfPolicyUserDataGetDefault (
-        tSfPolicyUserContextId pContext
-        )
+static inline void * sfPolicyUserDataGetDefault ( tSfPolicyUserContextId pContext )
 {
     return sfPolicyUserDataGet (pContext, _dpd.getDefaultPolicy());
 }
 
-static INLINE int sfPolicyUserDataSetCurrent (
-        tSfPolicyUserContextId pContext, 
-        void *config
-        )
+static inline int sfPolicyUserDataSetCurrent ( tSfPolicyUserContextId pContext, void *config )
 {
     return sfPolicyUserDataSet (pContext, pContext->currentPolicyId, config);
 }
-static INLINE void * sfPolicyUserDataGetCurrent (
-        tSfPolicyUserContextId pContext
-        )
+
+static inline void * sfPolicyUserDataGetCurrent ( tSfPolicyUserContextId pContext )
 {
     return sfPolicyUserDataGet (pContext, pContext->currentPolicyId);
 }
 
-void * sfPolicyUserDataClear (
-        tSfPolicyUserContextId pContext,
-        tSfPolicyId policyId
-        );
+void *sfPolicyUserDataClear( tSfPolicyUserContextId pContext, tSfPolicyId policyId );
 
-int sfPolicyUserDataIterate (
-        tSfPolicyUserContextId pContext,
-        int (*callback)(tSfPolicyUserContextId pContext, tSfPolicyId policyId, void* config)
-        );
+int sfPolicyUserDataIterate( struct _SnortConfig *sc, tSfPolicyUserContextId pContext,
+                             int ( *callback )( struct _SnortConfig *sc, 
+                                                tSfPolicyUserContextId pContext, 
+                                                tSfPolicyId policyId,
+                                                void *config ) );
+
+int sfPolicyUserDataFreeIterate( tSfPolicyUserContextId pContext,
+                                 int ( *callback )( tSfPolicyUserContextId pContext, 
+                                                    tSfPolicyId policyId, 
+                                                    void *config ) );
 
 
 #endif

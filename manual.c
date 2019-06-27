@@ -52,7 +52,7 @@ AI_manual_correlations_parsing_thread ( void *arg )
 	AI_alert_type_pair_key  key;
 	AI_alert_type_pair      *pair  = NULL,
 					    *found = NULL;
-	BOOL                    xml_flags[MAN_TAG_NUM] = { false };
+	bool                    xml_flags[MAN_TAG_NUM] = { false };
 
 	while ( 1 )
 	{
@@ -376,4 +376,3 @@ AI_manual_correlations_parsing_thread ( void *arg )
 	pthread_exit ((void*) 0);
 	return (void*) 0;
 }		/* -----  end of function __AI_manual_correlations_parsing_thread  ----- */
-

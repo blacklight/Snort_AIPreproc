@@ -52,8 +52,8 @@
 	const char* DB_do_error();
 	const char* DB_do_out_error();
 
-	BOOL DB_is_gone();
-	BOOL DB_is_out_gone();
+	bool DB_is_gone();
+	bool DB_is_out_gone();
 #endif
 
 #ifdef 	HAVE_LIBPQ
@@ -100,4 +100,3 @@
 
 	#endif
 #endif
-
